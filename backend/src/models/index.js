@@ -1,18 +1,6 @@
 const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
-const dns = require('dns');
-
-// Force IPv4 preference aggressively
-const originalLookup = dns.lookup;
-dns.lookup = (hostname, options, callback) => {
-  if (typeof options === 'function') {
-    return originalLookup(hostname, { family: 4 }, options);
-  }
-  const opts = typeof options === 'number' ? { family: options } : { ...options };
-  opts.family = 4;
-  return originalLookup(hostname, opts, callback);
-};
 
 const db = {};
 
@@ -27,7 +15,7 @@ if (process.env.DATABASE_URL) {
         require: true,
         rejectUnauthorized: false
       },
-      // Force IPv4 at the driver level
+      // Keep family: 4 here as a backup for the driver
       family: 4
     },
     // Add pool config for stability

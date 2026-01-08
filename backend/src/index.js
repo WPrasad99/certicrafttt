@@ -1,16 +1,19 @@
 const dns = require('dns');
 
-// Aggressive monkey-patch to force IPv4 resolution only
-// This solves persistent ENETUNREACH issues where IPv6 is attempted despite preferences
-const originalLookup = dns.lookup;
-dns.lookup = (hostname, options, callback) => {
-  if (typeof options === 'function') {
-    return originalLookup(hostname, { family: 4 }, options);
-  }
-  const opts = typeof options === 'number' ? { family: options } : { ...options };
-  opts.family = 4;
-  return originalLookup(hostname, opts, callback);
-};
+// Consolidated DNS Fix: Force IPv4 resolution only
+// This solves ENETUNREACH (IPv6) by forcing IPv4 and prevents ENOTFOUND (by avoiding double-patching)
+if (!dns.__patched) {
+  const originalLookup = dns.lookup;
+  dns.lookup = function (hostname, options, callback) {
+    if (typeof options === 'function') {
+      return originalLookup.call(dns, hostname, { family: 4 }, options);
+    }
+    const opts = typeof options === 'number' ? { family: options } : { ...options };
+    opts.family = 4;
+    return originalLookup.call(dns, hostname, opts, callback);
+  };
+  dns.__patched = true;
+}
 
 require('dotenv').config();
 const express = require('express');
