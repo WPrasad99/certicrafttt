@@ -1,10 +1,16 @@
 const dns = require('dns');
 
-// Force IPv4 for DNS resolution to avoid ENETUNREACH on Render/Supabase
-// Node 17+ supports this natively
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
+// Aggressive monkey-patch to force IPv4 resolution only
+// This solves persistent ENETUNREACH issues where IPv6 is attempted despite preferences
+const originalLookup = dns.lookup;
+dns.lookup = (hostname, options, callback) => {
+  if (typeof options === 'function') {
+    return originalLookup(hostname, { family: 4 }, options);
+  }
+  const opts = typeof options === 'number' ? { family: options } : { ...options };
+  opts.family = 4;
+  return originalLookup(hostname, opts, callback);
+};
 
 require('dotenv').config();
 const express = require('express');

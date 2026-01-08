@@ -3,10 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const dns = require('dns');
 
-// Force IPv4 preference globally just in case
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
+// Force IPv4 preference aggressively
+const originalLookup = dns.lookup;
+dns.lookup = (hostname, options, callback) => {
+  if (typeof options === 'function') {
+    return originalLookup(hostname, { family: 4 }, options);
+  }
+  const opts = typeof options === 'number' ? { family: options } : { ...options };
+  opts.family = 4;
+  return originalLookup(hostname, opts, callback);
+};
 
 const db = {};
 
