@@ -1,8 +1,25 @@
 const dns = require('dns');
-// Force IPv4 for DNS resolution to avoid ENETUNREACH on Render/Supabase
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
+
+// Monkey-patch dns.lookup to strictly force IPv4
+// This is necessary because some environments (like Render) have flaky IPv6 connectivity to external services (Supabase)
+const originalLookup = dns.lookup;
+dns.lookup = (hostname, options, callback) => {
+  // Handle optional options argument
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (!options) {
+    options = {};
+  } else if (typeof options === 'number') {
+    options = { family: options };
+  }
+
+  // Force IPv4 and hints
+  options.family = 4;
+  options.hints = (options.hints || 0) | dns.ADDRCONFIG | dns.V4MAPPED;
+
+  return originalLookup(hostname, options, callback);
+};
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
