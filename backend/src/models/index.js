@@ -1,12 +1,18 @@
 const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const dns = require('dns');
+
+// Force IPv4 preference globally just in case
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const db = {};
 
 let sequelize;
 if (process.env.DATABASE_URL) {
-  // Use full connection string if provided
+  // Use explicit options to ensure dialactOptions are respected
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
@@ -15,7 +21,15 @@ if (process.env.DATABASE_URL) {
         require: true,
         rejectUnauthorized: false
       },
+      // Force IPv4 at the driver level
       family: 4
+    },
+    // Add pool config for stability
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   });
 } else if (process.env.DB_HOST) {
@@ -38,7 +52,6 @@ if (process.env.DATABASE_URL) {
     }
   );
 } else {
-  // Production/Render should always provide DB config
   console.error('No database configuration found! Please set DATABASE_URL.');
   process.exit(1);
 }
@@ -46,7 +59,8 @@ if (process.env.DATABASE_URL) {
 // Import models
 const modelFiles = ['participant', 'event', 'certificate', 'user', 'template', 'collaborator', 'message', 'activityLog'];
 for (const file of modelFiles) {
-  const model = require(path.join(__dirname, file))(sequelize);
+  const modelContent = require(path.join(__dirname, file));
+  const model = modelContent(sequelize);
   db[model.name] = model;
 }
 
