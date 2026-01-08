@@ -1,10 +1,3 @@
-const dns = require('dns');
-
-// Lightweight hint for IPv4
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
