@@ -38,8 +38,9 @@ if (process.env.DATABASE_URL) {
     }
   );
 } else {
-  // Fallback to in-memory SQLite for local testing when no DB is configured
-  sequelize = new Sequelize({ dialect: 'sqlite', storage: './database.sqlite', logging: false });
+  // Production/Render should always provide DB config
+  console.error('No database configuration found! Please set DATABASE_URL.');
+  process.exit(1);
 }
 
 // Import models
