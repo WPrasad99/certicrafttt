@@ -1,3 +1,8 @@
+const dns = require('dns');
+// Force IPv4 for DNS resolution to avoid ENETUNREACH on Render/Supabase
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
