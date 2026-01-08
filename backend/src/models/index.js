@@ -14,7 +14,8 @@ if (process.env.DATABASE_URL) {
       ssl: {
         require: true,
         rejectUnauthorized: false
-      }
+      },
+      family: 4
     }
   });
 } else if (process.env.DB_HOST) {
@@ -31,7 +32,8 @@ if (process.env.DATABASE_URL) {
         ssl: {
           require: true,
           rejectUnauthorized: false
-        }
+        },
+        family: 4
       }
     }
   );
