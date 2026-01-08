@@ -5,7 +5,7 @@
   "description": "Node/Express backend for CertiCraft (PostgreSQL + Sequelize)",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node --dns-result-order=ipv4first src/index.js",
     "dev": "nodemon src/index.js",
     "migrate": "sequelize db:migrate",
     "migrate:undo": "sequelize db:migrate:undo",
