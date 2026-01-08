@@ -7,7 +7,16 @@ const db = {};
 let sequelize;
 if (process.env.DATABASE_URL) {
   // Use full connection string if provided
-  sequelize = new Sequelize(process.env.DATABASE_URL, { dialect: 'postgres', logging: false });
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  });
 } else if (process.env.DB_HOST) {
   sequelize = new Sequelize(
     process.env.DB_NAME || 'certificate_system',
@@ -18,6 +27,12 @@ if (process.env.DATABASE_URL) {
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
       logging: false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      }
     }
   );
 } else {

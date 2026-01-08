@@ -1,6 +1,7 @@
 {
   "name": "certicraft-backend",
   "version": "0.1.0",
+  "license": "MIT",
   "description": "Node/Express backend for CertiCraft (PostgreSQL + Sequelize)",
   "main": "src/index.js",
   "scripts": {
