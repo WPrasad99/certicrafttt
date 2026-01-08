@@ -39,5 +39,13 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "resolutions": {
+    "glob": "^10.4.5",
+    "rimraf": "^5.0.10",
+    "npmlog": "^7.0.1",
+    "are-we-there-yet": "^4.0.0",
+    "gauge": "^5.0.0",
+    "inflight": "^1.0.6"
   }
 }
