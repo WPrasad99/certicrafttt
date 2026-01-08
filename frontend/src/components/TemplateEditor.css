@@ -1,0 +1,68 @@
+.template-editor-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.template-editor {
+  background: white;
+  width: 90%;
+  max-width: 1000px;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.template-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-editor-body {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.image-container {
+  position: relative;
+  flex: 1;
+  border: 1px solid #ddd;
+  padding: 8px
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  display: block
+}
+
+.marker {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.9);
+  transform: translate(-50%, -50%);
+}
+
+.marker-qr {
+  background: rgba(0, 100, 255, 0.9);
+}
+
+.controls {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px
+}

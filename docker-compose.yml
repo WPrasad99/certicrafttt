@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: certificate_system
+      POSTGRES_USER: macbook
+      POSTGRES_PASSWORD: changeme
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U macbook"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=macbook
+      - DB_PASSWORD=changeme
+      - DB_NAME=certificate_system
+      - JWT_SECRET=change-me-in-env
+      - GOOGLE_CLIENT_ID=your-google-client-id
+      - GOOGLE_CLIENT_SECRET=your-google-client-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80" # host:container (serve static on 80 inside image)
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080/api
+    restart: unless-stopped
+
+volumes:
+  db-data:
+
+# Usage:
+# docker compose up -d --build
+# docker compose down

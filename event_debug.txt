@@ -1,0 +1,210 @@
+const express = require('express');
+const router = express.Router();
+const { Event } = require('../models');
+const auth = require('../middleware/auth');
+
+// CRUD for events
+router.get('/', auth, async (req, res) => {
+  try {
+    const events = await Event.findAll({ where: { organizerId: req.user.id } });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/', auth, async (req, res) => {
+  try {
+    const payload = { ...req.body, organizerId: req.user.id };
+    const event = await Event.create(payload);
+    res.json(event);
+  } catch (error) {
+    console.error('Create event error:', error);
+    res.status(400).json({ error: error.message || 'Failed to create event' });
+  }
+});
+
+router.get('/:id', auth, async (req, res) => {
+  const id = req.params.id;
+  const event = await Event.findOne({ where: { id, organizerId: req.user.id } });
+  if (!event) return res.status(404).json({ message: 'Not found' });
+  res.json(event);
+});
+
+router.put('/:id', auth, async (req, res) => {
+  const id = req.params.id;
+  const event = await Event.findOne({ where: { id, organizerId: req.user.id } });
+  if (!event) return res.status(404).json({ message: 'Not found' });
+  await event.update(req.body);
+  res.json(event);
+});
+
+router.delete('/:id', auth, async (req, res) => {
+  const id = req.params.id;
+  await Event.destroy({ where: { id, organizerId: req.user.id } });
+  res.json({ message: 'deleted' });
+});
+
+// generate certificates for event
+const { Participant, Certificate, Template } = require('../models');
+const { v4: uuidv4 } = require('uuid');
+const { generateCertificatePdf } = require('../utils/certificateGenerator');
+const path = require('path');
+const fs = require('fs');
+const certOutDir = path.join(__dirname, '..', '..', 'uploads', 'certificates');
+fs.mkdirSync(certOutDir, { recursive: true });
+
+router.post('/:eventId/generate', auth, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    // ensure ownership
+    const event = await Event.findOne({ where: { id: eventId, organizerId: req.user.id } });
+    if (!event) return res.status(403).json({ error: 'Access denied' });
+
+    const participants = await Participant.findAll({ where: { eventId } });
+    const created = [];
+    for (const p of participants) {
+      let existing = await Certificate.findOne({ where: { participantId: p.id, eventId } });
+
+      if (!existing) {
+        existing = await Certificate.create({ verificationId: uuidv4(), participantId: p.id, eventId, generationStatus: 'PENDING' });
+      } else {
+        // Force regeneration: mark pending, clear previous error, and remove old file if present
+        await existing.update({ generationStatus: 'PENDING', errorMessage: null });
+        if (existing.filePath && fs.existsSync(existing.filePath)) {
+          try { fs.unlinkSync(existing.filePath); } catch (e) { /* ignore */ }
+        }
+      }
+
+      try {
+        const template = await Template.findOne({ where: { eventId } });
+        if (!template || !template.filePath || !fs.existsSync(template.filePath)) {
+          await existing.update({ generationStatus: 'FAILED', errorMessage: 'Template not found' });
+          continue;
+        }
+
+        const outPath = path.join(certOutDir, `cert_${existing.id}.pdf`);
+        const coords = { nameX: template.nameX, nameY: template.nameY };
+        await generateCertificatePdf({ templatePath: template.filePath, name: p.name, coords, fontSize: template.fontSize, fontColor: template.fontColor, outputPath: outPath });
+
+        await existing.update({ filePath: outPath, generationStatus: 'GENERATED', generatedAt: new Date() });
+        created.push(existing);
+      } catch (err) {
+        await existing.update({ generationStatus: 'FAILED', errorMessage: err.message });
+      }
+    }
+
+    res.json({ createdCount: created.length });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// status endpoint
+router.get('/:eventId/status', auth, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const event = await Event.findOne({ where: { id: eventId, organizerId: req.user.id } });
+    if (!event) return res.status(403).json({ error: 'Access denied' });
+
+    const participants = await Participant.findAll({ where: { eventId } });
+    const certificates = await Certificate.findAll({ where: { eventId } });
+
+    const result = participants.map(p => {
+      const cert = certificates.find(c => String(c.participantId) === String(p.id));
+      return {
+        id: cert ? cert.id : null,
+        participantId: p.id,
+        participantName: p.name,
+        email: p.email,
+        generationStatus: cert ? cert.generationStatus : 'NOT_GENERATED',
+        emailStatus: cert ? cert.emailStatus : 'NOT_SENT',
+        verificationId: cert ? cert.verificationId : null,
+        generatedAt: cert ? cert.generatedAt : null
+      };
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+  // Collaborative features
+  const { User, Collaborator } = require('../models');
+
+  router.get('/:eventId/collaborators', auth, async (req, res) => {
+    try {
+      const eventId = req.params.eventId;
+      // Check if user is organizer OR collaborator
+      const event = await Event.findByPk(eventId);
+      if (!event) return res.status(404).json({ message: 'Not found' });
+
+      // Authorization check (simplified)
+      if (event.organizerId !== req.user.id) {
+        const isCollab = await Collaborator.findOne({ where: { eventId, userId: req.user.id } });
+        if (!isCollab) return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const collaborators = await Collaborator.findAll({
+        where: { eventId },
+        include: [{ model: User, attributes: ['id', 'full_name', 'email'] }]
+      });
+
+      // Map to simple structure
+      const result = collaborators.map(c => ({
+        id: c.User.id,
+        name: c.User.fullName,
+        email: c.User.email,
+        role: c.role,
+        status: c.status
+      }));
+
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.post('/:eventId/collaborators/invite', auth, async (req, res) => {
+    try {
+      const eventId = req.params.eventId;
+      const { email } = req.body;
+
+      const event = await Event.findOne({ where: { id: eventId, organizerId: req.user.id } });
+      if (!event) return res.status(403).json({ error: 'Only organizer can invite' });
+
+      const userToInvite = await User.findOne({ where: { email } });
+      if (!userToInvite) return res.status(404).json({ error: 'User not found' });
+
+      if (userToInvite.id === req.user.id) return res.status(400).json({ error: 'Cannot invite yourself' });
+
+      const existing = await Collaborator.findOne({ where: { eventId, userId: userToInvite.id } });
+      if (existing) return res.status(400).json({ error: 'Already a collaborator' });
+
+      await Collaborator.create({
+        eventId,
+        userId: userToInvite.id,
+        status: 'ACCEPTED', // Auto-accept for now based on user request "Invite" logic
+        role: 'EDITOR'
+      });
+
+      res.json({ success: true, message: 'Invitation sent' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.delete('/:eventId/collaborators/:userId', auth, async (req, res) => {
+    try {
+      const eventId = req.params.eventId;
+      const targetUserId = req.params.userId;
+
+      const event = await Event.findOne({ where: { id: eventId, organizerId: req.user.id } });
+      if (!event) return res.status(403).json({ error: 'Only organizer can remove' });
+
+      await Collaborator.destroy({ where: { eventId, userId: targetUserId } });
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
