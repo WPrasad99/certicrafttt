@@ -6,7 +6,7 @@ const db = {};
 
 let sequelize;
 if (process.env.DATABASE_URL) {
-  // Use explicit options to ensure dialactOptions are respected
+  // Use explicit options to ensure dialectOptions are respected
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
@@ -18,11 +18,11 @@ if (process.env.DATABASE_URL) {
       // Keep family: 4 here as a backup for the driver
       family: 4
     },
-    // Add pool config for stability
+    // Optimized pool config for Supabase free tier
     pool: {
-      max: 5,
+      max: 2,          // Reduced from 5 - Supabase free tier has low connection limits
       min: 0,
-      acquire: 30000,
+      acquire: 60000,  // Increased from 30000 - give more time to acquire
       idle: 10000
     }
   });
