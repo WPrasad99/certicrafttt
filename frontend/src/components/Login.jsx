@@ -153,10 +153,10 @@ function Login() {
 
                     <div className="btn-divider">OR</div>
 
-                    <button onClick={handleGoogleLogin} className="google-btn">
+                    <a href="https://certicraft-backendd.onrender.com/auth/google" className="google-btn" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', textDecoration: 'none' }}>
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
                         Sign in with Google
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
