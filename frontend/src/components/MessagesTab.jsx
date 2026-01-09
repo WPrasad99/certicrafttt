@@ -51,8 +51,12 @@ function MessagesTab({ eventId, event, isOwner }) {
             }
 
             // Add accepted collaborators
+            // Add accepted collaborators (avoiding duplicates if organizer is in list)
             acceptedCollaborators.forEach(c => {
-                if (c.id !== currentUser.id) {
+                const isCurrentUser = String(c.id) === String(currentUser.id);
+                const isOrganizer = String(c.id) === String(event.organizerId);
+
+                if (!isCurrentUser && !isOrganizer) {
                     membersList.push({
                         userId: c.id,
                         name: c.name, // Will be User.fullName from backend

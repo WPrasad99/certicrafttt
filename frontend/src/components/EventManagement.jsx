@@ -12,7 +12,7 @@ import Toast from './Toast';
 function EventManagement({ event, onBack, onNotify, initialTab = 'participants' }) {
     const currentUser = authService.getCurrentUser();
     const isOwner = !!(currentUser && (
-        (currentUser.id && currentUser.id === event.organizerId) ||
+        (currentUser.id && String(currentUser.id) === String(event.organizerId)) ||
         (currentUser.email && event.organizerEmail && currentUser.email === event.organizerEmail)
     ));
     const [activeTab, setActiveTab] = useState(initialTab);
