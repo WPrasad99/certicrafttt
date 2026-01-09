@@ -11,7 +11,7 @@ try {
   // ignore if font not present
 }
 
-async function generateCertificatePdf({
+async function generateCertificateCanvas({
   templatePath,
   name,
   coords,
@@ -19,8 +19,7 @@ async function generateCertificatePdf({
   fontColor = '#000000',
   qrCoords = null,
   qrSize = 100,
-  verificationId = null,
-  outputPath
+  verificationId = null
 }) {
   // Load template image
   const img = await loadImage(templatePath);
@@ -45,8 +44,15 @@ async function generateCertificatePdf({
   // Draw QR code if coordinates are provided
   if (qrCoords && typeof qrCoords.qrX === 'number' && typeof qrCoords.qrY === 'number') {
     try {
-      // Generate QR code with naming only
-      const qrDataUrl = await QRCode.toDataURL(name, {
+      // Determine QR content: verification link if input provided, else name fallback
+      let qrContent = name;
+      if (verificationId) {
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        qrContent = `${baseUrl}/verify/${verificationId}`;
+      }
+
+      // Generate QR code
+      const qrDataUrl = await QRCode.toDataURL(qrContent, {
         width: qrSize || 100,
         margin: 1,
         color: {
@@ -69,21 +75,28 @@ async function generateCertificatePdf({
     }
   }
 
+  return { canvas, width: img.width, height: img.height };
+}
+
+async function generateCertificatePdf(options) {
+  const { canvas, width, height } = await generateCertificateCanvas(options);
+  const { outputPath } = options;
+
   // Convert canvas to PNG buffer
   const pngBuffer = canvas.toBuffer('image/png');
 
   // Create PDF and embed PNG
   await new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: [img.width, img.height] });
+    const doc = new PDFDocument({ size: [width, height] });
     const out = fs.createWriteStream(outputPath);
     out.on('finish', resolve);
     out.on('error', reject);
     doc.pipe(out);
-    doc.image(pngBuffer, 0, 0, { width: img.width, height: img.height });
+    doc.image(pngBuffer, 0, 0, { width, height });
     doc.end();
   });
 
   return outputPath;
 }
 
-module.exports = { generateCertificatePdf };
+module.exports = { generateCertificatePdf, generateCertificateCanvas };

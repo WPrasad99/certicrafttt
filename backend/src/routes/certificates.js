@@ -7,7 +7,7 @@ const { sendEmail } = require('../utils/email');
 const { uploadFile, isSupabaseUrl, downloadFileFromUrl } = require('../utils/supabase');
 const path = require('path');
 const fs = require('fs');
-const { generateCertificatePdf } = require('../utils/certificateGenerator');
+const { generateCertificatePdf, generateCertificateCanvas } = require('../utils/certificateGenerator');
 
 // output dir
 const certOutDir = path.join(__dirname, '..', '..', 'uploads', 'certificates');
@@ -35,6 +35,64 @@ const checkEventOwnership = async (req, res, next) => {
 
   return res.status(403).json({ error: 'Access denied: You must be the organizer or an accepted collaborator' });
 };
+
+// Generate a preview of the certificate with sample data
+router.post('/events/:eventId/preview-certificate', auth, checkEventOwnership, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    // Get coords/styles from body (live preview) or fallback to DB
+    const { nameX, nameY, fontSize, fontColor, qrX, qrY, qrSize } = req.body;
+
+    const template = await Template.findOne({ where: { eventId } });
+    if (!template || !template.filePath) {
+      return res.status(404).json({ message: 'Template not found' });
+    }
+
+    let templatePath = template.filePath;
+    let tempTemplatePath = null;
+
+    if (isSupabaseUrl(template.filePath)) {
+      try {
+        const buffer = await downloadFileFromUrl(template.filePath);
+        tempTemplatePath = path.join(certOutDir, `temp_preview_${Date.now()}.png`);
+        fs.writeFileSync(tempTemplatePath, buffer);
+        templatePath = tempTemplatePath;
+      } catch (err) {
+        return res.status(500).json({ message: 'Failed to download template' });
+      }
+    } else if (!fs.existsSync(template.filePath)) {
+      return res.status(404).json({ message: 'Template file not found' });
+    }
+
+    const { canvas } = await generateCertificateCanvas({
+      templatePath: templatePath,
+      name: 'Neel Ashok Shingavi',
+      coords: {
+        nameX: nameX !== undefined ? nameX : template.nameX,
+        nameY: nameY !== undefined ? nameY : template.nameY
+      },
+      fontSize: fontSize !== undefined ? fontSize : template.fontSize,
+      fontColor: fontColor !== undefined ? fontColor : template.fontColor,
+      qrCoords: {
+        qrX: qrX !== undefined ? qrX : template.qrX,
+        qrY: qrY !== undefined ? qrY : template.qrY
+      },
+      qrSize: qrSize !== undefined ? qrSize : (template.qrSize || 100),
+      verificationId: uuidv4() // Random verification ID for preview
+    });
+
+    if (tempTemplatePath && fs.existsSync(tempTemplatePath)) {
+      fs.unlinkSync(tempTemplatePath);
+    }
+
+    const buffer = canvas.toBuffer('image/png');
+    res.set('Content-Type', 'image/png');
+    res.send(buffer);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // generate certificates for event
 router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, res) => {

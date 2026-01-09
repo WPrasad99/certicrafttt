@@ -46,8 +46,12 @@ if (process.env.DATABASE_URL) {
     }
   );
 } else {
-  console.error('No database configuration found! Please set DATABASE_URL.');
-  process.exit(1);
+  console.log('No database config found, falling back to SQLite');
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: path.join(__dirname, '../../database.sqlite'),
+    logging: false
+  });
 }
 
 // Import models

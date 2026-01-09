@@ -179,6 +179,13 @@ export const templateService = {
     updateCoordinates: async (eventId, coords) => {
         const response = await api.post(`/events/${eventId}/template/coordinates`, coords);
         return response.data;
+    },
+
+    getPreview: async (eventId, coords) => {
+        const response = await api.post(`/certificates/events/${eventId}/preview-certificate`, coords, {
+            responseType: 'blob'
+        });
+        return response.data;
     }
 };
 
