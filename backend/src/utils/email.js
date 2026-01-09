@@ -1,102 +1,91 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 const fs = require('fs');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create reusable transporter object using the default SMTP transport
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD // App Password
+    }
+});
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
-    if (!process.env.RESEND_API_KEY) {
-        console.warn('Resend API key missing. Mocking email send.');
+    if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
+        console.warn('Gmail credentials missing. Mocking email send.');
         return { success: true, messageId: 'mock-id' };
     }
 
     try {
-        // Convert attachments to Resend format
-        const resendAttachments = attachments.map(att => {
-            if (att.path && fs.existsSync(att.path)) {
-                const content = fs.readFileSync(att.path);
-                return {
-                    filename: att.filename || 'attachment.pdf',
-                    content: content
-                };
-            }
-            return null;
-        }).filter(Boolean);
-
-        const emailData = {
-            from: 'CertiCraft <onboarding@resend.dev>',
+        const mailOptions = {
+            from: process.env.FROM_EMAIL || `"CertiCraft" <${process.env.MAIL_USERNAME}>`,
             to: to,
             subject: subject,
-            html: html
+            html: html,
+            text: text, // Fallback text
+            attachments: attachments.map(att => {
+                if (att.path && fs.existsSync(att.path)) {
+                    return {
+                        filename: att.filename || 'attachment.pdf',
+                        path: att.path
+                    };
+                }
+                return null;
+            }).filter(Boolean)
         };
 
-        if (resendAttachments.length > 0) {
-            emailData.attachments = resendAttachments;
-        }
-
-        const data = await resend.emails.send(emailData);
-
-        console.log('✅ Email sent successfully via Resend to:', to, '| ID:', data.id);
-        return { success: true, messageId: data.id };
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Email sent successfully via Gmail to:', to, '| ID:', info.messageId);
+        return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('❌ Resend email sending failed:');
-        console.error('  To:', to);
-        console.error('  Error:', error.message);
-        console.error('  Details:', error);
+        console.error('❌ Gmail email sending failed:', error);
         return { success: false, error: error.message };
     }
 };
 
 const sendBatchEmails = async (emails) => {
-    if (!process.env.RESEND_API_KEY) {
-        console.warn('Resend API key missing. Mocking batch email send.');
-        return { success: true, count: emails.length };
+    if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
+        console.warn('Gmail credentials missing. Mocking batch email send.');
+        return { success: true, data: emails.map((_, i) => ({ id: `mock-${i}` })) };
     }
 
-    try {
-        const results = [];
-        // Resend batch limit is 100
-        const BATCH_SIZE = 100;
+    const results = [];
+    const errors = [];
 
-        for (let i = 0; i < emails.length; i += BATCH_SIZE) {
-            const chunk = emails.slice(i, i + BATCH_SIZE);
+    console.log(`Starting batch send of ${emails.length} emails via Gmail...`);
 
-            // Format for Resend Batch API
-            const batchPayload = chunk.map(email => {
-                const payload = {
-                    from: 'CertiCraft <onboarding@resend.dev>',
-                    to: email.to,
-                    subject: email.subject,
-                    html: email.html
-                };
+    // Helper to sleep
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-                if (email.attachments && email.attachments.length > 0) {
-                    // Convert attachments for this specific email
-                    payload.attachments = email.attachments.map(att => {
-                        if (att.path && fs.existsSync(att.path)) {
-                            return {
-                                filename: att.filename || 'attachment.pdf',
-                                content: fs.readFileSync(att.path)
-                            };
-                        }
-                        return null;
-                    }).filter(Boolean);
-                }
+    for (const [index, email] of emails.entries()) {
+        try {
+            // Add a small delay between emails to avoid hitting rapid-fire limits
+            if (index > 0) await sleep(500);
 
-                return payload;
-            });
-
-            if (batchPayload.length > 0) {
-                const data = await resend.batch.send(batchPayload);
-                results.push(...(data.data || []));
-                console.log(`✅ Sent batch of ${batchPayload.length} emails. IDs:`, data.data?.map(d => d.id).join(', '));
+            const result = await sendEmail(email);
+            if (result.success) {
+                results.push({ id: result.messageId });
+            } else {
+                errors.push({ email: email.to, error: result.error });
             }
+        } catch (err) {
+            console.error(`Failed to send email to ${email.to}:`, err);
+            errors.push({ email: email.to, error: err.message });
         }
-
-        return { success: true, daa: results };
-    } catch (error) {
-        console.error('❌ Resend batch email sending failed:', error);
-        return { success: false, error: error.message };
     }
+
+    if (errors.length > 0) {
+        console.error(`Batch completed with ${errors.length} errors.`);
+        // Ensure we still return success: true if at least ONE succeeded, 
+        // OR if you prefer strict all-or-nothing, return false. 
+        // Usually dependent on partial success needs.
+        // Returning success: true so the route doesn't crash, but logging errors.
+        if (results.length === 0) {
+            return { success: false, error: "All emails failed to send.", errors };
+        }
+    }
+
+    return { success: true, data: results, errors };
 };
 
 module.exports = { sendEmail, sendBatchEmails };
