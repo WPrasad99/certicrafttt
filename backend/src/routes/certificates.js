@@ -311,7 +311,10 @@ router.post('/events/:eventId/send-all', auth, checkEventOwnership, async (req, 
       include: [Participant, Event]
     });
 
-    const results = [];
+    const emailPayloads = [];
+    const certMap = new Map(); // To track which cert corresponds to which payload used
+
+    // Prepare payloads
     for (const cert of certs) {
       const attachments = [];
       let tempFilePath = null;
@@ -320,7 +323,7 @@ router.post('/events/:eventId/send-all', auth, checkEventOwnership, async (req, 
         if (isSupabaseUrl(cert.filePath)) {
           try {
             const buffer = await downloadFileFromUrl(cert.filePath);
-            tempFilePath = path.join(certOutDir, `temp_cert_email_${Date.now()}_${cert.id}.pdf`);
+            tempFilePath = path.join(certOutDir, `temp_cert_email_batch_${Date.now()}_${cert.id}.pdf`);
             fs.writeFileSync(tempFilePath, buffer);
             attachments.push({ filename: `certificate_${cert.id}.pdf`, path: tempFilePath });
           } catch (err) {
@@ -331,7 +334,7 @@ router.post('/events/:eventId/send-all', auth, checkEventOwnership, async (req, 
         }
       }
 
-      const result = await sendEmail({
+      const payload = {
         to: cert.Participant.email,
         subject: `Certificate for ${cert.Event.eventName}`,
         html: `
@@ -346,33 +349,59 @@ router.post('/events/:eventId/send-all', auth, checkEventOwnership, async (req, 
           </div>
         `,
         attachments
-      });
+      };
 
-      // Clean up temporary file if created
-      if (tempFilePath && fs.existsSync(tempFilePath)) {
-        fs.unlinkSync(tempFilePath);
-      }
-
-      if (result.success) {
-        await cert.update({ emailStatus: 'SENT', emailSentAt: new Date() });
-        results.push({ id: cert.id, success: true });
-      } else {
-        await cert.update({ emailStatus: 'FAILED' });
-        results.push({ id: cert.id, success: false, error: result.error });
-      }
+      emailPayloads.push(payload);
+      certMap.set(cert.Participant.email, { cert, tempFilePath });
     }
 
-    if (results.some(r => r.success)) {
-      const successCount = results.filter(r => r.success).length;
+    if (emailPayloads.length === 0) {
+      return res.json({ message: 'No certificates to send.' });
+    }
+
+    const { sendBatchEmails } = require('../utils/email');
+    const result = await sendBatchEmails(emailPayloads);
+
+    // Cleanup temp files & Update Status
+    // Since batch send is all-or-nothing per chunk or returns individual statuses, 
+    // Resend batch returns an object with 'data' array containing ids.
+    // If it throws an error, we assume failure for all in that batch.
+
+    // For simplicity, if batch succeeds, we mark all as SENT. 
+    // Ideally we match by index but Resend batch response order matches request order.
+
+    if (result.success) {
+      const date = new Date();
+      await Promise.all(certs.map(async (cert) => {
+        const info = certMap.get(cert.Participant.email);
+        if (info && info.tempFilePath && fs.existsSync(info.tempFilePath)) {
+          fs.unlinkSync(info.tempFilePath);
+        }
+        return cert.update({ emailStatus: 'SENT', emailSentAt: date });
+      }));
+
       await ActivityLog.create({
         eventId,
         userId: req.user.id,
         action: 'SEND_ALL_EMAILS',
-        details: `Sent ${successCount} certificate emails`
+        details: `Sent ${certs.length} certificate emails via batch`
       });
+
+      res.json({ message: `Successfully sent ${certs.length} emails` });
+    } else {
+      // Cleanup anyway
+      certs.forEach(cert => {
+        const info = certMap.get(cert.Participant.email);
+        if (info && info.tempFilePath && fs.existsSync(info.tempFilePath)) {
+          fs.unlinkSync(info.tempFilePath);
+        }
+      });
+
+      // Mark as failed if the whole batch process failed unexpectedly
+      await Promise.all(certs.map(c => c.update({ emailStatus: 'FAILED' })));
+      res.status(500).json({ error: result.error || 'Failed to send batch emails' });
     }
 
-    res.json({ message: `Attempted to send ${certs.length} emails`, results });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -384,28 +413,34 @@ router.post('/events/:eventId/send-updates', auth, checkEventOwnership, async (r
     const { subject, content } = req.body;
     const participants = await Participant.findAll({ where: { eventId } });
     const event = await Event.findByPk(eventId);
+    const { sendBatchEmails } = require('../utils/email');
 
-    for (const p of participants) {
-      const result = await sendEmail({
-        to: p.email,
-        subject: subject,
-        html: `
+    if (participants.length === 0) {
+      return res.json({ message: 'No participants to update.' });
+    }
+
+    const emailPayloads = participants.map(p => ({
+      to: p.email,
+      subject: subject,
+      html: `
           <div style="font-family: sans-serif; padding: 20px;">
             <p>${content.replace(/\n/g, '<br/>')}</p>
             <hr/>
             <p>Best regards,<br/>${event.organizerName}<br/><em>${event.eventName} Organizer</em></p>
           </div>
         `
-      });
+    }));
 
-      if (result.success) {
-        await p.update({ updateEmailStatus: 'SENT' });
-      } else {
-        await p.update({ updateEmailStatus: 'FAILED' });
-      }
+    const result = await sendBatchEmails(emailPayloads);
+
+    if (result.success) {
+      await Promise.all(participants.map(p => p.update({ updateEmailStatus: 'SENT' })));
+      res.json({ message: `Updates sent to ${participants.length} participants` });
+    } else {
+      await Promise.all(participants.map(p => p.update({ updateEmailStatus: 'FAILED' })));
+      res.status(500).json({ error: result.error || 'Failed to send batch updates' });
     }
 
-    res.json({ message: `Updates sent to ${participants.length} participants` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
