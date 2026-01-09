@@ -3,22 +3,23 @@ const fs = require('fs');
 
 // Create reusable transporter object using the default SMTP transport
 // Create reusable transporter object using explicit SMTP settings
-// Switched to Port 587 (STARTTLS) as Port 465 was timing out on Render
+// Using smtp.googlemail.com alias and Port 465 (SSL) for better reachability
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    host: 'smtp.googlemail.com', // Alternative hostname often works better
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.MAIL_USERNAME,
         pass: process.env.MAIL_PASSWORD
     },
-    tls: {
-        rejectUnauthorized: true
-    },
-    // Extended timeouts to handle network latency
-    connectionTimeout: 60000,
-    greetingTimeout: 60000,
-    socketTimeout: 60000
+    // Enable logging to see detailed handshake info in Render logs for debugging
+    logger: true,
+    debug: true,
+    // Robust timeouts
+    connectionTimeout: 10000, // 10s is usually enough to connect; if valid
+    greetingTimeout: 10000,
+    socketTimeout: 30000
+    // Removed tls: rejectUnauthorized: false as it is generally unsafe, 465 should be secure.
 });
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
