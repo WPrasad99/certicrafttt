@@ -6,7 +6,7 @@ const fs = require('fs');
 // Support dynamic host for switching providers (Gmail, Outlook, Brevo)
 const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST || 'smtp.gmail.com',
-    port: 587,
+    port: parseInt(process.env.MAIL_PORT) || 587,
     secure: false, // true for 465, false for other ports
     auth: {
         user: process.env.MAIL_USERNAME,
@@ -22,15 +22,22 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
-    // CRITICAL: Fail if credentials are missing so user knows it didn't send
+    // CRITICAL: Fail if credentials are missing
     if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
-        console.error('❌ Gmail credentials (MAIL_USERNAME/MAIL_PASSWORD) are MISSING in environment variables.');
+        console.error('❌ Email credentials (MAIL_USERNAME/MAIL_PASSWORD) are MISSING in environment variables.');
         return { success: false, error: 'Server misconfiguration: Missing email credentials' };
     }
 
     try {
         const fromAddress = process.env.FROM_EMAIL || `"CertiCraft" <${process.env.MAIL_USERNAME}>`;
-        console.log(`Sending email using host: ${process.env.MAIL_HOST || 'default'} | From: ${fromAddress}`);
+        const host = process.env.MAIL_HOST || 'smtp.gmail.com';
+        const port = process.env.MAIL_PORT || 587;
+
+        console.log(`📧 Attempting to send email...`);
+        console.log(`   Host: ${host}`);
+        console.log(`   Port: ${port}`);
+        console.log(`   User: ${process.env.MAIL_USERNAME}`);
+        console.log(`   From: ${fromAddress}`);
 
         const mailOptions = {
             from: fromAddress,
@@ -50,10 +57,10 @@ const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Email sent successfully via Gmail to:', to, '| ID:', info.messageId);
+        console.log('✅ Email sent successfully to:', to, '| ID:', info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('❌ Gmail email sending failed:', error);
+        console.error('❌ Email sending failed:', error);
         return { success: false, error: error.message };
     }
 };
