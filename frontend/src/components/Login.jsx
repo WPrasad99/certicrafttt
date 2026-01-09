@@ -56,10 +56,12 @@ function Login() {
     };
 
     const handleGoogleLogin = () => {
-        // Use full URL for production
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        // Derive the root base URL (without /api) from VITE_API_URL
+        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        const rootUrl = apiBaseUrl.replace(/\/api$/, '').replace(/\/$/, '');
+
         // Start Google OAuth flow on the backend
-        window.location.href = `${baseUrl}/auth/google`;
+        window.location.href = `${rootUrl}/auth/google`;
     };
 
     return (

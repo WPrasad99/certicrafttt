@@ -17,7 +17,9 @@ function CertificateVerification() {
     const verifyCertificate = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`/api/certificates/verify/${verificationId}`);
+            const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+            const cleanBaseUrl = apiBaseUrl.endsWith('/api') ? apiBaseUrl : `${apiBaseUrl.replace(/\/$/, '')}/api`;
+            const response = await fetch(`${cleanBaseUrl}/certificates/verify/${verificationId}`);
 
             if (!response.ok) {
                 throw new Error('Certificate not found or invalid');
