@@ -164,7 +164,17 @@ router.get('/:id/download', auth, async (req, res) => {
   try {
     const cert = await Certificate.findByPk(req.params.id, { include: [Participant, Event] });
     if (!cert) return res.status(404).json({ message: 'Not found' });
-    if (!cert.filePath || !fs.existsSync(cert.filePath)) return res.status(404).json({ message: 'Certificate file not found' });
+    if (!cert.filePath) return res.status(404).json({ message: 'Certificate file not found' });
+
+    // If it's a Supabase URL, redirect to it
+    if (isSupabaseUrl(cert.filePath)) {
+      return res.redirect(cert.filePath);
+    }
+
+    // If it's a local file, stream it
+    if (!fs.existsSync(cert.filePath)) {
+      return res.status(404).json({ message: 'Certificate file not found' });
+    }
 
     res.setHeader('Content-Disposition', `attachment; filename="certificate_${cert.id}.pdf"`);
     res.setHeader('Content-Type', 'application/pdf');
@@ -208,8 +218,23 @@ router.post('/:id/send-email', auth, async (req, res) => {
     if (!cert) return res.status(404).json({ message: 'Not found' });
 
     const attachments = [];
-    if (cert.filePath && fs.existsSync(cert.filePath)) {
-      attachments.push({ filename: `certificate_${cert.id}.pdf`, path: cert.filePath });
+    let tempFilePath = null;
+
+    if (cert.filePath) {
+      if (isSupabaseUrl(cert.filePath)) {
+        // Download from Supabase to temporary file for email attachment
+        try {
+          const buffer = await downloadFileFromUrl(cert.filePath);
+          tempFilePath = path.join(certOutDir, `temp_cert_email_${Date.now()}.pdf`);
+          fs.writeFileSync(tempFilePath, buffer);
+          attachments.push({ filename: `certificate_${cert.id}.pdf`, path: tempFilePath });
+        } catch (err) {
+          console.error('Failed to download certificate for email:', err);
+          // Continue without attachment
+        }
+      } else if (fs.existsSync(cert.filePath)) {
+        attachments.push({ filename: `certificate_${cert.id}.pdf`, path: cert.filePath });
+      }
     }
 
     const result = await sendEmail({
@@ -229,6 +254,11 @@ router.post('/:id/send-email', auth, async (req, res) => {
       `,
       attachments
     });
+
+    // Clean up temporary file if created
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
+    }
 
     if (result.success) {
       await cert.update({ emailStatus: 'SENT', emailSentAt: new Date() });
@@ -259,8 +289,21 @@ router.post('/events/:eventId/send-all', auth, checkEventOwnership, async (req, 
     const results = [];
     for (const cert of certs) {
       const attachments = [];
-      if (cert.filePath && fs.existsSync(cert.filePath)) {
-        attachments.push({ filename: `certificate_${cert.id}.pdf`, path: cert.filePath });
+      let tempFilePath = null;
+
+      if (cert.filePath) {
+        if (isSupabaseUrl(cert.filePath)) {
+          try {
+            const buffer = await downloadFileFromUrl(cert.filePath);
+            tempFilePath = path.join(certOutDir, `temp_cert_email_${Date.now()}_${cert.id}.pdf`);
+            fs.writeFileSync(tempFilePath, buffer);
+            attachments.push({ filename: `certificate_${cert.id}.pdf`, path: tempFilePath });
+          } catch (err) {
+            console.error('Failed to download certificate for email:', err);
+          }
+        } else if (fs.existsSync(cert.filePath)) {
+          attachments.push({ filename: `certificate_${cert.id}.pdf`, path: cert.filePath });
+        }
       }
 
       const result = await sendEmail({
@@ -279,6 +322,11 @@ router.post('/events/:eventId/send-all', auth, checkEventOwnership, async (req, 
         `,
         attachments
       });
+
+      // Clean up temporary file if created
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
 
       if (result.success) {
         await cert.update({ emailStatus: 'SENT', emailSentAt: new Date() });
