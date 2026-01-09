@@ -56,12 +56,13 @@ function Login() {
     };
 
     const handleGoogleLogin = () => {
-        // Derive the root base URL (without /api) from VITE_API_URL
-        const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-        const rootUrl = apiBaseUrl.replace(/\/api$/, '').replace(/\/$/, '');
+        // Use production backend URL or localhost for development
+        const backendUrl = window.location.hostname.includes('render.com')
+            ? 'https://certicraft-backendd.onrender.com'
+            : 'http://localhost:8080';
 
         // Start Google OAuth flow on the backend
-        window.location.href = `${rootUrl}/auth/google`;
+        window.location.href = `${backendUrl}/auth/google`;
     };
 
     return (
