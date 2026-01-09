@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 const { Certificate, Participant, Event, Template, ActivityLog } = require('../models');
 const { v4: uuidv4 } = require('uuid');
 const { sendEmail } = require('../utils/email');
-const { uploadFile } = require('../utils/supabase');
+const { uploadFile, isSupabaseUrl, downloadFileFromUrl } = require('../utils/supabase');
 const path = require('path');
 const fs = require('fs');
 const { generateCertificatePdf } = require('../utils/certificateGenerator');
@@ -58,8 +58,27 @@ router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, 
       // Try to generate file using template
       try {
         const template = await Template.findOne({ where: { eventId } });
-        if (!template || !template.filePath || !fs.existsSync(template.filePath)) {
+        if (!template || !template.filePath) {
           await existing.update({ generationStatus: 'FAILED', errorMessage: 'Template not found' });
+          continue;
+        }
+
+        let templatePath = template.filePath;
+        let tempTemplatePath = null;
+
+        // If template is a Supabase URL, download it to a temporary file
+        if (isSupabaseUrl(template.filePath)) {
+          try {
+            const buffer = await downloadFileFromUrl(template.filePath);
+            tempTemplatePath = path.join(certOutDir, `temp_template_${Date.now()}.png`);
+            fs.writeFileSync(tempTemplatePath, buffer);
+            templatePath = tempTemplatePath;
+          } catch (err) {
+            await existing.update({ generationStatus: 'FAILED', errorMessage: 'Failed to download template' });
+            continue;
+          }
+        } else if (!fs.existsSync(template.filePath)) {
+          await existing.update({ generationStatus: 'FAILED', errorMessage: 'Template file not found' });
           continue;
         }
 
@@ -67,7 +86,7 @@ router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, 
         const coords = { nameX: template.nameX, nameY: template.nameY };
         const qrCoords = { qrX: template.qrX, qrY: template.qrY };
         await generateCertificatePdf({
-          templatePath: template.filePath,
+          templatePath: templatePath,
           name: p.name,
           coords,
           fontSize: template.fontSize,
@@ -77,6 +96,11 @@ router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, 
           verificationId: existing.verificationId,
           outputPath: outPath
         });
+
+        // Clean up temporary template file if we created one
+        if (tempTemplatePath && fs.existsSync(tempTemplatePath)) {
+          fs.unlinkSync(tempTemplatePath);
+        }
 
         // Upload to Supabase
         const { data: uploadData, error: uploadError } = await uploadFile('certificates', 'pdfs', outPath);

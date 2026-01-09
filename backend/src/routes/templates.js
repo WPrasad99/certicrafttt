@@ -31,7 +31,7 @@ const upload = multer({
 
 const auth = require('../middleware/auth');
 const { Template, Event, ActivityLog } = require('../models');
-const { uploadFile } = require('../utils/supabase');
+const { uploadFile, isSupabaseUrl, downloadFileFromUrl } = require('../utils/supabase');
 
 const { Collaborator } = require('../models');
 
@@ -116,11 +116,25 @@ router.get('/', auth, checkEventOwnership, async (req, res) => {
 
   // If file exists, include base64 image data and mimeType
   try {
-    if (template.filePath && fs.existsSync(template.filePath)) {
-      const buffer = fs.readFileSync(template.filePath);
-      const mimeType = mime.lookup(template.filePath) || 'image/png';
-      const imageData = buffer.toString('base64');
-      return res.json({ ...template.toJSON(), imageData, mimeType });
+    if (template.filePath) {
+      let buffer;
+      let mimeType;
+
+      // Check if filePath is a Supabase URL or local path
+      if (isSupabaseUrl(template.filePath)) {
+        // Fetch from Supabase
+        buffer = await downloadFileFromUrl(template.filePath);
+        mimeType = 'image/png'; // Default for templates
+      } else if (fs.existsSync(template.filePath)) {
+        // Read from local disk
+        buffer = fs.readFileSync(template.filePath);
+        mimeType = mime.lookup(template.filePath) || 'image/png';
+      }
+
+      if (buffer) {
+        const imageData = buffer.toString('base64');
+        return res.json({ ...template.toJSON(), imageData, mimeType });
+      }
     }
   } catch (err) {
     console.warn('Failed to read template file:', err.message);

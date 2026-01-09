@@ -48,4 +48,25 @@ const uploadFile = async (bucket, folder, filePath) => {
     }
 };
 
-module.exports = { supabase, uploadFile };
+// Helper to check if a path is a Supabase URL
+const isSupabaseUrl = (filePath) => {
+    if (!filePath) return false;
+    return filePath.startsWith('http://') || filePath.startsWith('https://');
+};
+
+// Helper to download a file from URL and return as buffer
+const downloadFileFromUrl = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch file: ${response.statusText}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+    } catch (error) {
+        console.error('Error downloading file from URL:', error);
+        throw error;
+    }
+};
+
+module.exports = { supabase, uploadFile, isSupabaseUrl, downloadFileFromUrl };
