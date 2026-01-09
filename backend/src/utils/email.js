@@ -11,9 +11,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
+    // CRITICAL: Fail if credentials are missing so user knows it didn't send
     if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
-        console.warn('Gmail credentials missing. Mocking email send.');
-        return { success: true, messageId: 'mock-id' };
+        console.error('❌ Gmail credentials (MAIL_USERNAME/MAIL_PASSWORD) are MISSING in environment variables.');
+        return { success: false, error: 'Server misconfiguration: Missing email credentials' };
     }
 
     try {
@@ -45,8 +46,8 @@ const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
 
 const sendBatchEmails = async (emails) => {
     if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
-        console.warn('Gmail credentials missing. Mocking batch email send.');
-        return { success: true, data: emails.map((_, i) => ({ id: `mock-${i}` })) };
+        console.error('❌ Gmail credentials (MAIL_USERNAME/MAIL_PASSWORD) are MISSING in environment variables.');
+        return { success: false, error: 'Server misconfiguration: Missing email credentials', errors: [] };
     }
 
     const results = [];
