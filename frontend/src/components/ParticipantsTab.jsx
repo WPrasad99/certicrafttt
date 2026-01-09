@@ -7,7 +7,7 @@ function ParticipantsTab({
     onGenerateCertificates,
     onDeleteParticipant,
     onDeleteAllParticipants,
-    onGoToUpdates,
+    onEditTemplate,
     loading
 }) {
     return (
@@ -40,11 +40,11 @@ function ParticipantsTab({
                     </button>
 
                     <button
-                        onClick={onGoToUpdates}
+                        onClick={onEditTemplate}
                         className="btn btn-primary action-btn"
                         disabled={loading}
                     >
-                        Send Updates
+                        Upload Template
                     </button>
                 </div>
 

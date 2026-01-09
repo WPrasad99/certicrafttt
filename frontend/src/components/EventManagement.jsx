@@ -381,7 +381,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                         onGenerateCertificates={handleGenerateCertificates}
                         onDeleteParticipant={handleDeleteParticipant}
                         onDeleteAllParticipants={handleDeleteAllParticipants}
-                        onGoToUpdates={() => participants.length > 0 ? setActiveTab('updates') : triggerVibration()}
+                        onEditTemplate={() => setShowTemplateEditor(true)}
                         loading={loading}
                     />
                 )}
@@ -394,7 +394,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                         onDownloadAll={handleDownloadAll}
                         onSendEmail={handleSendEmail}
                         onSendAllEmails={handleSendAllEmails}
-                        onEditTemplate={() => setShowTemplateEditor(true)}
+                        onGoToUpdates={() => participants.length > 0 ? setActiveTab('updates') : triggerVibration()}
                         loading={loading}
                     />
                 )}

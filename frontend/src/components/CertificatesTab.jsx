@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CertificatesTab({ certificates, template, onDownloadCertificate, onDownloadAll, onSendEmail, onSendAllEmails, onEditTemplate, loading }) {
+function CertificatesTab({ certificates, template, onDownloadCertificate, onDownloadAll, onSendEmail, onSendAllEmails, onGoToUpdates, loading }) {
     const generatedCount = Array.isArray(certificates) ? certificates.filter(c => c.generationStatus === 'GENERATED').length : 0;
 
     const getStatusClass = (status) => {
@@ -36,10 +36,10 @@ function CertificatesTab({ certificates, template, onDownloadCertificate, onDown
                         >
                             Email All Certificates
                         </button>                        <button
-                            onClick={onEditTemplate}
+                            onClick={onGoToUpdates}
                             className="btn btn-outline"
                         >
-                            Upload Template
+                            Send Updates
                         </button>                    </div>
                 </div>
             </div>
