@@ -16,7 +16,7 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
 
   // Construct redirect URL
   const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
-  const redirectUrl = `${frontendUrl}/?${q.toString()}`;
+  const redirectUrl = `${frontendUrl}/oauth/callback?${q.toString()}`;
 
   console.log('Google Auth Success! Redirecting to:', redirectUrl);
   res.redirect(redirectUrl);
