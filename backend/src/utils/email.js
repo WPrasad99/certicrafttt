@@ -1,44 +1,47 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const fs = require('fs');
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use STARTTLS
-    auth: {
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD
-    },
-    tls: {
-        rejectUnauthorized: false // Accept self-signed certificates
-    }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
-    if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
-        console.warn('SMTP credentials missing. Mocking email send.');
-        // Validate attachment paths exist when mocking
-        for (const a of attachments) {
-            if (a.path && !fs.existsSync(a.path)) {
-                return { success: false, error: `Attachment missing: ${a.path}` };
-            }
-        }
+    if (!process.env.RESEND_API_KEY) {
+        console.warn('Resend API key missing. Mocking email send.');
         return { success: true, messageId: 'mock-id' };
     }
 
     try {
-        const info = await transporter.sendMail({
-            from: `"CertiCraft" <${process.env.MAIL_USERNAME}>`,
-            to,
-            subject,
-            text,
-            html,
-            attachments
-        });
-        console.log('Message sent: %s', info.messageId);
-        return { success: true, messageId: info.messageId };
+        // Convert attachments to Resend format
+        const resendAttachments = attachments.map(att => {
+            if (att.path && fs.existsSync(att.path)) {
+                const content = fs.readFileSync(att.path);
+                return {
+                    filename: att.filename || 'attachment.pdf',
+                    content: content
+                };
+            }
+            return null;
+        }).filter(Boolean);
+
+        const emailData = {
+            from: 'CertiCraft <onboarding@resend.dev>',
+            to: to,
+            subject: subject,
+            html: html
+        };
+
+        if (resendAttachments.length > 0) {
+            emailData.attachments = resendAttachments;
+        }
+
+        const data = await resend.emails.send(emailData);
+
+        console.log('✅ Email sent successfully via Resend to:', to, '| ID:', data.id);
+        return { success: true, messageId: data.id };
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('❌ Resend email sending failed:');
+        console.error('  To:', to);
+        console.error('  Error:', error.message);
+        console.error('  Details:', error);
         return { success: false, error: error.message };
     }
 };
