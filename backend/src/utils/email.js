@@ -2,12 +2,19 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 
 // Create reusable transporter object using the default SMTP transport
+// Create reusable transporter object using explicit SMTP settings for better reliability on Render
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD // App Password
-    }
+        pass: process.env.MAIL_PASSWORD
+    },
+    // Increase connection timeout to 30 seconds (default is usually lower)
+    connectionTimeout: 30000,
+    // Increase greeting timeout
+    greetingTimeout: 30000
 });
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
