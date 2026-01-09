@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const { Certificate, Participant, Event, Template, ActivityLog } = require('../models');
 const { v4: uuidv4 } = require('uuid');
 const { sendEmail } = require('../utils/email');
+const { uploadFile } = require('../utils/supabase');
 const path = require('path');
 const fs = require('fs');
 const { generateCertificatePdf } = require('../utils/certificateGenerator');
@@ -77,7 +78,12 @@ router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, 
           outputPath: outPath
         });
 
-        await existing.update({ filePath: outPath, generationStatus: 'GENERATED', generatedAt: new Date() });
+        // Upload to Supabase
+        const { data: uploadData, error: uploadError } = await uploadFile('certificates', 'pdfs', outPath);
+
+        const storagePath = uploadData?.publicUrl || outPath;
+
+        await existing.update({ filePath: storagePath, generationStatus: 'GENERATED', generatedAt: new Date() });
         created.push(existing);
       } catch (err) {
         await existing.update({ generationStatus: 'FAILED', errorMessage: err.message });

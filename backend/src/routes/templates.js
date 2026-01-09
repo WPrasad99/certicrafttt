@@ -31,6 +31,7 @@ const upload = multer({
 
 const auth = require('../middleware/auth');
 const { Template, Event, ActivityLog } = require('../models');
+const { uploadFile } = require('../utils/supabase');
 
 const { Collaborator } = require('../models');
 
@@ -67,15 +68,20 @@ router.post('/upload', auth, checkEventOwnership, async (req, res) => {
       if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
       const eventId = req.params.eventId;
 
+      // Upload to Supabase
+      const { data: uploadData, error: uploadError } = await uploadFile('certificates', 'templates', req.file.path);
+
+      const storagePath = uploadData?.publicUrl || req.file.path;
+
       // Upsert template
       let template = await Template.findOne({ where: { eventId } });
       if (template) {
-        await template.update({ originalName: req.file.originalname, filePath: req.file.path });
+        await template.update({ originalName: req.file.originalname, filePath: storagePath });
       } else {
         template = await Template.create({
           eventId,
           originalName: req.file.originalname,
-          filePath: req.file.path
+          filePath: storagePath
         });
       }
 
@@ -83,13 +89,13 @@ router.post('/upload', auth, checkEventOwnership, async (req, res) => {
         eventId,
         userId: req.user.id,
         action: 'UPLOAD_TEMPLATE',
-        details: `Uploaded template: ${req.file.originalname}`
+        details: `Uploaded template: ${req.file.originalname} (Supabase: ${!!uploadData?.publicUrl})`
       });
 
       // Read file and attach base64 data and mime type for frontend convenience
       try {
-        const buffer = fs.readFileSync(template.filePath);
-        const mimeType = mime.lookup(template.filePath) || 'image/png';
+        const buffer = fs.readFileSync(req.file.path);
+        const mimeType = mime.lookup(req.file.path) || 'image/png';
         const imageData = buffer.toString('base64');
         const payload = { ...template.toJSON(), imageData, mimeType };
         return res.json(payload);
