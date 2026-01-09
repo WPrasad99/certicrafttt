@@ -198,13 +198,38 @@ router.get('/events/:eventId/download-all', auth, checkEventOwnership, async (re
     archive.on('error', err => { throw err; });
     archive.pipe(res);
 
+    const tempFiles = [];
+
     for (const cert of certs) {
-      if (cert.filePath && fs.existsSync(cert.filePath)) {
-        archive.file(cert.filePath, { name: `certificate_${cert.id}_${cert.Participant.name.replace(/\s+/g, '_')}.pdf` });
+      if (cert.filePath) {
+        if (isSupabaseUrl(cert.filePath)) {
+          // Download from Supabase to temporary file
+          try {
+            const buffer = await downloadFileFromUrl(cert.filePath);
+            const tempPath = path.join(certOutDir, `temp_zip_${Date.now()}_${cert.id}.pdf`);
+            fs.writeFileSync(tempPath, buffer);
+            archive.file(tempPath, { name: `certificate_${cert.id}_${cert.Participant.name.replace(/\s+/g, '_')}.pdf` });
+            tempFiles.push(tempPath);
+          } catch (err) {
+            console.error('Failed to download certificate for ZIP:', err);
+          }
+        } else if (fs.existsSync(cert.filePath)) {
+          archive.file(cert.filePath, { name: `certificate_${cert.id}_${cert.Participant.name.replace(/\s+/g, '_')}.pdf` });
+        }
       }
     }
 
     await archive.finalize();
+
+    // Clean up temp files after archive is finalized
+    // Use setImmediate to ensure archive has finished writing
+    setImmediate(() => {
+      tempFiles.forEach(file => {
+        if (fs.existsSync(file)) {
+          fs.unlinkSync(file);
+        }
+      });
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
