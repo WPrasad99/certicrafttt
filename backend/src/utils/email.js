@@ -3,23 +3,22 @@ const fs = require('fs');
 
 // Create reusable transporter object using the default SMTP transport
 // Create reusable transporter object using explicit SMTP settings
-// Using smtp.googlemail.com alias and Port 465 (SSL) for better reachability
+// Support dynamic host for switching providers (Gmail, Outlook, Brevo)
 const transporter = nodemailer.createTransport({
-    host: 'smtp.googlemail.com', // Alternative hostname often works better
-    port: 465,
-    secure: true, // true for 465, false for other ports
+    host: process.env.MAIL_HOST || 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
     auth: {
         user: process.env.MAIL_USERNAME,
         pass: process.env.MAIL_PASSWORD
     },
-    // Enable logging to see detailed handshake info in Render logs for debugging
-    logger: true,
-    debug: true,
-    // Robust timeouts
-    connectionTimeout: 10000, // 10s is usually enough to connect; if valid
-    greetingTimeout: 10000,
-    socketTimeout: 30000
-    // Removed tls: rejectUnauthorized: false as it is generally unsafe, 465 should be secure.
+    tls: {
+        rejectUnauthorized: true
+    },
+    // Extended timeouts to handle network latency
+    connectionTimeout: 60000,
+    greetingTimeout: 60000,
+    socketTimeout: 60000
 });
 
 const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
@@ -30,8 +29,11 @@ const sendEmail = async ({ to, subject, html, text, attachments = [] }) => {
     }
 
     try {
+        const fromAddress = process.env.FROM_EMAIL || `"CertiCraft" <${process.env.MAIL_USERNAME}>`;
+        console.log(`Sending email using host: ${process.env.MAIL_HOST || 'default'} | From: ${fromAddress}`);
+
         const mailOptions = {
-            from: process.env.FROM_EMAIL || `"CertiCraft" <${process.env.MAIL_USERNAME}>`,
+            from: fromAddress,
             to: to,
             subject: subject,
             html: html,
