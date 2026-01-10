@@ -68,9 +68,21 @@ function ParticipantsTab({
 
             {Array.isArray(participants) && participants.length > 0 && (
                 <div className="card">
-                    <div className="participant-actions">
+                    <div className="participant-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h3>Participants List ({participants.length})</h3>
-                        <h3>Participants List ({participants.length})</h3>
+                        {isOwner && (
+                            <button
+                                onClick={() => {
+                                    if (window.confirm('DANGER: Are you sure you want to remove ALL participants? This will also delete their generated certificates. This action cannot be undone.')) {
+                                        onDeleteAllParticipants();
+                                    }
+                                }}
+                                className="btn btn-danger btn-sm"
+                                disabled={loading}
+                            >
+                                Remove All Participants
+                            </button>
+                        )}
                     </div>
                     <div className="table-container">
                         <table>

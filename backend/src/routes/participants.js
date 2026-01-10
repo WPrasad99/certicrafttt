@@ -104,10 +104,32 @@ router.delete('/:participantId', auth, checkEventOwnership, async (req, res) => 
   res.json({ message: 'deleted' });
 });
 
-router.delete('/all', auth, checkEventOwnership, async (req, res) => {
-  const eventId = req.params.eventId;
-  await Participant.destroy({ where: { eventId } });
-  res.json({ message: 'deleted_all' });
+router.delete('/all', auth, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+
+    // Strict Owner Check: bypass checkEventOwnership middleware logic which allows collaborators
+    const event = await Event.findByPk(eventId);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    if (event.organizerId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied: Only the event owner can remove all participants' });
+    }
+
+    // Perform deletion
+    await Participant.destroy({ where: { eventId } });
+
+    await ActivityLog.create({
+      eventId,
+      userId: req.user.id,
+      action: 'DELETE_ALL_PARTICIPANTS',
+      details: 'Removed all participants and their data'
+    });
+
+    res.json({ message: 'deleted_all' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
