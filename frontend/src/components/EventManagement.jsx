@@ -15,6 +15,12 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         (currentUser.id && String(currentUser.id) === String(event.organizerId)) ||
         (currentUser.email && event.organizerEmail && currentUser.email === event.organizerEmail)
     ));
+
+    console.log('[DEBUG] Owner Check:', {
+        userId: currentUser?.id,
+        eventOrganizerId: event?.organizerId,
+        isOwner
+    });
     const [activeTab, setActiveTab] = useState(initialTab);
     const [participants, setParticipants] = useState([]);
     const [certificateStatus, setCertificateStatus] = useState([]);

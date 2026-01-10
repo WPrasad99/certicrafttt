@@ -78,7 +78,8 @@ function ParticipantsTab({
                                         onDeleteAllParticipants();
                                     }
                                 }}
-                                className="btn btn-danger btn-sm"
+                                className="btn btn-sm"
+                                style={{ backgroundColor: '#dc2626', color: 'white', border: 'none' }}
                                 disabled={loading}
                             >
                                 Remove All Participants
