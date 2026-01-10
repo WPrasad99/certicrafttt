@@ -8,7 +8,8 @@ function ParticipantsTab({
     onDeleteParticipant,
     onDeleteAllParticipants,
     onEditTemplate,
-    loading
+    loading,
+    isOwner
 }) {
     return (
         <div className="tab-content">
