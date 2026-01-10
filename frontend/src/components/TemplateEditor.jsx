@@ -93,7 +93,6 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
             await templateService.updateCoordinates(eventId, coords);
             showToast('Template coordinates saved', 'success');
             onTemplateSaved && onTemplateSaved();
-            onClose();
         } catch (err) {
             showToast('Failed to save coordinates', 'error');
         }
@@ -123,132 +122,184 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
                     <h3>{template ? 'Edit Template' : 'Add Template'}</h3>
                     <button onClick={onClose} className="btn btn-secondary">Close</button>
                 </div>
+
                 <div className="template-editor-body">
-                    <div className="editor-main-area" style={{ display: 'flex', gap: '20px', height: '100%' }}>
+                    {/* LEFT: Main Canvas Area */}
+                    <div className="editor-canvas">
+                        {imageSrc ? (
+                            <div className="image-container" onClick={handleClick} style={{ cursor: 'crosshair' }}>
+                                <img ref={imgRef} src={imageSrc} alt="Template" />
 
-                        {/* Left Side: Editor */}
-                        <div className="editor-canvas" style={{ flex: 1, overflow: 'auto' }}>
-                            {imageSrc ? (
-                                <div className="image-container" onClick={handleClick} style={{ position: 'relative', display: 'inline-block' }}>
-                                    <img ref={imgRef} src={imageSrc} alt="Template" style={{ maxWidth: '100%', display: 'block' }} />
-                                    {coords.nameX != null && coords.nameY != null && (
-                                        <div
-                                            className="marker marker-name"
-                                            style={{
-                                                left: `calc(${(coords.nameX / (imgRef.current?.naturalWidth || 1)) * 100}% - 2px)`,
-                                                top: `calc(${(coords.nameY / (imgRef.current?.naturalHeight || 1)) * 100}% - 2px)`,
-                                            }}
-                                        />
-                                    )}
-                                    {coords.qrX != null && coords.qrY != null && (
-                                        <div
-                                            className="marker marker-qr"
-                                            style={{
-                                                left: `calc(${(coords.qrX / (imgRef.current?.naturalWidth || 1)) * 100}% - 2px)`,
-                                                top: `calc(${(coords.qrY / (imgRef.current?.naturalHeight || 1)) * 100}% - 2px)`,
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="upload-container">
-                                    <p>No template uploaded yet. Upload an image (PNG/JPG) and then click on the image to set the name and QR code positions.</p>
-                                    <input type="file" accept="image/*" onChange={(e) => handleUpload(e.target.files[0])} disabled={loading} />
-                                    {hasUploaded && <div style={{ marginTop: 8, color: '#666' }}>Now click on the image to set positions.</div>}
-                                </div>
-                            )}
-                        </div>
+                                {/* Instant Frontend Overlay - NAME */}
+                                {coords.nameX != null && coords.nameY != null && (
+                                    <div
+                                        className={`overlay-element overlay-name ${selectionMode === 'name' ? 'active' : ''}`}
+                                        style={{
+                                            left: `calc(${(coords.nameX / (imgRef.current?.naturalWidth || 1)) * 100}%)`,
+                                            top: `calc(${(coords.nameY / (imgRef.current?.naturalHeight || 1)) * 100}%)`,
+                                            fontSize: `${(coords.fontSize || 40) * ((imgRef.current?.width || 1) / (imgRef.current?.naturalWidth || 1))}px`,
+                                            color: coords.fontColor || '#000000',
+                                            border: selectionMode === 'name' ? '2px dashed #2563eb' : '1px dashed rgba(0,0,0,0.2)'
+                                        }}
+                                    >
+                                        John Doe
+                                    </div>
+                                )}
 
-                        {/* Right Side: Live Preview */}
-                        <div className="preview-pane" style={{ width: '300px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            <h4>Live Preview</h4>
-                            <div className="preview-frame" style={{ flex: 1, border: '1px solid #ddd', background: '#f9f9f9', borderRadius: '4px', overflow: 'hidden' }}>
-                                {previewUrl ? (
-                                    <iframe
-                                        src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                                        title="Certificate Preview"
-                                        width="100%"
-                                        height="100%"
-                                        style={{ border: 'none' }}
-                                    />
-                                ) : (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#999', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
-                                        Set positions to see preview
+                                {/* Instant Frontend Overlay - QR */}
+                                {coords.qrX != null && coords.qrY != null && (
+                                    <div
+                                        className={`overlay-element overlay-qr ${selectionMode === 'qr' ? 'active' : ''}`}
+                                        style={{
+                                            left: `calc(${(coords.qrX / (imgRef.current?.naturalWidth || 1)) * 100}%)`,
+                                            top: `calc(${(coords.qrY / (imgRef.current?.naturalHeight || 1)) * 100}%)`,
+                                            width: `${(coords.qrSize || 100) * ((imgRef.current?.width || 1) / (imgRef.current?.naturalWidth || 1))}px`,
+                                            height: `${(coords.qrSize || 100) * ((imgRef.current?.width || 1) / (imgRef.current?.naturalWidth || 1))}px`,
+                                            border: selectionMode === 'qr' ? '2px dashed #2563eb' : '1px dashed rgba(0,0,0,0.2)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            backgroundColor: 'rgba(255,255,255,0.8)'
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '10px' }}>QR</span>
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        ) : (
+                            <div className="upload-placeholder">
+                                <div style={{ marginBottom: '20px' }}>
+                                    <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 0 01-.88-7.903A5 0 1115.9 6L16 6a5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                </div>
+                                <h3>Upload a Certificate Template</h3>
+                                <p style={{ maxWidth: '400px', margin: '10px auto' }}>
+                                    Upload a high-quality PNG or JPG image of your certificate. You'll be able to position the name and QR code overlays in the next step.
+                                </p>
+                                <input
+                                    type="file"
+                                    id="template-upload"
+                                    accept="image/*"
+                                    onChange={(e) => handleUpload(e.target.files[0])}
+                                    disabled={loading}
+                                    style={{ display: 'none' }}
+                                />
+                                <label htmlFor="template-upload" className="btn btn-primary" style={{ marginTop: '10px' }}>
+                                    {loading ? 'Uploading...' : 'Choose Image'}
+                                </label>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="controls">
-                        <div style={{ marginBottom: '12px', padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Click Mode:</label>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button
-                                    onClick={() => setSelectionMode('name')}
-                                    className={`btn ${selectionMode === 'name' ? 'btn-primary' : 'btn-secondary'}`}
-                                    style={{ flex: 1, fontSize: '12px' }}
-                                >
-                                    Name Position
-                                </button>
-                                <button
-                                    onClick={() => setSelectionMode('qr')}
-                                    className={`btn ${selectionMode === 'qr' ? 'btn-primary' : 'btn-secondary'}`}
-                                    style={{ flex: 1, fontSize: '12px' }}
-                                >
-                                    QR Position
-                                </button>
+                    {/* RIGHT: Sidebar Controls */}
+                    <div className="editor-sidebar">
+                        <div className="sidebar-scroll">
+                            {/* Mode Selection */}
+                            <div className="control-group">
+                                <h4>Editing Mode</h4>
+                                <div className="mode-toggles">
+                                    <button
+                                        onClick={() => setSelectionMode('name')}
+                                        className={`toggle-btn ${selectionMode === 'name' ? 'active' : ''}`}
+                                    >
+                                        Name Position
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectionMode('qr')}
+                                        className={`toggle-btn ${selectionMode === 'qr' ? 'active' : ''}`}
+                                    >
+                                        QR Position
+                                    </button>
+                                </div>
+                                <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                    Click on the image to place the {selectionMode === 'name' ? 'participant name' : 'verification QR code'}.
+                                </p>
+                            </div>
+
+                            <hr style={{ borderColor: '#eee' }} />
+
+                            {/* Styling Controls */}
+                            <div className="control-group">
+                                <h4>Appearance</h4>
+                                <div className="input-group">
+                                    <label>Font Size</label>
+                                    <input
+                                        type="number"
+                                        value={coords.fontSize || ''}
+                                        onChange={(e) => setCoords({ ...coords, fontSize: parseInt(e.target.value || '0') || null })}
+                                        placeholder="40"
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label>Font Color</label>
+                                    <input
+                                        type="color"
+                                        value={coords.fontColor || '#000000'}
+                                        onChange={(e) => setCoords({ ...coords, fontColor: e.target.value })}
+                                        style={{ height: '40px', padding: '2px' }}
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label>QR Size (px)</label>
+                                    <input
+                                        type="number"
+                                        value={coords.qrSize || ''}
+                                        onChange={(e) => setCoords({ ...coords, qrSize: parseInt(e.target.value || '0') || null })}
+                                        placeholder="100"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* PDF Preview (Small) */}
+                            <div className="preview-box">
+                                <h4>PDF Verification</h4>
+                                <div className="preview-frame-container">
+                                    {previewUrl ? (
+                                        <iframe
+                                            src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=Fit`}
+                                            title="Certificate Preview"
+                                            width="100%"
+                                            height="100%"
+                                            style={{ border: 'none' }}
+                                        />
+                                    ) : (
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#999', fontSize: '12px' }}>
+                                            Set positions to see PDF preview
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        <label>Font size</label>
-                        <input
-                            type="number"
-                            value={coords.fontSize || ''}
-                            onChange={(e) => setCoords({ ...coords, fontSize: parseInt(e.target.value || '0') || null })}
-                        />
+                        {/* Footer Buttons */}
+                        <div className="sidebar-footer">
+                            <div className="button-row" style={{ flexDirection: 'column' }}>
+                                <button
+                                    onClick={handleSave}
+                                    className="btn btn-primary"
+                                    style={{ width: '100%', padding: '12px' }}
+                                    disabled={coords.nameX == null || coords.nameY == null || coords.qrX == null || coords.qrY == null}
+                                >
+                                    Save Coordinates
+                                </button>
 
-                        <label>Font color</label>
-                        <input
-                            type="color"
-                            value={coords.fontColor || '#000000'}
-                            onChange={(e) => setCoords({ ...coords, fontColor: e.target.value })}
-                        />
-
-                        <label>QR Code size (px)</label>
-                        <input
-                            type="number"
-                            value={coords.qrSize || ''}
-                            onChange={(e) => setCoords({ ...coords, qrSize: parseInt(e.target.value || '0') || null })}
-                            placeholder="100"
-                        />
-
-                        <div className="button-row">
-                            <button onClick={handleSave} className="btn btn-primary" disabled={coords.nameX == null || coords.nameY == null || coords.qrX == null || coords.qrY == null}>Save Coordinates</button>
-                            <button onClick={onClose} className="btn btn-secondary">Cancel</button>
+                                {imageSrc && (
+                                    <button
+                                        onClick={handleRemove}
+                                        className="btn btn-danger"
+                                        style={{
+                                            width: '100%',
+                                            marginTop: '8px',
+                                            background: '#fff1f2',
+                                            color: '#e11d48',
+                                            border: '1px solid #fecdd3'
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        Remove Template
+                                    </button>
+                                )}
+                            </div>
                         </div>
-
-                        {imageSrc && (
-                            <button
-                                onClick={handleRemove}
-                                className="btn btn-danger"
-                                style={{
-                                    marginTop: '20px',
-                                    width: '100%',
-                                    padding: '10px',
-                                    borderRadius: '6px',
-                                    backgroundColor: '#fee2e2',
-                                    color: '#dc2626',
-                                    border: '1px solid #fecaca',
-                                    cursor: 'pointer',
-                                    fontSize: '13px',
-                                    fontWeight: '500'
-                                }}
-                                disabled={loading}
-                            >
-                                {loading ? 'Removing...' : 'Remove Template'}
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>
