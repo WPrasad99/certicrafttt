@@ -586,6 +586,7 @@
 }
 
 /* Mobile Responsiveness */
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
     .navbar {
         height: auto;
@@ -593,73 +594,49 @@
     }
 
     .navbar-content {
-        flex-direction: row;
-        /* KEEP HORIZONTAL */
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 16px;
         align-items: center;
     }
 
     .navbar-brand {
-        flex: 0 1 auto;
-    }
-
-    .navbar-logo {
-        height: 40px;
-    }
-
-    .navbar h2 {
-        font-size: 1.15rem;
-    }
-
-    .brand-line {
-        display: none;
+        width: 100%;
+        justify-content: center;
     }
 
     .secondary-actions {
-        flex: 0 0 auto;
-        gap: 12px;
-    }
-
-    .navbar-actions {
-        display: flex;
-        /* ENSURE VISIBLE */
-        gap: 8px;
-    }
-
-    /* Hide text on small buttons if needed */
-    .btn-sm {
-        padding: 6px 10px;
+        width: 100%;
+        justify-content: center;
+        gap: 16px;
     }
 
     .container {
-        padding: 24px 16px;
-    }
-
-    .welcome-user {
-        font-size: 1.4rem;
+        padding: 16px;
     }
 
     .stats-container {
         grid-template-columns: 1fr;
         gap: 16px;
+        margin: 24px 0;
     }
 
     .events-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
     }
 
-    .action-grid {
+    .dashboard-header {
+        text-align: center;
+    }
+
+    .header-title-row {
         flex-direction: column;
-        gap: 12px;
+        align-items: center;
+        gap: 8px;
     }
 
-    .notifications-dropdown {
-        position: fixed;
-        top: 70px;
-        left: 10px;
-        right: 10px;
-        width: calc(100% - 20px);
-        max-height: 70vh;
+    .welcome-banner {
+        justify-content: center;
     }
 }
 
