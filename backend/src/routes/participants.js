@@ -98,12 +98,6 @@ router.post('/upload', auth, checkEventOwnership, upload.single('file'), async (
   }
 });
 
-router.delete('/:participantId', auth, checkEventOwnership, async (req, res) => {
-  const { eventId, participantId } = req.params;
-  await Participant.destroy({ where: { id: participantId, eventId } });
-  res.json({ message: 'deleted' });
-});
-
 router.delete('/all', auth, checkEventOwnership, async (req, res) => {
   try {
     const eventId = req.params.eventId;
@@ -122,6 +116,12 @@ router.delete('/all', auth, checkEventOwnership, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.delete('/:participantId', auth, checkEventOwnership, async (req, res) => {
+  const { eventId, participantId } = req.params;
+  await Participant.destroy({ where: { id: participantId, eventId } });
+  res.json({ message: 'deleted' });
 });
 
 module.exports = router;
