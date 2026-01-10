@@ -34,6 +34,88 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
         return () => clearTimeout(timer);
     }, [coords, eventId, imageSrc]); // Dependencies: updates when coords change
 
+    const handleClick = (e) => {
+        if (!imgRef.current) return;
+        const img = imgRef.current;
+        const rect = img.getBoundingClientRect();
+        // Compute click coords relative to the image's natural size
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        const naturalWidth = img.naturalWidth;
+        const naturalHeight = img.naturalHeight;
+        const displayedWidth = rect.width;
+        const displayedHeight = rect.height;
+
+        const ratioX = Math.max(0, Math.min(1, clickX / displayedWidth));
+        const ratioY = Math.max(0, Math.min(1, clickY / displayedHeight));
+
+        const x = Math.round(ratioX * naturalWidth);
+        const y = Math.round(ratioY * naturalHeight);
+
+        if (selectionMode === 'name') {
+            setCoords({ ...coords, nameX: x, nameY: y });
+        } else if (selectionMode === 'qr') {
+            setCoords({ ...coords, qrX: x, qrY: y });
+        }
+    };
+
+    const handleUpload = async (file) => {
+        if (!file) return;
+        setLoading(true);
+        try {
+            const res = await templateService.uploadTemplate(eventId, file);
+            // Backend returns imageData + mimeType when successful
+            setTemplate(res);
+            setImageSrc(`data:${res.mimeType || 'image/png'};base64,${res.imageData}`);
+            // Reset coords and prompt user to pick name center
+            setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: res.fontSize || 40, fontColor: res.fontColor || '#000000', qrSize: res.qrSize || 100 });
+            setHasUploaded(true);
+            showToast('Template uploaded. Click on the image to set the name and QR code positions.', 'success');
+            onTemplateSaved && onTemplateSaved();
+        } catch (err) {
+            const msg = err.response?.data?.error || err.message || 'Failed to upload template';
+            showToast(msg, 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSave = async () => {
+        if (coords.nameX == null || coords.nameY == null) {
+            showToast('Please click on the template to set the name center before saving.', 'error');
+            return;
+        }
+        if (coords.qrX == null || coords.qrY == null) {
+            showToast('Please click on the template to set the QR code position before saving.', 'error');
+            return;
+        }
+        try {
+            await templateService.updateCoordinates(eventId, coords);
+            showToast('Template coordinates saved', 'success');
+            onTemplateSaved && onTemplateSaved();
+            onClose();
+        } catch (err) {
+            showToast('Failed to save coordinates', 'error');
+        }
+    };
+
+    const handleRemove = async () => {
+        if (!window.confirm('Are you sure you want to remove this template? This will revert the event to having no template.')) return;
+        try {
+            setLoading(true);
+            await templateService.deleteTemplate(eventId);
+            setTemplate(null);
+            setImageSrc(null);
+            setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: 40, fontColor: '#000000', qrSize: 100 });
+            showToast('Template removed', 'success');
+            onTemplateSaved && onTemplateSaved();
+        } catch (err) {
+            showToast('Failed to remove template', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="template-editor-overlay">
             <div className="template-editor">
