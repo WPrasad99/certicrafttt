@@ -12,7 +12,7 @@ if (supabaseUrl && supabaseKey) {
     console.warn('Supabase URL or Key missing. Storage functions will be mocked.');
 }
 
-const uploadFile = async (bucket, folder, filePath) => {
+const uploadFile = async (bucket, folder, filePath, mimeType = 'application/pdf') => {
     if (!supabase) {
         console.warn(`Mocking upload for ${filePath} to ${bucket}/${folder}`);
         return { data: { path: `${folder}/${path.basename(filePath)}` }, error: null };
@@ -26,7 +26,7 @@ const uploadFile = async (bucket, folder, filePath) => {
             .from(bucket)
             .upload(fileName, fileBuffer, {
                 upsert: true,
-                contentType: 'application/pdf' // Default to PDF for certificates
+                contentType: mimeType // Use provided mimeType or default to PDF
             });
 
         if (error) throw error;

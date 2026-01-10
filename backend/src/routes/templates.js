@@ -69,7 +69,7 @@ router.post('/upload', auth, checkEventOwnership, async (req, res) => {
       const eventId = req.params.eventId;
 
       // Upload to Supabase
-      const { data: uploadData, error: uploadError } = await uploadFile('certificates', 'templates', req.file.path);
+      const { data: uploadData, error: uploadError } = await uploadFile('certificates', 'templates', req.file.path, req.file.mimetype);
 
       const storagePath = uploadData?.publicUrl || req.file.path;
 
