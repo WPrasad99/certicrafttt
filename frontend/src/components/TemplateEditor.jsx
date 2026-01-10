@@ -11,6 +11,34 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
     const [previewUrl, setPreviewUrl] = useState(null);
     const imgRef = useRef();
 
+    // Load template on mount
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const t = await templateService.getTemplate(eventId);
+                if (!t) {
+                    setTemplate(null);
+                    setImageSrc(null);
+                    setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: 40, fontColor: '#000000', qrSize: 100 });
+                    return;
+                }
+                setTemplate(t);
+                // Prefer imageUrl (Supabase direct link) over base64
+                const src = t.imageUrl || (t.imageData ? `data:${t.mimeType || 'image/png'};base64,${t.imageData}` : null);
+                setImageSrc(src);
+                setCoords({ nameX: t.nameX, nameY: t.nameY, qrX: t.qrX, qrY: t.qrY, fontSize: t.fontSize, fontColor: t.fontColor, qrSize: t.qrSize || 100 });
+            } catch (err) {
+                if (err?.response?.status === 404) {
+                    setTemplate(null);
+                    setImageSrc(null);
+                } else {
+                    showToast('Failed to load template', 'error');
+                }
+            }
+        };
+        load();
+    }, [eventId]);
+
     // Real-time preview effect with debounce
     useEffect(() => {
         if (!imageSrc || !coords.nameX || !coords.nameY || !coords.qrX || !coords.qrY) return;

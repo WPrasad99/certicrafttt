@@ -45,8 +45,12 @@ async function generateCertificatePdf({
   // Draw QR code if coordinates are provided
   if (qrCoords && typeof qrCoords.qrX === 'number' && typeof qrCoords.qrY === 'number') {
     try {
-      // Generate QR code with naming only
-      const qrDataUrl = await QRCode.toDataURL(name, {
+      // Use verification URL if ID is provided, else fallback to name (for previews)
+      const qrContent = verificationId
+        ? `${process.env.FRONTEND_URL || 'https://certicraft.render.com'}/verify/${verificationId}`
+        : name;
+
+      const qrDataUrl = await QRCode.toDataURL(qrContent, {
         width: qrSize || 100,
         margin: 1,
         color: {
