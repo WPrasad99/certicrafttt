@@ -66,7 +66,9 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
             const res = await templateService.uploadTemplate(eventId, file);
             // Backend returns imageData + mimeType when successful
             setTemplate(res);
-            setImageSrc(`data:${res.mimeType || 'image/png'};base64,${res.imageData}`);
+            // Prefer imageUrl (Supabase direct link) over base64
+            const src = res.imageUrl || (res.imageData ? `data:${res.mimeType || 'image/png'};base64,${res.imageData}` : null);
+            setImageSrc(src);
             // Reset coords and prompt user to pick name center
             setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: res.fontSize || 40, fontColor: res.fontColor || '#000000', qrSize: res.qrSize || 100 });
             setHasUploaded(true);

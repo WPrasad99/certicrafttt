@@ -122,9 +122,8 @@ router.get('/', auth, checkEventOwnership, async (req, res) => {
 
       // Check if filePath is a Supabase URL or local path
       if (isSupabaseUrl(template.filePath)) {
-        // Fetch from Supabase
-        buffer = await downloadFileFromUrl(template.filePath);
-        mimeType = 'image/png'; // Default for templates
+        // Return public URL directly - don't download on server
+        return res.json({ ...template.toJSON(), imageUrl: template.filePath, mimeType: 'image/png' });
       } else if (fs.existsSync(template.filePath)) {
         // Read from local disk
         buffer = fs.readFileSync(template.filePath);
