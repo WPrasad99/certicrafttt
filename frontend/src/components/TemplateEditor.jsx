@@ -11,130 +11,28 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
     const [previewUrl, setPreviewUrl] = useState(null);
     const imgRef = useRef();
 
+    // Real-time preview effect with debounce
     useEffect(() => {
-        const load = async () => {
+        if (!imageSrc || !coords.nameX || !coords.nameY || !coords.qrX || !coords.qrY) return;
+
+        const timer = setTimeout(async () => {
+            // Avoid setting loading=true here to prevent UI flickering, just update silently or show small indicator?
+            // Or keep loading but make it subtle. 
+            // For now we just call handlePreview logic directly.
             try {
-                const t = await templateService.getTemplate(eventId);
-                if (!t) {
-                    // No template yet - let user upload one
-                    setTemplate(null);
-                    setImageSrc(null);
-                    setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: 40, fontColor: '#000000', qrSize: 100 });
-                    return;
-                }
-                setTemplate(t);
-                // Build data URI using returned mimeType
-                setImageSrc(`data:${t.mimeType || 'image/png'};base64,${t.imageData}`);
-                setCoords({ nameX: t.nameX, nameY: t.nameY, qrX: t.qrX, qrY: t.qrY, fontSize: t.fontSize, fontColor: t.fontColor, qrSize: t.qrSize || 100 });
+                const blob = await templateService.getPreview(eventId, coords);
+                const url = URL.createObjectURL(blob);
+                setPreviewUrl(prev => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return url;
+                });
             } catch (err) {
-                // getTemplate returns null on 404; treat that as no template
-                if (err?.response?.status === 404) {
-                    setTemplate(null);
-                    setImageSrc(null);
-                    setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: 40, fontColor: '#000000', qrSize: 100 });
-                } else {
-                    showToast('Failed to load template', 'error');
-                }
+                console.error('Preview generation failed', err);
             }
-        };
-        load();
-    }, [eventId]);
+        }, 800); // 800ms debounce
 
-    const handleClick = (e) => {
-        if (!imgRef.current) return;
-        const img = imgRef.current;
-        const rect = img.getBoundingClientRect();
-        // Compute click coords relative to the image's natural size
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-        const naturalWidth = img.naturalWidth;
-        const naturalHeight = img.naturalHeight;
-        const displayedWidth = rect.width;
-        const displayedHeight = rect.height;
-
-        const ratioX = Math.max(0, Math.min(1, clickX / displayedWidth));
-        const ratioY = Math.max(0, Math.min(1, clickY / displayedHeight));
-
-        const x = Math.round(ratioX * naturalWidth);
-        const y = Math.round(ratioY * naturalHeight);
-
-        if (selectionMode === 'name') {
-            setCoords({ ...coords, nameX: x, nameY: y });
-        } else if (selectionMode === 'qr') {
-            setCoords({ ...coords, qrX: x, qrY: y });
-        }
-    };
-
-    const handleUpload = async (file) => {
-        if (!file) return;
-        setLoading(true);
-        try {
-            const res = await templateService.uploadTemplate(eventId, file);
-            // Backend returns imageData + mimeType when successful
-            setTemplate(res);
-            setImageSrc(`data:${res.mimeType || 'image/png'};base64,${res.imageData}`);
-            // Reset coords and prompt user to pick name center
-            setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: res.fontSize || 40, fontColor: res.fontColor || '#000000', qrSize: res.qrSize || 100 });
-            setHasUploaded(true);
-            showToast('Template uploaded. Click on the image to set the name and QR code positions.', 'success');
-            onTemplateSaved && onTemplateSaved();
-        } catch (err) {
-            const msg = err.response?.data?.error || err.message || 'Failed to upload template';
-            showToast(msg, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSave = async () => {
-        if (coords.nameX == null || coords.nameY == null) {
-            showToast('Please click on the template to set the name center before saving.', 'error');
-            return;
-        }
-        if (coords.qrX == null || coords.qrY == null) {
-            showToast('Please click on the template to set the QR code position before saving.', 'error');
-            return;
-        }
-        try {
-            await templateService.updateCoordinates(eventId, coords);
-            showToast('Template coordinates saved', 'success');
-            onTemplateSaved && onTemplateSaved();
-            onClose();
-        } catch (err) {
-            showToast('Failed to save coordinates', 'error');
-        }
-    };
-
-    const handleRemove = async () => {
-        if (!window.confirm('Are you sure you want to remove this template? This will revert the event to having no template.')) return;
-        try {
-            setLoading(true);
-            await templateService.deleteTemplate(eventId);
-            setTemplate(null);
-            setImageSrc(null);
-            setCoords({ nameX: null, nameY: null, qrX: null, qrY: null, fontSize: 40, fontColor: '#000000', qrSize: 100 });
-            showToast('Template removed', 'success');
-            onTemplateSaved && onTemplateSaved();
-        } catch (err) {
-            showToast('Failed to remove template', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handlePreview = async () => {
-        if (!imageSrc) return;
-        setLoading(true);
-        try {
-            const blob = await templateService.getPreview(eventId, coords);
-            const url = URL.createObjectURL(blob);
-            setPreviewUrl(url);
-        } catch (err) {
-            showToast('Failed to generate preview', 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
+        return () => clearTimeout(timer);
+    }, [coords, eventId, imageSrc]); // Dependencies: updates when coords change
 
     return (
         <div className="template-editor-overlay">
@@ -144,35 +42,62 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
                     <button onClick={onClose} className="btn btn-secondary">Close</button>
                 </div>
                 <div className="template-editor-body">
-                    {imageSrc ? (
-                        <div className="image-container" onClick={handleClick}>
-                            <img ref={imgRef} src={imageSrc} alt="Template" />
-                            {coords.nameX != null && coords.nameY != null && (
-                                <div
-                                    className="marker marker-name"
-                                    style={{
-                                        left: `calc(${(coords.nameX / (imgRef.current?.naturalWidth || 1)) * 100}% - 2px)`,
-                                        top: `calc(${(coords.nameY / (imgRef.current?.naturalHeight || 1)) * 100}% - 2px)`,
-                                    }}
-                                />
-                            )}
-                            {coords.qrX != null && coords.qrY != null && (
-                                <div
-                                    className="marker marker-qr"
-                                    style={{
-                                        left: `calc(${(coords.qrX / (imgRef.current?.naturalWidth || 1)) * 100}% - 2px)`,
-                                        top: `calc(${(coords.qrY / (imgRef.current?.naturalHeight || 1)) * 100}% - 2px)`,
-                                    }}
-                                />
+                    <div className="editor-main-area" style={{ display: 'flex', gap: '20px', height: '100%' }}>
+
+                        {/* Left Side: Editor */}
+                        <div className="editor-canvas" style={{ flex: 1, overflow: 'auto' }}>
+                            {imageSrc ? (
+                                <div className="image-container" onClick={handleClick} style={{ position: 'relative', display: 'inline-block' }}>
+                                    <img ref={imgRef} src={imageSrc} alt="Template" style={{ maxWidth: '100%', display: 'block' }} />
+                                    {coords.nameX != null && coords.nameY != null && (
+                                        <div
+                                            className="marker marker-name"
+                                            style={{
+                                                left: `calc(${(coords.nameX / (imgRef.current?.naturalWidth || 1)) * 100}% - 2px)`,
+                                                top: `calc(${(coords.nameY / (imgRef.current?.naturalHeight || 1)) * 100}% - 2px)`,
+                                            }}
+                                        />
+                                    )}
+                                    {coords.qrX != null && coords.qrY != null && (
+                                        <div
+                                            className="marker marker-qr"
+                                            style={{
+                                                left: `calc(${(coords.qrX / (imgRef.current?.naturalWidth || 1)) * 100}% - 2px)`,
+                                                top: `calc(${(coords.qrY / (imgRef.current?.naturalHeight || 1)) * 100}% - 2px)`,
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="upload-container">
+                                    <p>No template uploaded yet. Upload an image (PNG/JPG) and then click on the image to set the name and QR code positions.</p>
+                                    <input type="file" accept="image/*" onChange={(e) => handleUpload(e.target.files[0])} disabled={loading} />
+                                    {hasUploaded && <div style={{ marginTop: 8, color: '#666' }}>Now click on the image to set positions.</div>}
+                                </div>
                             )}
                         </div>
-                    ) : (
-                        <div className="upload-container">
-                            <p>No template uploaded yet. Upload an image (PNG/JPG) and then click on the image to set the name and QR code positions.</p>
-                            <input type="file" accept="image/*" onChange={(e) => handleUpload(e.target.files[0])} disabled={loading} />
-                            {hasUploaded && <div style={{ marginTop: 8, color: '#666' }}>Now click on the image to set positions.</div>}
+
+                        {/* Right Side: Live Preview */}
+                        <div className="preview-pane" style={{ width: '300px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <h4>Live Preview</h4>
+                            <div className="preview-frame" style={{ flex: 1, border: '1px solid #ddd', background: '#f9f9f9', borderRadius: '4px', overflow: 'hidden' }}>
+                                {previewUrl ? (
+                                    <iframe
+                                        src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                                        title="Certificate Preview"
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 'none' }}
+                                    />
+                                ) : (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#999', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
+                                        Set positions to see preview
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    )}
+                    </div>
+
                     <div className="controls">
                         <div style={{ marginBottom: '12px', padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Click Mode:</label>
@@ -217,7 +142,7 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
                         />
 
                         <div className="button-row">
-                            <button onClick={handleSave} className="btn btn-primary" disabled={coords.nameX == null || coords.nameY == null || coords.qrX == null || coords.qrY == null}>Save</button>
+                            <button onClick={handleSave} className="btn btn-primary" disabled={coords.nameX == null || coords.nameY == null || coords.qrX == null || coords.qrY == null}>Save Coordinates</button>
                             <button onClick={onClose} className="btn btn-secondary">Cancel</button>
                         </div>
 
@@ -239,74 +164,12 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
                                 }}
                                 disabled={loading}
                             >
-                                {loading ? 'Removing...' : 'Remove this file & Choose New'}
-                            </button>
-                        )}
-                        {imageSrc && (
-                            <button
-                                onClick={handlePreview}
-                                className="btn btn-secondary"
-                                style={{
-                                    marginTop: '10px',
-                                    width: '100%',
-                                    padding: '10px',
-                                    borderRadius: '6px',
-                                    backgroundColor: '#f3f4f6',
-                                    color: '#374151',
-                                    border: '1px solid #d1d5db',
-                                    cursor: 'pointer',
-                                    fontSize: '13px',
-                                    fontWeight: '500'
-                                }}
-                                disabled={loading}
-                            >
-                                {loading ? 'Generating Preview...' : 'Preview Certificate'}
+                                {loading ? 'Removing...' : 'Remove Template'}
                             </button>
                         )}
                     </div>
                 </div>
             </div>
-            {previewUrl && (
-                <div className="preview-overlay" style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    zIndex: 2000,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '20px'
-                }}>
-                    <div className="preview-content" style={{
-                        position: 'relative',
-                        maxHeight: '90vh',
-                        maxWidth: '90vw',
-                        background: 'white',
-                        padding: '10px',
-                        borderRadius: '8px'
-                    }}>
-                        <img src={previewUrl} alt="Certificate Preview" style={{ maxWidth: '100%', maxHeight: 'calc(90vh - 60px)' }} />
-                        <button
-                            onClick={() => {
-                                URL.revokeObjectURL(previewUrl);
-                                setPreviewUrl(null);
-                            }}
-                            className="btn btn-primary"
-                            style={{
-                                display: 'block',
-                                margin: '10px auto 0',
-                                width: 'fit-content'
-                            }}
-                        >
-                            Close Preview
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

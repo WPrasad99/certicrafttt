@@ -70,13 +70,7 @@ function ParticipantsTab({
                 <div className="card">
                     <div className="participant-actions">
                         <h3>Participants List ({participants.length})</h3>
-                        <button
-                            onClick={onDeleteAllParticipants}
-                            className="delete-all-btn"
-                            disabled={loading}
-                        >
-                            Remove All Participants
-                        </button>
+                        <h3>Participants List ({participants.length})</h3>
                     </div>
                     <div className="table-container">
                         <table>
