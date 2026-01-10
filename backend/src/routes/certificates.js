@@ -479,4 +479,64 @@ router.get('/verify/:verificationId', async (req, res) => {
   }
 });
 
+router.post('/events/:eventId/preview-certificate', auth, checkEventOwnership, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const { nameX, nameY, fontSize, fontColor, qrX, qrY, qrSize } = req.body;
+
+    const template = await Template.findOne({ where: { eventId } });
+    if (!template) return res.status(404).json({ message: 'Template not found' });
+
+    let templatePath = template.filePath;
+    let tempTemplatePath = null;
+    let tempOutPath = path.join(certOutDir, `preview_${Date.now()}.pdf`);
+
+    // Handle Supabase template
+    if (isSupabaseUrl(template.filePath)) {
+      try {
+        const buffer = await downloadFileFromUrl(template.filePath);
+        tempTemplatePath = path.join(certOutDir, `temp_preview_template_${Date.now()}.png`);
+        fs.writeFileSync(tempTemplatePath, buffer);
+        templatePath = tempTemplatePath;
+      } catch (err) {
+        return res.status(500).json({ error: 'Failed to download template for preview' });
+      }
+    } else if (!fs.existsSync(template.filePath)) {
+      return res.status(404).json({ error: 'Template file not found' });
+    }
+
+    // Generate Preview PDF
+    await generateCertificatePdf({
+      templatePath: templatePath,
+      name: 'John Doe', // generic preview name
+      coords: { nameX, nameY },
+      fontSize: fontSize || 40,
+      fontColor: fontColor || '#000000',
+      qrCoords: { qrX, qrY },
+      qrSize: qrSize || 100,
+      verificationId: 'PREVIEW-123',
+      outputPath: tempOutPath
+    });
+
+    // Stream back to client
+    res.setHeader('Content-Type', 'application/pdf');
+    const stream = fs.createReadStream(tempOutPath);
+    stream.pipe(res);
+
+    // Cleanup after stream finishes
+    stream.on('close', () => {
+      if (fs.existsSync(tempOutPath)) fs.unlinkSync(tempOutPath);
+      if (tempTemplatePath && fs.existsSync(tempTemplatePath)) fs.unlinkSync(tempTemplatePath);
+    });
+
+    stream.on('error', (err) => {
+      console.error('Preview stream error:', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Failed to stream preview' });
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

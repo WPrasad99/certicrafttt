@@ -69,4 +69,24 @@ const downloadFileFromUrl = async (url) => {
     }
 };
 
-module.exports = { supabase, uploadFile, isSupabaseUrl, downloadFileFromUrl };
+// Helper to delete file from Supabase
+const deleteFile = async (bucket, pathInBucket) => {
+    if (!supabase) {
+        console.warn(`Mocking delete for ${pathInBucket} from ${bucket}`);
+        return { data: {}, error: null };
+    }
+
+    try {
+        const { data, error } = await supabase.storage
+            .from(bucket)
+            .remove([pathInBucket]);
+
+        if (error) throw error;
+        return { data, error: null };
+    } catch (error) {
+        console.error('Supabase delete error:', error);
+        return { data: null, error };
+    }
+};
+
+module.exports = { supabase, uploadFile, isSupabaseUrl, downloadFileFromUrl, deleteFile };

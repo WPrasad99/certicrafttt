@@ -31,7 +31,7 @@ const upload = multer({
 
 const auth = require('../middleware/auth');
 const { Template, Event, ActivityLog } = require('../models');
-const { uploadFile, isSupabaseUrl, downloadFileFromUrl } = require('../utils/supabase');
+const { uploadFile, isSupabaseUrl, downloadFileFromUrl, deleteFile } = require('../utils/supabase');
 
 const { Collaborator } = require('../models');
 
@@ -144,9 +144,41 @@ router.get('/', auth, checkEventOwnership, async (req, res) => {
 });
 
 router.delete('/', auth, checkEventOwnership, async (req, res) => {
-  const eventId = req.params.eventId;
-  await Template.destroy({ where: { eventId } });
-  res.json({ message: 'deleted' });
+  try {
+    const eventId = req.params.eventId;
+    const template = await Template.findOne({ where: { eventId } });
+
+    if (template && template.filePath) {
+      if (isSupabaseUrl(template.filePath)) {
+        // Remove from Supabase
+        // Path in bucket is everything after the bucket URL if it's a public URL?
+        // Actually, uploadFile returns publicUrl. We need to extract the path.
+        // But wait, our uploadFile in Supabase returns { path: fileName, publicUrl: ... }
+        // We stored publicUrl in DB (usually).
+        // For simplicity in this fix, we will try to delete by extracting filename.
+        // URL format: https://.../storage/v1/object/public/certificates/templates/filename
+        const parts = template.filePath.split('/templates/');
+        if (parts.length === 2) {
+          await deleteFile('certificates', `templates/${parts[1]}`);
+        }
+      } else if (fs.existsSync(template.filePath)) {
+        fs.unlinkSync(template.filePath);
+      }
+    }
+
+    await Template.destroy({ where: { eventId } });
+
+    await ActivityLog.create({
+      eventId,
+      userId: req.user.id,
+      action: 'DELETE_TEMPLATE',
+      details: 'Deleted certificate template'
+    });
+
+    res.json({ message: 'deleted' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.post('/coordinates', auth, checkEventOwnership, async (req, res) => {
