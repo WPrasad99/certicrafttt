@@ -8,6 +8,7 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
     const [hasUploaded, setHasUploaded] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectionMode, setSelectionMode] = useState('name'); // 'name' or 'qr'
+    const [previewUrl, setPreviewUrl] = useState(null);
     const imgRef = useRef();
 
     useEffect(() => {
@@ -120,6 +121,21 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
             setLoading(false);
         }
     };
+
+    const handlePreview = async () => {
+        if (!imageSrc) return;
+        setLoading(true);
+        try {
+            const blob = await templateService.getPreview(eventId, coords);
+            const url = URL.createObjectURL(blob);
+            setPreviewUrl(url);
+        } catch (err) {
+            showToast('Failed to generate preview', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="template-editor-overlay">
             <div className="template-editor">
@@ -226,9 +242,71 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
                                 {loading ? 'Removing...' : 'Remove this file & Choose New'}
                             </button>
                         )}
+                        {imageSrc && (
+                            <button
+                                onClick={handlePreview}
+                                className="btn btn-secondary"
+                                style={{
+                                    marginTop: '10px',
+                                    width: '100%',
+                                    padding: '10px',
+                                    borderRadius: '6px',
+                                    backgroundColor: '#f3f4f6',
+                                    color: '#374151',
+                                    border: '1px solid #d1d5db',
+                                    cursor: 'pointer',
+                                    fontSize: '13px',
+                                    fontWeight: '500'
+                                }}
+                                disabled={loading}
+                            >
+                                {loading ? 'Generating Preview...' : 'Preview Certificate'}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
+            {previewUrl && (
+                <div className="preview-overlay" style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    zIndex: 2000,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px'
+                }}>
+                    <div className="preview-content" style={{
+                        position: 'relative',
+                        maxHeight: '90vh',
+                        maxWidth: '90vw',
+                        background: 'white',
+                        padding: '10px',
+                        borderRadius: '8px'
+                    }}>
+                        <img src={previewUrl} alt="Certificate Preview" style={{ maxWidth: '100%', maxHeight: 'calc(90vh - 60px)' }} />
+                        <button
+                            onClick={() => {
+                                URL.revokeObjectURL(previewUrl);
+                                setPreviewUrl(null);
+                            }}
+                            className="btn btn-primary"
+                            style={{
+                                display: 'block',
+                                margin: '10px auto 0',
+                                width: 'fit-content'
+                            }}
+                        >
+                            Close Preview
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
