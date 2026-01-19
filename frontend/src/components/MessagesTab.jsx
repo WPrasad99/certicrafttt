@@ -142,7 +142,7 @@ function MessagesTab({ eventId, event, isOwner }) {
     const getChatTitle = () => {
         if (!activeChat) return "Announcements";
         const member = members.find(m => m.userId === activeChat);
-        return member ? member.name : "Team Member";
+        return member ? (member.name || member.email) : "Team Member";
     };
 
     return (

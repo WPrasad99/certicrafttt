@@ -37,14 +37,14 @@ router.get('/messages/event/:eventId', auth, async (req, res) => {
 
         const messages = await Message.findAll({
             where: whereClause,
-            include: [{ model: User, attributes: ['id', 'fullName'] }],
+            include: [{ model: User, attributes: ['id', 'fullName', 'email'] }],
             order: [['createdAt', 'ASC']]
         });
 
         res.json(messages.map(m => ({
             id: m.id,
             text: m.content,
-            sender: m.User.fullName,
+            sender: m.User ? (m.User.fullName || m.User.email) : 'Unknown',
             senderId: m.userId,
             receiverId: m.receiverId,
             timestamp: m.createdAt,

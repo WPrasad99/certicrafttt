@@ -366,6 +366,21 @@
     }
 }
 
+/* Ensure inputs and button align perfectly */
+.manual-add-form .form-input {
+    height: 42px;
+    /* Fixed height for inputs */
+    padding: 8px 12px;
+}
+
+.manual-add-form .add-btn {
+    height: 42px;
+    /* Match input height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Button States */
 .btn-disabled-style {
     opacity: 0.5;

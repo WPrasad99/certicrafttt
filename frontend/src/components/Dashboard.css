@@ -623,6 +623,18 @@
     .events-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+        padding: 0;
+        /* Remove extra padding if any */
+    }
+
+    .event-card {
+        margin: 0;
+        /* Align full width */
+    }
+
+    .stats-card {
+        padding: 20px;
+        /* Reduces padding slightly for mobile */
     }
 
     .dashboard-header {

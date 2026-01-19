@@ -367,3 +367,37 @@
     color: #9ca3af;
     font-style: italic;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .collaborator-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .collaborator-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .details p {
+        justify-content: center;
+    }
+
+    .badge-row {
+        justify-content: center;
+    }
+
+    .collaborator-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .collaborator-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+}
