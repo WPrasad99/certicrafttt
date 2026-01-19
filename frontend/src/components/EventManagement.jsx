@@ -381,6 +381,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                 {activeTab === 'participants' && (
                     <ParticipantsTab
                         participants={participants}
+                        template={template} // Pass template
                         certificateStatus={certificateStatus}
                         onFileUpload={handleFileUpload}
                         onAddParticipant={handleAddParticipant}
@@ -388,6 +389,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                         onDeleteParticipant={handleDeleteParticipant}
                         onDeleteAllParticipants={handleDeleteAllParticipants}
                         onEditTemplate={() => setShowTemplateEditor(true)}
+                        triggerVibration={triggerVibration} // Pass vibration trigger
                         loading={loading}
                     />
                 )}

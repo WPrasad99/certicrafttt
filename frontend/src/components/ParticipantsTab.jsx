@@ -9,8 +9,63 @@ function ParticipantsTab({
     onDeleteAllParticipants,
     onEditTemplate,
     loading,
-    isOwner
+    isOwner,
+    template,
+    triggerVibration
 }) {
+
+    const uploadFileBtnRef = React.useRef(null);
+    const uploadTemplateBtnRef = React.useRef(null);
+
+    const handleUploadTemplateClick = () => {
+        if (!participants || participants.length === 0) {
+            triggerVibration();
+            // Focus on upload file button
+            if (uploadFileBtnRef.current) {
+                uploadFileBtnRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                uploadFileBtnRef.current.focus();
+                uploadFileBtnRef.current.classList.add('highlight-pulse');
+                setTimeout(() => uploadFileBtnRef.current.classList.remove('highlight-pulse'), 1000);
+            }
+            return;
+        }
+        onEditTemplate();
+    };
+
+    const handleGenerateClick = () => {
+        if (!participants || participants.length === 0) {
+            triggerVibration();
+            if (uploadFileBtnRef.current) {
+                uploadFileBtnRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                uploadFileBtnRef.current.focus();
+                uploadFileBtnRef.current.classList.add('highlight-pulse');
+                setTimeout(() => uploadFileBtnRef.current.classList.remove('highlight-pulse'), 1000);
+            }
+            return;
+        }
+
+        // Check if template is uploaded
+        // We assume 'template' prop is passed. If template is null/undefined, it's missing.
+        // However, the backend might return { html: ..., ... } or just be null.
+        // Let's assume truthy template means valid.
+        if (!template) {
+            triggerVibration();
+            if (uploadTemplateBtnRef.current) {
+                uploadTemplateBtnRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                uploadTemplateBtnRef.current.focus();
+                uploadTemplateBtnRef.current.classList.add('highlight-pulse');
+                setTimeout(() => uploadTemplateBtnRef.current.classList.remove('highlight-pulse'), 1000);
+            }
+            return;
+        }
+
+        onGenerateCertificates();
+    };
+
+    // Helper to determine if button should look disabled (conceptually)
+    const isTemplateBtnDisabled = (!participants || participants.length === 0);
+    const isGenerateBtnDisabled = (!participants || participants.length === 0) || !template;
+
     return (
         <div className="tab-content">
             <div className="card">
@@ -20,48 +75,56 @@ function ParticipantsTab({
                 </p>
 
                 <div className="upload-section action-grid">
-                    <input
-                        type="file"
-                        accept=".csv,.xlsx,.xls"
-                        onChange={onFileUpload}
-                        disabled={loading}
-                        id="file-upload"
-                        className="file-input"
-                    />
-                    <label htmlFor="file-upload" className="btn btn-primary action-btn">
-                        Choose File
-                    </label>
+                    <div>
+                        <input
+                            type="file"
+                            accept=".csv,.xlsx,.xls"
+                            onChange={onFileUpload}
+                            disabled={loading}
+                            id="file-upload"
+                            className="file-input"
+                        />
+                        <label
+                            htmlFor="file-upload"
+                            className="btn btn-primary action-btn"
+                            ref={uploadFileBtnRef}
+                            tabIndex="0" // Make focusable
+                        >
+                            Choose File
+                        </label>
+                    </div>
 
                     <button
-                        onClick={onGenerateCertificates}
-                        className="btn btn-primary action-btn"
-                        disabled={loading}
+                        ref={uploadTemplateBtnRef}
+                        onClick={handleUploadTemplateClick}
+                        className={`btn btn-primary action-btn ${isTemplateBtnDisabled ? 'btn-disabled-style' : ''}`}
+                        disabled={loading} // Only disable for actual loading, not logic
                     >
-                        Generate Certificates
+                        Upload Template
                     </button>
 
                     <button
-                        onClick={onEditTemplate}
-                        className="btn btn-primary action-btn"
-                        disabled={loading}
+                        onClick={handleGenerateClick}
+                        className={`btn btn-primary action-btn ${isGenerateBtnDisabled ? 'btn-disabled-style' : ''}`}
+                        disabled={loading} // Only disable for actual loading
                     >
-                        Upload Template
+                        Generate Certificates
                     </button>
                 </div>
 
                 <hr style={{ margin: '20px 0', borderColor: '#eee' }} />
 
                 <h3>Add Participant Manually</h3>
-                <form onSubmit={onAddParticipant} className="manual-add-form" style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', marginTop: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                        <label className="form-label" style={{ fontSize: '12px', marginBottom: '5px', display: 'block' }}>Name</label>
+                <form onSubmit={onAddParticipant} className="manual-add-form">
+                    <div className="form-group">
+                        <label className="form-label">Name</label>
                         <input name="name" className="form-input" required placeholder="Participant Name" />
                     </div>
-                    <div style={{ flex: 1 }}>
-                        <label className="form-label" style={{ fontSize: '12px', marginBottom: '5px', display: 'block' }}>Email</label>
+                    <div className="form-group">
+                        <label className="form-label">Email</label>
                         <input name="email" type="email" className="form-input" required placeholder="participant@example.com" />
                     </div>
-                    <button type="submit" className="btn btn-secondary" disabled={loading} style={{ marginBottom: '0' }}>
+                    <button type="submit" className="btn btn-secondary add-btn" disabled={loading}>
                         Add
                     </button>
                 </form>
