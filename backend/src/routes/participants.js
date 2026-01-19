@@ -41,6 +41,18 @@ router.post('/', auth, checkEventOwnership, async (req, res) => {
     const { name, email } = req.body;
     if (!name || !email) return res.status(400).json({ message: 'Name and email required' });
 
+    // Check if exists
+    const existing = await Participant.findOne({
+      where: {
+        eventId,
+        email: email.trim()
+      }
+    });
+
+    if (existing) {
+      return res.status(409).json({ message: 'Participant with this email already exists' });
+    }
+
     const p = await Participant.create({
       name: name.trim(),
       email: email.trim(),
@@ -74,9 +86,18 @@ router.post('/upload', auth, checkEventOwnership, upload.single('file'), async (
       const email = r.email || r.Email || '';
       if (!name || !email) continue;
 
+      const trimmedEmail = email.toString().trim();
+
+      // Check for duplicate
+      const existing = await Participant.findOne({
+        where: { eventId, email: trimmedEmail }
+      });
+
+      if (existing) continue;
+
       const p = await Participant.create({
         name: name.toString().trim(),
-        email: email.toString().trim(),
+        email: trimmedEmail,
         eventId
       });
       created.push(p);

@@ -146,7 +146,7 @@ function MessagesTab({ eventId, event, isOwner }) {
     };
 
     return (
-        <div className="messages-tab">
+        <div className={`messages-tab ${activeChat ? 'mobile-chat-active' : ''}`}>
             <div className="members-sidebar">
                 <div className="sidebar-header">
                     <h3>Team Members</h3>
@@ -203,6 +203,13 @@ function MessagesTab({ eventId, event, isOwner }) {
 
             <div className="chat-area">
                 <div className="chat-header">
+                    <button
+                        className="btn-icon mobile-back-btn"
+                        onClick={() => setActiveChat(null)}
+                        style={{ marginRight: '10px', background: 'transparent', border: 'none', color: '#54656f', fontSize: '18px', cursor: 'pointer' }}
+                    >
+                        <i className="fa-solid fa-arrow-left"></i>
+                    </button>
                     <div className="avatar" style={{ backgroundColor: '#00a884', width: '40px', height: '40px', fontSize: '18px' }}>
                         {activeChat ? <i className="fa-solid fa-user"></i> : <i className="fa-solid fa-bullhorn"></i>}
                     </div>

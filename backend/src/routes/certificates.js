@@ -46,6 +46,11 @@ router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, 
       // Check if certificate entry exists, but don't skip if file exists
       let existing = await Certificate.findOne({ where: { participantId: p.id, eventId } });
 
+      if (existing && existing.generationStatus === 'GENERATED') {
+        // Skip if already generated
+        continue;
+      }
+
       if (!existing) {
         existing = await Certificate.create({
           verificationId: uuidv4(),
