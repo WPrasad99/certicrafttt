@@ -319,6 +319,8 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         }
     };
 
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     return (
         <div className="dashboard-container">
             {toast.show && (
@@ -341,13 +343,18 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                     </div>
 
                     <div className="persistent-actions">
-                        <button onClick={onBack} className="btn btn-secondary btn-sm">
-                            ← Back
+                        <button onClick={onBack} className="btn btn-secondary btn-sm" title="Back to Dashboard">
+                            <i className="fa-solid fa-arrow-left"></i> Back
                         </button>
                     </div>
 
-                    <div className="secondary-actions">
+                    <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+                    </button>
+
+                    <div className={`secondary-actions ${isMenuOpen ? 'mobile-show' : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <div className="navbar-actions">
+                            {/* Actions could go here */}
                         </div>
                     </div>
                 </div>
