@@ -339,11 +339,15 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                             </div>
                         </div>
                     </div>
+
+                    <div className="persistent-actions">
+                        <button onClick={onBack} className="btn btn-secondary btn-sm">
+                            ← Back
+                        </button>
+                    </div>
+
                     <div className="secondary-actions">
                         <div className="navbar-actions">
-                            <button onClick={onBack} className="btn btn-secondary btn-sm">
-                                ← Back
-                            </button>
                         </div>
                     </div>
                 </div>
