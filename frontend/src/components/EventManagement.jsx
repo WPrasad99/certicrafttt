@@ -332,20 +332,19 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
             )}
             <nav className="navbar">
                 <div className="navbar-content">
-                    <div className="navbar-brand">
-                        <div className="brand-logo-container">
-                            <img src="/assets/bharti_logo.png" alt="Logo" className="navbar-logo" />
-                            <div className="brand-text-container">
-                                <h2>CertiCraft</h2>
-                                <div className="brand-line"></div>
+                    <div className="navbar-brand-group">
+                        <button onClick={onBack} className="btn-back-nav" title="Back to Dashboard">
+                            <i className="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div className="navbar-brand">
+                            <div className="brand-logo-container">
+                                <img src="/assets/bharti_logo.png" alt="Logo" className="navbar-logo" />
+                                <div className="brand-text-container">
+                                    <h2>CertiCraft</h2>
+                                    <div className="brand-line"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="persistent-actions">
-                        <button onClick={onBack} className="btn btn-secondary btn-sm" title="Back to Dashboard">
-                            <i className="fa-solid fa-arrow-left"></i> Back
-                        </button>
                     </div>
 
                     <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>

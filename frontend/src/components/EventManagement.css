@@ -324,37 +324,49 @@
 /* Manual Add Form */
 .manual-add-form {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     align-items: flex-end;
     margin-top: 10px;
 }
 
 .manual-add-form .form-group {
     flex: 1;
+    margin-bottom: 0px;
+}
+
+.manual-add-form .form-input {
+    height: 44px;
+    margin: 0;
 }
 
 .manual-add-form .add-btn {
-    margin-bottom: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    margin: 0;
+    white-space: nowrap;
+    background-color: #1e3a8a;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {
     .manual-add-form {
-        flex-direction: row;
-        /* FORCE ONE LINE */
-        flex-wrap: wrap;
-        align-items: flex-end;
-        gap: 8px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
     }
 
     .manual-add-form .form-group {
-        flex: 1;
-        min-width: 120px;
+        width: 100%;
     }
 
     .manual-add-form .add-btn {
-        width: auto;
-        flex-shrink: 0;
-        margin-top: 0;
+        width: 100%;
+        margin-top: 8px;
     }
 
     /* Make options section responsive */
@@ -373,25 +385,6 @@
         text-align: center;
         justify-content: center;
     }
-}
-
-/* Ensure inputs and button align perfectly */
-.manual-add-form .form-input {
-    height: 42px;
-    padding: 8px 12px;
-    box-sizing: border-box;
-    /* Ensure padding doesn't add to height */
-    margin: 0;
-}
-
-.manual-add-form .add-btn {
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    box-sizing: border-box;
-    padding: 0 20px;
 }
 
 /* Button States */
