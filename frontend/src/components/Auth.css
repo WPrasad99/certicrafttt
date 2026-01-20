@@ -248,6 +248,40 @@
     box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.06);
 }
 
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 50px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+    z-index: 5;
+}
+
+.password-toggle:hover {
+    color: #1e3a8a;
+}
+
+.password-toggle svg {
+    display: block;
+}
+
 /* Landscape Button Style - Expanded and Centered */
 .btn-primary.btn-full {
     width: 100%;

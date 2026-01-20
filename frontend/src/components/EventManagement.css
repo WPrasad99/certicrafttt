@@ -324,7 +324,7 @@
 /* Manual Add Form */
 .manual-add-form {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: flex-end;
     margin-top: 10px;
 }
@@ -369,16 +369,20 @@
 /* Ensure inputs and button align perfectly */
 .manual-add-form .form-input {
     height: 42px;
-    /* Fixed height for inputs */
     padding: 8px 12px;
+    box-sizing: border-box;
+    /* Ensure padding doesn't add to height */
+    margin: 0;
 }
 
 .manual-add-form .add-btn {
     height: 42px;
-    /* Match input height */
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 0 20px;
 }
 
 /* Button States */

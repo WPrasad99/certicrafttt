@@ -75,7 +75,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         if (needsPolling) {
             const interval = setInterval(() => {
                 loadCertificateStatus();
-            }, 3000); // Poll every 3 seconds
+            }, 2000); // Poll every 2 seconds for snappier real-time feel
             return () => clearInterval(interval);
         }
     }, [certificateStatus]);
@@ -156,19 +156,31 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
             return;
         }
 
+        // Switch to certificates tab immediately
+        setActiveTab('certificates');
+
+        // We set a local "busy" state if needed, but the polling will show progress
         setLoading(true);
 
         try {
-            await certificateService.generateCertificates(event.id);
-            showToast('Certificates generated successfully!', 'success');
-            onNotify?.('success', `Certificates generated for ${event.eventName}`);
+            // Start generation in background
+            certificateService.generateCertificates(event.id)
+                .then(() => {
+                    showToast('Certificates generated successfully!', 'success');
+                    loadCertificateStatus();
+                })
+                .catch(error => {
+                    const msg = error.response?.data?.error || 'Failed to generate certificates';
+                    showToast(msg, 'error');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+
+            // Immediate check to show initial PENDING states if backend creates them fast
             await loadCertificateStatus();
-            setActiveTab('certificates');
         } catch (error) {
-            const msg = error.response?.data?.error || 'Failed to generate certificates';
-            showToast(msg, 'error');
-            onNotify?.('error', msg);
-        } finally {
+            console.error('Initial generation trigger failed:', error);
             setLoading(false);
         }
     };

@@ -20,6 +20,7 @@ function Dashboard() {
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
     const [isNotifVibrating, setIsNotifVibrating] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // Collaboration Request State
     const [pendingRequests, setPendingRequests] = useState([]);
@@ -308,7 +309,12 @@ function Dashboard() {
                             </div>
                         </div>
                     </div>
-                    <div className="secondary-actions">
+
+                    <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+                    </button>
+
+                    <div className={`secondary-actions ${isMenuOpen ? 'mobile-show' : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <div className="navbar-actions">
                             {/* Notification Bell Icon */}
                             <div className="notifications-container" ref={notificationsDropdownRef}>
