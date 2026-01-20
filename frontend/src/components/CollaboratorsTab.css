@@ -370,6 +370,23 @@
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+    .tab-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .tab-header h3 {
+        font-size: 1.5rem;
+    }
+
+    .tab-header .btn {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+    }
+
     .collaborator-card {
         flex-direction: column;
         align-items: stretch;
@@ -394,10 +411,20 @@
     .collaborator-actions {
         flex-direction: column;
         width: 100%;
+        gap: 10px;
     }
 
-    .collaborator-actions button {
+    .collaborator-actions button,
+    .collaborator-actions .btn-resend,
+    .collaborator-actions .btn-remove {
         width: 100%;
         justify-content: center;
+    }
+
+    .btn-icon.history-btn {
+        width: 100%;
+        height: 40px;
+        border-radius: 8px;
+        background: #f3f4f6;
     }
 }
