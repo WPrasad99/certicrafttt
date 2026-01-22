@@ -10,7 +10,6 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
         instituteName: user?.instituteName || '',
     });
     const [passwordData, setPasswordData] = useState({
-        currentPassword: '',
         newPassword: '',
         confirmPassword: '',
     });
@@ -23,7 +22,6 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
                 fullName: currentUser?.fullName || '',
                 instituteName: currentUser?.instituteName || '',
             });
-            // Reset animations or state if needed
         }
     }, [isOpen]);
 
@@ -52,11 +50,10 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
         setLoading(true);
         try {
             await authService.changePassword({
-                currentPassword: passwordData.currentPassword,
                 newPassword: passwordData.newPassword,
             });
             showToast('Password changed successfully!', 'success');
-            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            setPasswordData({ newPassword: '', confirmPassword: '' });
         } catch (error) {
             showToast(error.response?.data?.error || 'Failed to change password', 'error');
         } finally {
@@ -103,12 +100,6 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
 
                                 <form onSubmit={handleProfileSubmit}>
                                     <div className="form-group">
-                                        <label>Email Address</label>
-                                        <input type="text" value={user?.email} disabled className="input-disabled" />
-                                        <small>Email cannot be changed</small>
-                                    </div>
-
-                                    <div className="form-group">
                                         <label>Full Name</label>
                                         <div className="input-with-icon">
                                             <i className="fa-solid fa-user-pen"></i>
@@ -120,6 +111,15 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
                                                 required
                                             />
                                         </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Email Address</label>
+                                        <div className="input-with-icon">
+                                            <i className="fa-solid fa-envelope"></i>
+                                            <input type="text" value={user?.email} disabled className="input-disabled" />
+                                        </div>
+                                        <small>Email cannot be changed</small>
                                     </div>
 
                                     <div className="form-group">
@@ -149,33 +149,31 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
 
                                 <form onSubmit={handlePasswordSubmit}>
                                     <div className="form-group">
-                                        <label>Current Password</label>
-                                        <input
-                                            type="password"
-                                            value={passwordData.currentPassword}
-                                            onChange={e => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
                                         <label>New Password</label>
-                                        <input
-                                            type="password"
-                                            value={passwordData.newPassword}
-                                            onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                            required
-                                        />
+                                        <div className="input-with-icon">
+                                            <i className="fa-solid fa-key"></i>
+                                            <input
+                                                type="password"
+                                                value={passwordData.newPassword}
+                                                onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                                placeholder="Enter new password"
+                                                required
+                                            />
+                                        </div>
                                     </div>
 
                                     <div className="form-group">
                                         <label>Confirm New Password</label>
-                                        <input
-                                            type="password"
-                                            value={passwordData.confirmPassword}
-                                            onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                            required
-                                        />
+                                        <div className="input-with-icon">
+                                            <i className="fa-solid fa-check-double"></i>
+                                            <input
+                                                type="password"
+                                                value={passwordData.confirmPassword}
+                                                onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                placeholder="Confirm new password"
+                                                required
+                                            />
+                                        </div>
                                     </div>
 
                                     <button type="submit" className="save-settings-btn" disabled={loading}>

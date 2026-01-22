@@ -54,16 +54,9 @@ router.put('/settings', auth, async (req, res) => {
 
 router.put('/change-password', auth, async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
+    const { newPassword } = req.body;
     const user = await User.findByPk(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
-
-    if (user.passwordHash) {
-      const ok = await bcrypt.compare(currentPassword, user.passwordHash);
-      if (!ok) return res.status(401).json({ error: 'Current password incorrect' });
-    } else if (user.provider !== 'local') {
-      return res.status(400).json({ error: 'Cannot change password for social login accounts' });
-    }
 
     user.passwordHash = await bcrypt.hash(newPassword, 10);
     await user.save();

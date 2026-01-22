@@ -796,10 +796,7 @@
     }
 }
 
-.hamburger-menu {
-    display: none;
-    /* REMOVE HAMBURGER */
-}
+
 
 /* Modal and Forms */
 .form-row {
@@ -849,39 +846,4 @@
     font-size: 0.95rem !important;
     color: #1e293b !important;
     text-transform: capitalize !important;
-}
-
-@media (max-width: 768px) {
-    .mobile-settings-option {
-        width: 100%;
-        margin: 12px 0;
-        padding: 0 4px;
-    }
-
-    .mobile-settings-btn {
-        width: 100%;
-        display: flex !important;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 20px;
-        background: #f8fafc;
-        border: 2px solid #f1f5f9;
-        border-radius: 12px;
-        color: #1e3a8a;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        justify-content: flex-start !important;
-        box-sizing: border-box;
-    }
-
-    .mobile-settings-btn i {
-        font-size: 1.1rem;
-        color: #1e3a8a;
-    }
-
-    .mobile-settings-btn:active {
-        background: #f1f5f9;
-        transform: scale(0.98);
-    }
 }

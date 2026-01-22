@@ -458,18 +458,7 @@ function Dashboard() {
                             </div>
                         </div>
 
-                        <div className="mobile-settings-option">
-                            <button
-                                className="mobile-settings-btn"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowSettings(true);
-                                    setIsMenuOpen(false);
-                                }}
-                            >
-                                <i className="fa-solid fa-gear"></i> Account Settings
-                            </button>
-                        </div>
+
 
                         <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
                             Logout
