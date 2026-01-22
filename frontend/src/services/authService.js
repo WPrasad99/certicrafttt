@@ -2,28 +2,48 @@ import api from './api';
 
 export const authService = {
     register: async (data) => {
-        const response = await api.post('/auth/register', data);
+        const response = await api.post('/users/register', data);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify({
                 id: response.data.id,
                 email: response.data.email,
                 fullName: response.data.fullName,
+                instituteName: response.data.instituteName,
             }));
         }
         return response.data;
     },
 
     login: async (data) => {
-        const response = await api.post('/auth/login', data);
+        const response = await api.post('/users/login', data);
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify({
                 id: response.data.id,
                 email: response.data.email,
                 fullName: response.data.fullName,
+                instituteName: response.data.instituteName,
             }));
         }
+        return response.data;
+    },
+
+    updateSettings: async (data) => {
+        const response = await api.put('/users/settings', data);
+        if (response.data) {
+            const currentUser = authService.getCurrentUser();
+            localStorage.setItem('user', JSON.stringify({
+                ...currentUser,
+                fullName: response.data.fullName,
+                instituteName: response.data.instituteName,
+            }));
+        }
+        return response.data;
+    },
+
+    changePassword: async (data) => {
+        const response = await api.put('/users/change-password', data);
         return response.data;
     },
 

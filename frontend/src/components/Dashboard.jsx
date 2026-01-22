@@ -6,6 +6,8 @@ import Modal from './Modal';
 import AnalyticsCharts from './AnalyticsCharts';
 import CollaborationRequests from './CollaborationRequests';
 import EventList from './EventList';
+import SettingsModal from './SettingsModal';
+import Toast from './Toast';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -19,8 +21,14 @@ function Dashboard() {
     const [modal, setModal] = useState({ isOpen: false, eventId: null });
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [isNotifVibrating, setIsNotifVibrating] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    // Toast State
+    const [toast, setToast] = useState({ show: false, message: '', type: 'info' });
+    const showToast = (message, type = 'info') => setToast({ show: true, message, type });
+    const hideToast = () => setToast({ ...toast, show: false });
 
     // Collaboration Request State
     const [pendingRequests, setPendingRequests] = useState([]);
@@ -298,6 +306,13 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container">
+            {toast.show && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={hideToast}
+                />
+            )}
             <nav className="navbar">
                 <div className="navbar-content">
                     <div className="navbar-brand">
@@ -316,11 +331,25 @@ function Dashboard() {
 
                     <div className={`secondary-actions ${isMenuOpen ? 'mobile-show' : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <div className="navbar-actions">
+                            {/* Settings Icon */}
+                            <button
+                                className="notifications-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowSettings(true);
+                                    setIsMenuOpen(false);
+                                }}
+                                title="Settings"
+                            >
+                                <i className="fa-solid fa-gear" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
+                            </button>
+
                             {/* Notification Bell Icon */}
                             <div className="notifications-container" ref={notificationsDropdownRef}>
                                 <button
                                     className={`notifications-btn ${isNotifVibrating ? 'vibrate-bt' : ''}`}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         setShowNotifications(!showNotifications);
                                         setShowRequestsDropdown(false);
                                     }}
@@ -374,7 +403,8 @@ function Dashboard() {
                             <div className="notifications-container" style={{ marginLeft: '12px' }} ref={requestsDropdownRef}>
                                 <button
                                     className={`notifications-btn ${pendingRequests.length > 0 ? 'vibrate-bt' : ''}`}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         setShowRequestsDropdown(!showRequestsDropdown);
                                         setShowNotifications(false);
                                     }}
@@ -427,12 +457,36 @@ function Dashboard() {
                                 )}
                             </div>
                         </div>
-                        <button onClick={handleLogout} className="btn btn-secondary btn-sm">
+
+                        <div className="mobile-settings-option">
+                            <button
+                                className="mobile-settings-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowSettings(true);
+                                    setIsMenuOpen(false);
+                                }}
+                            >
+                                <i className="fa-solid fa-gear"></i> Account Settings
+                            </button>
+                        </div>
+
+                        <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
                             Logout
                         </button>
                     </div>
                 </div>
             </nav>
+
+            <SettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+                onUpdate={() => {
+                    setUser(authService.getCurrentUser());
+                    loadData();
+                }}
+                showToast={showToast}
+            />
 
             <div className="container">
                 <div className="dashboard-header">
@@ -473,7 +527,7 @@ function Dashboard() {
                 title="Delete Event"
                 message="Are you sure you want to delete this event? All participants and certificates will be permanently removed."
             />
-        </div>
+        </div >
     );
 }
 

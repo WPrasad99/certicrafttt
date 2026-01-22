@@ -8,6 +8,7 @@ import ParticipantsTab from './ParticipantsTab';
 import CertificatesTab from './CertificatesTab';
 import UpdatesTab from './UpdatesTab';
 import Toast from './Toast';
+import SettingsModal from './SettingsModal';
 
 function EventManagement({ event, onBack, onNotify, initialTab = 'participants' }) {
     const currentUser = authService.getCurrentUser();
@@ -16,13 +17,10 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         (currentUser.email && event.organizerEmail && currentUser.email === event.organizerEmail)
     ));
 
-    console.log('[DEBUG] Owner Check:', {
-        userId: currentUser?.id,
-        eventOrganizerId: event?.organizerId,
-        isOwner
-    });
     const [activeTab, setActiveTab] = useState(initialTab);
     const [participants, setParticipants] = useState([]);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [certificateStatus, setCertificateStatus] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isVibrating, setIsVibrating] = useState(false);
@@ -319,8 +317,6 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         }
     };
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-
     return (
         <div className="dashboard-container">
             {toast.show && (
@@ -353,11 +349,44 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
 
                     <div className={`secondary-actions ${isMenuOpen ? 'mobile-show' : ''}`} onClick={() => setIsMenuOpen(false)}>
                         <div className="navbar-actions">
-                            {/* Actions could go here */}
+                            {/* Settings Icon */}
+                            <button
+                                className="notifications-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowSettings(true);
+                                    setIsMenuOpen(false);
+                                }}
+                                title="Settings"
+                            >
+                                <i className="fa-solid fa-gear" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
+                            </button>
+                        </div>
+
+                        <div className="mobile-settings-option">
+                            <button
+                                className="mobile-settings-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowSettings(true);
+                                    setIsMenuOpen(false);
+                                }}
+                            >
+                                <i className="fa-solid fa-gear"></i> Account Settings
+                            </button>
                         </div>
                     </div>
                 </div>
             </nav>
+
+            <SettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+                onUpdate={() => {
+                    // Update any local state if needed
+                }}
+                showToast={showToast}
+            />
 
             <div className={`container ${isVibrating ? 'vibrate' : ''}`}>
                 <div className="event-header">
