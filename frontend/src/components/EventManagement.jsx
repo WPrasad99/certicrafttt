@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { participantService, certificateService, authService, templateService } from '../services/authService';
+import React, { useState, useEffect, useRef } from 'react';
+import { participantService, certificateService, authService, templateService, collaborationService, messageService } from '../services/authService';
 import TemplateEditor from './TemplateEditor';
 import './EventManagement.css';
 import CollaboratorsTab from './CollaboratorsTab';
@@ -26,6 +26,16 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
     const [isVibrating, setIsVibrating] = useState(false);
     const [showTemplateEditor, setShowTemplateEditor] = useState(false);
     const [template, setTemplate] = useState(null);
+
+    // Navbar states from Dashboard
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [isNotifVibrating, setIsNotifVibrating] = useState(false);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [showRequestsDropdown, setShowRequestsDropdown] = useState(false);
+
+    const notificationsDropdownRef = useRef(null);
+    const requestsDropdownRef = useRef(null);
 
     const loadTemplate = async () => {
         try {
@@ -58,7 +68,108 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         loadParticipants();
         loadCertificateStatus();
         loadTemplate();
+        loadRequests();
+        const interval = setInterval(loadRequests, 10000);
+        return () => clearInterval(interval);
     }, [event.id]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationsDropdownRef.current && !notificationsDropdownRef.current.contains(event.target)) {
+                setShowNotifications(false);
+            }
+            if (requestsDropdownRef.current && !requestsDropdownRef.current.contains(event.target)) {
+                setShowRequestsDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const loadRequests = async () => {
+        try {
+            const [reqs, sentReqs, actionLogs, unreadMsgs] = await Promise.all([
+                collaborationService.getRequests(),
+                collaborationService.getSentRequests(),
+                collaborationService.getOwnedEventsLogs(),
+                messageService.getUnreadMessages()
+            ]);
+            setPendingRequests(Array.isArray(reqs) ? reqs : []);
+
+            // Process unread messages as notifications
+            if (Array.isArray(unreadMsgs)) {
+                unreadMsgs.forEach(msg => {
+                    const uniqueId = msg.id;
+                    const dismissed = JSON.parse(localStorage.getItem('dismissed_notif_ids') || '[]');
+                    if (dismissed.includes(uniqueId)) return;
+
+                    setNotifications(prev => {
+                        if (prev.some(n => n.id === uniqueId)) return prev;
+                        return [{
+                            id: uniqueId,
+                            type: 'info',
+                            message: `New message from ${msg.senderName}: ${msg.content?.substring(0, 30)}...`,
+                            time: new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            eventId: msg.eventId,
+                            targetTab: 'messages'
+                        }, ...prev].slice(0, 10);
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Failed to load requests:', error);
+        }
+    };
+
+    const handleAcceptRequest = async (requestId) => {
+        try {
+            await collaborationService.respondToRequest(requestId, 'ACCEPTED');
+            showToast('Invitation accepted!', 'success');
+            loadRequests();
+        } catch (error) {
+            showToast('Failed to accept invitation', 'error');
+        }
+    };
+
+    const handleDeclineRequest = async (requestId) => {
+        try {
+            await collaborationService.respondToRequest(requestId, 'DECLINED');
+            showToast('Invitation declined', 'info');
+            loadRequests();
+        } catch (error) {
+            showToast('Failed to decline invitation', 'error');
+        }
+    };
+
+    const handleDismissNotification = (e, notifId) => {
+        e.stopPropagation();
+        const dismissedIds = JSON.parse(localStorage.getItem('dismissed_notif_ids') || '[]');
+        if (!dismissedIds.includes(notifId)) {
+            dismissedIds.push(notifId);
+            localStorage.setItem('dismissed_notif_ids', JSON.stringify(dismissedIds));
+        }
+        setNotifications(prev => prev.filter(n => n.id !== notifId));
+    };
+
+    const handleNotificationClick = (notif) => {
+        if (notif.eventId) {
+            // Find the event in our list
+            // If it's the current event, we just switch tabs
+            if (String(notif.eventId) === String(event.id)) {
+                setActiveTab(notif.targetTab || 'participants');
+            } else {
+                // If it's a different event, we return to dashboard and then the notification click there would handle it
+                // Or we could stay here and just show a message.
+                // For now, let's just toast
+                showToast(`New activity in another event. Head to Dashboard to view.`, 'info');
+            }
+        }
+    };
+
+    const handleLogout = () => {
+        authService.logout();
+        window.location.href = '/login';
+    };
 
     // Polling for certificate status if any are PENDING or SENDING
     useEffect(() => {
@@ -361,9 +472,124 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                             >
                                 <i className="fa-solid fa-gear" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
                             </button>
+
+                            {/* Notification Bell Icon */}
+                            <div className="notifications-container" ref={notificationsDropdownRef}>
+                                <button
+                                    className={`notifications-btn ${isNotifVibrating ? 'vibrate-bt' : ''}`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowNotifications(!showNotifications);
+                                        setShowRequestsDropdown(false);
+                                    }}
+                                    title="Notifications"
+                                >
+                                    <i className="fa-solid fa-bell" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
+                                    {notifications.length > 0 &&
+                                        <span className="notification-badge">{notifications.length}</span>
+                                    }
+                                </button>
+
+                                {showNotifications && (
+                                    <div className="notifications-dropdown">
+                                        <div className="notifications-header">
+                                            <h3>Notifications</h3>
+                                        </div>
+                                        <div className="notifications-list">
+                                            {notifications.length === 0 ? (
+                                                <div className="notification-item" style={{ textAlign: 'center', color: '#888' }}>
+                                                    No new notifications
+                                                </div>
+                                            ) : (
+                                                Array.isArray(notifications) && notifications.map(notif => (
+                                                    <div
+                                                        key={notif.id}
+                                                        className={`notification-item ${notif.type} ${notif.eventId ? 'clickable' : ''}`}
+                                                        onClick={() => handleNotificationClick(notif)}
+                                                    >
+                                                        <div className="notification-content">
+                                                            <div className="notification-message">{notif.message}</div>
+                                                            <div className="notification-meta">
+                                                                <span className="notification-time">{notif.time}</span>
+                                                                <button
+                                                                    className="dismiss-notif-btn"
+                                                                    onClick={(e) => handleDismissNotification(e, notif.id)}
+                                                                    title="Dismiss"
+                                                                >
+                                                                    <i className="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Team Collaboration Icon */}
+                            <div className="notifications-container" style={{ marginLeft: '12px' }} ref={requestsDropdownRef}>
+                                <button
+                                    className={`notifications-btn ${pendingRequests.length > 0 ? 'vibrate-bt' : ''}`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowRequestsDropdown(!showRequestsDropdown);
+                                        setShowNotifications(false);
+                                    }}
+                                    title="Collaboration Requests"
+                                >
+                                    <i className="fa-solid fa-user-plus" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
+                                    {Array.isArray(pendingRequests) && pendingRequests.length > 0 &&
+                                        <span className="notification-badge" style={{ background: '#333', color: 'white' }}>{pendingRequests.length}</span>
+                                    }
+                                </button>
+
+                                {showRequestsDropdown && (
+                                    <div className="notifications-dropdown minimal-dropdown" style={{ width: '320px', right: '0' }}>
+                                        <div className="notifications-header minimal-header">
+                                            <h3>Team invitations</h3>
+                                        </div>
+                                        <div className="notifications-list">
+                                            {(!Array.isArray(pendingRequests) || pendingRequests.length === 0) ? (
+                                                <div className="notification-item" style={{ justifyContent: 'center', color: '#888' }}>
+                                                    No pending invitations
+                                                </div>
+                                            ) : (
+                                                Array.isArray(pendingRequests) && pendingRequests.map(req => (
+                                                    <div key={req.id} className="notification-item" style={{ display: 'block' }}>
+                                                        <div className="notification-message" style={{ marginBottom: '8px' }}>
+                                                            <strong>{req.eventName}</strong>
+                                                            <div style={{ fontSize: '12px', color: '#666' }}>From: {req.senderName}</div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                                            <button
+                                                                className="btn btn-sm"
+                                                                style={{ background: '#4caf50', color: 'white', flex: 1 }}
+                                                                onClick={() => handleAcceptRequest(req.id)}
+                                                            >
+                                                                Accept
+                                                            </button>
+                                                            <button
+                                                                className="btn btn-sm"
+                                                                style={{ background: '#f44336', color: 'white', flex: 1 }}
+                                                                onClick={() => handleDeclineRequest(req.id)}
+                                                            >
+                                                                Decline
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-
+                        <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
+                            Logout
+                        </button>
                     </div>
                 </div>
             </nav>

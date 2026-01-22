@@ -4,6 +4,26 @@
     border-bottom: 1px solid var(--border-color);
 }
 
+/* Navbar overrides to show Back Button on Desktop */
+.btn-back-nav {
+    display: flex !important;
+    background: #f1f5f9;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    color: #1e3a8a;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-back-nav:hover {
+    background: #e2e8f0;
+    transform: translateX(-3px);
+}
+
 .event-meta {
     color: var(--text-secondary);
     font-size: 14px;
