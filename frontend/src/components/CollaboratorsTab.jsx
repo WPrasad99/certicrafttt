@@ -139,13 +139,15 @@ function CollaboratorsTab({ eventId, isOwner }) {
                                         Send Again
                                     </button>
                                 )}
-                                <button
-                                    className="btn-icon history-btn"
-                                    title="View Activity History"
-                                    onClick={() => handleShowLogs(collab)}
-                                >
-                                    🕒
-                                </button>
+                                {isOwner && (
+                                    <button
+                                        className="btn-icon history-btn"
+                                        title="View Activity History"
+                                        onClick={() => handleShowLogs(collab)}
+                                    >
+                                        🕒
+                                    </button>
+                                )}
                                 {isOwner && collab.role !== 'OWNER' && (
                                     <button
                                         className="btn-remove"

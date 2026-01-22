@@ -36,7 +36,7 @@ function MessagesTab({ eventId, event, isOwner }) {
     const loadMembers = async () => {
         try {
             const collaborators = await collaborationService.getCollaborators(eventId);
-            const acceptedCollaborators = Array.isArray(collaborators) ? collaborators.filter(c => c.status === 'ACCEPTED') : [];
+            const allCollaborators = Array.isArray(collaborators) ? collaborators : [];
 
             const membersList = [];
 
@@ -50,9 +50,8 @@ function MessagesTab({ eventId, event, isOwner }) {
                 });
             }
 
-            // Add accepted collaborators
-            // Add accepted collaborators (avoiding duplicates if organizer is in list)
-            acceptedCollaborators.forEach(c => {
+            // Add all collaborators (avoiding duplicates if organizer is in list)
+            allCollaborators.forEach(c => {
                 const isCurrentUser = String(c.id) === String(currentUser.id);
                 const isOrganizer = String(c.id) === String(event.organizerId);
 
@@ -61,7 +60,8 @@ function MessagesTab({ eventId, event, isOwner }) {
                         userId: c.id,
                         name: c.name, // Will be User.fullName from backend
                         email: c.email,
-                        role: c.role
+                        role: c.role,
+                        status: c.status
                     });
                 }
             });
@@ -191,6 +191,7 @@ function MessagesTab({ eventId, event, isOwner }) {
                                 <div className="member-name">
                                     {member.name || member.email}
                                     {member.role === 'OWNER' && <span className="role-badge">Owner</span>}
+                                    {member.status === 'PENDING' && <span className="role-badge invited" style={{ background: '#64748b' }}>Invited</span>}
                                 </div>
                                 <div className="member-status">
                                     {member.name ? member.email : 'Team Member'}
