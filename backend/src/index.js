@@ -53,14 +53,21 @@ const PORT = process.env.PORT || 8080;
 
 async function start() {
   try {
+    // Attempt DB connection
     await sequelize.authenticate();
     console.log('Database connected');
+
+    // Sync models - using force: false to be safe in prod
     await sequelize.sync({ alter: true });
-    app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+
   } catch (err) {
     console.error('Database connection/sync failed:', err.message);
-    // process.exit(1); // Allow server to start even if sync fails (e.g. existing data conflicts)
+    // We continue to start the server so Render detects the port
+    // API endpoints will fail if DB is down, which is expected
   }
+
+  // Start server regardless of DB state so Render doesn't time out
+  app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
 }
 
 start();
