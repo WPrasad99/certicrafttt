@@ -11,69 +11,165 @@
 
 .toast-container {
     pointer-events: auto;
-    min-width: 300px;
-    background: white;
+    min-width: 320px;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     padding: 16px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 16px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        inset 0 1px 1px rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
-    gap: 12px;
-    animation: slideInRight 0.3s ease-out;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 10px;
+    gap: 14px;
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast-container::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 16px 0 0 16px;
 }
 
 .toast-success {
-    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.05) 100%), rgba(255, 255, 255, 0.85);
+}
+
+.toast-success::before {
+    background: linear-gradient(180deg, #10b981, #059669);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
 .toast-error {
-    border-left: 4px solid #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.05) 100%), rgba(255, 255, 255, 0.85);
+}
+
+.toast-error::before {
+    background: linear-gradient(180deg, #ef4444, #dc2626);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
 }
 
 .toast-info {
-    border-left: 4px solid #3b82f6;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.05) 100%), rgba(255, 255, 255, 0.85);
+}
+
+.toast-info::before {
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
 }
 
 .toast-icon {
-    font-size: 20px;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    animation: iconPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .toast-message {
     flex: 1;
     font-size: 14px;
-    color: #374151;
+    color: #1f2937;
     font-weight: 500;
+    line-height: 1.5;
 }
 
 .toast-close {
-    background: none;
+    background: rgba(243, 244, 246, 0.8);
     border: none;
-    font-size: 18px;
-    color: #9ca3af;
+    font-size: 16px;
+    color: #6b7280;
     cursor: pointer;
     line-height: 1;
-    padding: 4px;
+    padding: 6px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
 }
 
 .toast-close:hover {
-    background-color: #f3f4f6;
-    color: #4b5563;
+    background: rgba(209, 213, 219, 0.9);
+    color: #374151;
+    transform: scale(1.1);
+}
+
+.toast-close:active {
+    transform: scale(0.95);
 }
 
 @keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(50px);
+        transform: translateX(80px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes iconPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .toast-overlay {
+        top: 70px;
+        right: 12px;
+        left: 12px;
+        align-items: stretch;
+    }
+
+    .toast-container {
+        min-width: unset;
+        max-width: unset;
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 12px;
+    }
+
+    .toast-message {
+        font-size: 13px;
+    }
+
+    .toast-icon {
+        font-size: 20px;
+    }
+
+    .toast-close {
+        width: 22px;
+        height: 22px;
+        font-size: 15px;
     }
 }

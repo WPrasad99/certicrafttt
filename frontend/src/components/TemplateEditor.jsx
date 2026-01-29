@@ -147,7 +147,9 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
             <div className="template-editor">
                 <div className="template-editor-header">
                     <h3>{template ? 'Edit Template' : 'Add Template'}</h3>
-                    <button onClick={onClose} className="btn btn-secondary">Close</button>
+                    <button onClick={onClose} className="btn btn-secondary btn-close-editor">
+                        <i className="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
                 <div className="template-editor-body">

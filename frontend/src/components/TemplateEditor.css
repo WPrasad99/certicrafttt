@@ -40,6 +40,29 @@
   white-space: nowrap;
 }
 
+.btn-close-editor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #1e3a8a;
+  transition: all 0.2s ease;
+}
+
+.btn-close-editor:hover {
+  background: #e2e8f0;
+  transform: rotate(90deg);
+}
+
+.btn-close-editor i {
+  font-size: 18px;
+}
+
 .template-editor-body {
   flex: 1;
   display: flex;
@@ -234,12 +257,17 @@
   }
 
   .template-editor-header h3 {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
-  .template-editor-header .btn {
-    padding: 8px 12px !important;
-    font-size: 13px !important;
+  .btn-close-editor {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .btn-close-editor i {
+    font-size: 16px;
   }
 
   .template-editor-body {
