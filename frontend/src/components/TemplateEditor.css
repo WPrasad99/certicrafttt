@@ -44,24 +44,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  width: 40px;
-  height: 40px;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
   padding: 0 !important;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #1e3a8a;
+  border-radius: 8px;
+  /* Rounded square instead of circle */
+  background: #e2e8f0;
+  /* Matches the light gray/blue from image */
+  color: #1e293b;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  border: none;
 }
 
 .btn-close-editor:hover {
-  background: #e2e8f0;
-  transform: rotate(90deg);
+  background: #cbd5e1;
+  transform: none;
+  /* Removed rotation as user just wants it to match image */
 }
 
 .btn-close-editor i {
   font-size: 16px;
+  font-weight: bold;
 }
 
 .template-editor-body {
@@ -259,16 +264,6 @@
 
   .template-editor-header h3 {
     font-size: 1rem;
-  }
-
-  .btn-close-editor {
-    min-width: 30px;
-    width: 30px;
-    height: 30px;
-  }
-
-  .btn-close-editor i {
-    font-size: 14px;
   }
 
   .template-editor-body {
