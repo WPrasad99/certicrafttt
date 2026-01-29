@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { Certificate, Participant, Event, Template, ActivityLog } = require('../models');
+const { Certificate, Participant, Event, Template, ActivityLog, UpdateHistory } = require('../models');
 const { v4: uuidv4 } = require('uuid');
 const { sendEmail } = require('../utils/email');
 const { uploadFile, isSupabaseUrl, downloadFileFromUrl } = require('../utils/supabase');
@@ -440,12 +440,38 @@ router.post('/events/:eventId/send-updates', auth, checkEventOwnership, async (r
 
     if (result.success) {
       await Promise.all(participants.map(p => p.update({ updateEmailStatus: 'SENT' })));
+
+      // Store update history
+      await UpdateHistory.create({
+        eventId,
+        subject,
+        content,
+        recipientCount: participants.length,
+        sentBy: req.user.id,
+        sentAt: new Date()
+      });
+
       res.json({ message: `Updates sent to ${participants.length} participants` });
     } else {
       await Promise.all(participants.map(p => p.update({ updateEmailStatus: 'FAILED' })));
       res.status(500).json({ error: result.error || 'Failed to send batch updates' });
     }
 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get update history for an event
+router.get('/events/:eventId/update-history', auth, checkEventOwnership, async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const history = await UpdateHistory.findAll({
+      where: { eventId },
+      order: [['sentAt', 'DESC']],
+      limit: 50
+    });
+    res.json(history);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

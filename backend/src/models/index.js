@@ -51,7 +51,7 @@ if (process.env.DATABASE_URL) {
 }
 
 // Import models
-const modelFiles = ['participant', 'event', 'certificate', 'user', 'template', 'collaborator', 'message', 'activityLog'];
+const modelFiles = ['participant', 'event', 'certificate', 'user', 'template', 'collaborator', 'message', 'activityLog', 'updateHistory'];
 for (const file of modelFiles) {
   const modelContent = require(path.join(__dirname, file));
   const model = modelContent(sequelize);
@@ -92,5 +92,11 @@ db.Event.hasMany(db.ActivityLog, { foreignKey: 'eventId', onDelete: 'CASCADE', h
 db.ActivityLog.belongsTo(db.Event, { foreignKey: 'eventId' });
 db.User.hasMany(db.ActivityLog, { foreignKey: 'userId', as: 'Actor' });
 db.ActivityLog.belongsTo(db.User, { foreignKey: 'userId', as: 'Actor' });
+
+// Update History
+db.Event.hasMany(db.UpdateHistory, { foreignKey: 'eventId', onDelete: 'CASCADE', hooks: true });
+db.UpdateHistory.belongsTo(db.Event, { foreignKey: 'eventId' });
+db.User.hasMany(db.UpdateHistory, { foreignKey: 'sentBy' });
+db.UpdateHistory.belongsTo(db.User, { foreignKey: 'sentBy', as: 'Sender' });
 
 module.exports = { sequelize, Sequelize, ...db };

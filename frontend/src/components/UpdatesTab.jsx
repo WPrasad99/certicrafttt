@@ -1,14 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { certificateService } from '../services/authService';
 
-function UpdatesTab({ onSendUpdates, onResendUpdate, loading, participantCount, certificateStatus = [] }) {
+function UpdatesTab({ onSendUpdates, onResendUpdate, loading, participantCount, certificateStatus = [], eventId }) {
     const [updateData, setUpdateData] = useState({
         subject: '',
         content: ''
     });
+    const [updateHistory, setUpdateHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
 
-    const handleSubmit = (e) => {
+    // Load form data from localStorage on mount
+    useEffect(() => {
+        const savedData = localStorage.getItem(`update_form_${eventId}`);
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                setUpdateData(parsed);
+            } catch (e) {
+                console.error('Failed to parse saved form data', e);
+            }
+        }
+    }, [eventId]);
+
+    // Save form data to localStorage whenever it changes
+    useEffect(() => {
+        if (updateData.subject || updateData.content) {
+            localStorage.setItem(`update_form_${eventId}`, JSON.stringify(updateData));
+        }
+    }, [updateData, eventId]);
+
+    // Load update history
+    useEffect(() => {
+        loadUpdateHistory();
+    }, [eventId]);
+
+    const loadUpdateHistory = async () => {
+        setLoadingHistory(true);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/certificates/events/${eventId}/update-history`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setUpdateHistory(data);
+            }
+        } catch (error) {
+            console.error('Failed to load update history:', error);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSendUpdates(updateData);
+        await onSendUpdates(updateData);
+        // Clear form and localStorage after successful send
+        setUpdateData({ subject: '', content: '' });
+        localStorage.removeItem(`update_form_${eventId}`);
+        // Reload history
+        loadUpdateHistory();
     };
 
     return (
@@ -102,6 +154,32 @@ function UpdatesTab({ onSendUpdates, onResendUpdate, loading, participantCount, 
                         {loading ? 'Sending Emails...' : 'Send Updates to All'}
                     </button>
                 </form>
+            </div>
+
+            {/* Update History Section */}
+            <div className="card update-history-section" style={{ gridColumn: '1 / -1' }}>
+                <h3>Updates History</h3>
+                {loadingHistory ? (
+                    <p style={{ textAlign: 'center', color: '#888' }}>Loading history...</p>
+                ) : updateHistory.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: '#888', padding: '20px' }}>
+                        No updates have been sent yet.
+                    </p>
+                ) : (
+                    <div className="update-history-list">
+                        {updateHistory.map((update) => (
+                            <div key={update.id} className="update-history-item">
+                                <div className="update-history-header">
+                                    <h4>{update.subject}</h4>
+                                    <span className="update-history-meta">
+                                        {new Date(update.sentAt).toLocaleString()} • {update.recipientCount} recipients
+                                    </span>
+                                </div>
+                                <p className="update-history-content">{update.content}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

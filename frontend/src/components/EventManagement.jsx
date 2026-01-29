@@ -690,6 +690,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                         loading={loading}
                         participantCount={participants.length}
                         certificateStatus={certificateStatus}
+                        eventId={event.id}
                     />
                 )}
 
