@@ -36,6 +36,10 @@
   color: #111;
 }
 
+.template-editor-header .btn {
+  white-space: nowrap;
+}
+
 .template-editor-body {
   flex: 1;
   display: flex;
@@ -231,6 +235,11 @@
 
   .template-editor-header h3 {
     font-size: 1.1rem;
+  }
+
+  .template-editor-header .btn {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
   }
 
   .template-editor-body {

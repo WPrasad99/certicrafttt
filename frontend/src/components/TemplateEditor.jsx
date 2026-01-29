@@ -115,13 +115,10 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
             showToast('Please click on the template to set the name center before saving.', 'error');
             return;
         }
-        if (coords.qrX == null || coords.qrY == null) {
-            showToast('Please click on the template to set the QR code position before saving.', 'error');
-            return;
-        }
+        // QR coordinates are optional - can be set later
         try {
             await templateService.updateCoordinates(eventId, coords);
-            showToast('Template coordinates saved', 'success');
+            showToast('Template coordinates saved successfully!', 'success');
             onTemplateSaved && onTemplateSaved();
         } catch (err) {
             showToast('Failed to save coordinates', 'error');
@@ -307,7 +304,7 @@ function TemplateEditor({ eventId, onClose, templateService, showToast, onTempla
                                     onClick={handleSave}
                                     className="btn btn-primary"
                                     style={{ width: '100%', padding: '12px' }}
-                                    disabled={coords.nameX == null || coords.nameY == null || coords.qrX == null || coords.qrY == null}
+                                    disabled={coords.nameX == null || coords.nameY == null}
                                 >
                                     Save Coordinates
                                 </button>

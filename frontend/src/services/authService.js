@@ -166,6 +166,11 @@ export const certificateService = {
         const response = await api.post(`/certificates/${participantId}/resend-update`);
         return response.data;
     },
+
+    getUpdateHistory: async (eventId) => {
+        const response = await api.get(`/certificates/events/${eventId}/update-history`);
+        return response.data;
+    },
 };
 export const templateService = {
     uploadTemplate: async (eventId, file) => {

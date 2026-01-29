@@ -37,15 +37,8 @@ function UpdatesTab({ onSendUpdates, onResendUpdate, loading, participantCount, 
     const loadUpdateHistory = async () => {
         setLoadingHistory(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/certificates/events/${eventId}/update-history`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setUpdateHistory(data);
-            }
+            const data = await certificateService.getUpdateHistory(eventId);
+            setUpdateHistory(data);
         } catch (error) {
             console.error('Failed to load update history:', error);
         } finally {
