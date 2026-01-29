@@ -46,7 +46,10 @@
   justify-content: center;
   min-width: 36px;
   width: 36px;
+  max-width: 36px;
   height: 36px;
+  min-height: 36px;
+  max-height: 36px;
   padding: 0 !important;
   border-radius: 8px;
   /* Rounded square instead of circle */
@@ -55,18 +58,21 @@
   color: #1e293b;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  flex-grow: 0;
   border: none;
+  aspect-ratio: 1 / 1;
+  line-height: normal;
 }
 
 .btn-close-editor:hover {
   background: #cbd5e1;
   transform: none;
-  /* Removed rotation as user just wants it to match image */
 }
 
 .btn-close-editor i {
   font-size: 16px;
   font-weight: bold;
+  line-height: 1;
 }
 
 .template-editor-body {
