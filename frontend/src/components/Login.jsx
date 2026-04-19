@@ -168,15 +168,14 @@ function Login() {
 
                     <div className="btn-divider">OR</div>
 
-                    <a
-                        href="https://certicraft-backendd.onrender.com/auth/google"
-                        onClick={(e) => { window.location.href = 'https://certicraft-backendd.onrender.com/auth/google'; }}
+                    <button
+                        onClick={handleGoogleLogin}
                         className="google-btn"
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', textDecoration: 'none', cursor: 'pointer' }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', border: '1px solid #e5e7eb', background: '#fff', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit' }}
                     >
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
                         Sign in with Google
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
