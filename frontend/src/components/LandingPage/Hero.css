@@ -1,0 +1,132 @@
+/* Orbit */
+
+.orbit{
+    position:relative;
+    width:220px;
+    height:220px;
+    animation:orbit 18s linear infinite;
+}
+
+/* Responsive Orbit Size */
+
+@media(min-width:640px){
+    .orbit{
+        width:280px;
+        height:280px;
+    }
+}
+
+@media(min-width:768px){
+    .orbit{
+        width:340px;
+        height:340px;
+    }
+}
+
+@media(min-width:1024px){
+    .orbit{
+        width:400px;
+        height:400px;
+    }
+}
+
+/* Rotation */
+
+@keyframes orbit{
+
+    from{
+        transform:rotate(0deg);
+    }
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
+/* Planets */
+
+.planet{
+
+    position:absolute;
+
+    width:55px;
+    height:55px;
+
+    border-radius:9999px;
+
+    background:white;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:24px;
+
+    box-shadow:0 12px 30px rgba(0,0,0,.15);
+
+}
+
+/* Tablet */
+
+@media(min-width:768px){
+
+    .planet{
+
+        width:70px;
+        height:70px;
+
+        font-size:30px;
+
+    }
+
+}
+
+/* Desktop */
+
+@media(min-width:1024px){
+
+    .planet{
+
+        width:80px;
+        height:80px;
+
+        font-size:34px;
+
+    }
+
+}
+
+/* 6 Equal Positions */
+
+.planet-1{
+    top:-30px;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+.planet-2{
+    top:20%;
+    right:-30px;
+}
+
+.planet-3{
+    bottom:20%;
+    right:-30px;
+}
+
+.planet-4{
+    bottom:-30px;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+.planet-5{
+    bottom:20%;
+    left:-30px;
+}
+
+.planet-6{
+    top:20%;
+    left:-30px;
+}

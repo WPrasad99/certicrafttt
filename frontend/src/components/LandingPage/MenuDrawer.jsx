@@ -7,7 +7,7 @@ function MenuDrawer({ menuOpen, setMenuOpen }) {
   if (!menuOpen) return null;
 
   return (
-    <div className="absolute top-[-110px] mt-[10vh] right-[-8px] -z-10 md:top-[-90px] md:right-[-10px]">
+    <div className="absolute -top-10 mt-[10vh] right-[-8px] z-50  md:right-[-10px] md:-top-8">
      <div className="w-[16rem] rounded-3xl bg-gray-300 p-8 text-black shadow-2xl">
         
         {/* Menu links go here */}
@@ -31,7 +31,7 @@ function MenuDrawer({ menuOpen, setMenuOpen }) {
   <a
     href="#how-it-works"
     onClick={() => setMenuOpen(false)}
-    className="block text-sm font-semibold hover:text-gray-300"
+    className="block text-sm font-semibold hover:text-gray-800"
   >
     How It Works
   </a>
@@ -39,7 +39,7 @@ function MenuDrawer({ menuOpen, setMenuOpen }) {
   <a
     href="#verification"
     onClick={() => setMenuOpen(false)}
-    className="block text-sm font-semibold hover:text-gray-300"
+    className="block text-sm font-semibold hover:text-gray-800"
   >
     Verification
   </a>
@@ -48,7 +48,7 @@ function MenuDrawer({ menuOpen, setMenuOpen }) {
 
 <div className="my-8 border-t border-gray-700"></div>
 
-<div className="space-y-3">
+<div className="flex space-y-8 md:hidden">
   <Link
     to="/login"
     onClick={() => setMenuOpen(false)}
