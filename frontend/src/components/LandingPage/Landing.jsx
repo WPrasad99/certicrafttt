@@ -1,11 +1,12 @@
 import Navbar from "./Navbar";
 import Hero from "./Hero";
 import Trusted from "./Trusted By";
+import Features from "./Features";
 
 function Landing() {
   return (
     <main className="">
-      <div className="mt-2 md:mt-8">
+      <div className="mt-2 md:mt-3">
         <Navbar />
       </div>
 
@@ -15,6 +16,10 @@ function Landing() {
 
 <div>
     <Trusted />
+</div>
+
+<div>
+<Features />
 </div>
  
     </main>

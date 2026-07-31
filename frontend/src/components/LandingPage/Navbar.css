@@ -59,10 +59,44 @@ transform:scale(1);
 
 }
 
+.mobile-nav-link{
+    position:relative;
+    color:#374151;
+    transition:.3s;
+}
+
+.mobile-nav-link:hover{
+    color:#2563eb;
+    padding-left:8px;
+}
+
+.mobile-nav-link::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-4px;
+    width:0;
+    height:2px;
+    background:#2563eb;
+    transition:.3s;
+}
+
+.mobile-nav-link:hover::after{
+    width:35px;
+}
+
 .nav-link:hover::after{
 
     width:100%;
 
+}
+
+.active-link {
+  color: #2563eb;
+}
+
+.active-link::after {
+  width: 100%;
 }
 
 

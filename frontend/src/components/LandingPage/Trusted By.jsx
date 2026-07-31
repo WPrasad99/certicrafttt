@@ -18,7 +18,9 @@ import "./Trusted.css"
 
 export default function Trusted() {
   return (
-    <section className="bg-white py-24">
+    <section 
+      id="trusted"
+    className="bg-white py-24">
 
       <div className="mx-auto max-w-7xl px-6">
 

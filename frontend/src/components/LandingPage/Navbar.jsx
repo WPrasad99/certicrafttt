@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaMoon, FaTimes, FaUser } from "react-icons/fa";
 import MenuDrawer from "./MenuDrawer";
+
 import "./Navbar.css";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,43 +20,138 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+
+  useEffect(() => {
+  const sections = document.querySelectorAll("section[id]");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    },
+    {
+      threshold: 0.5,
+    }
+  );
+
+  sections.forEach((section) => observer.observe(section));
+
+  return () => observer.disconnect();
+}, []);
+
   return (
    <header
-  className={`fixed left-1/2 top-5 -translate-x-1/2 z-50
-  w-[95%] max-w-6xl rounded-full
+  className={`fixed left-1/2 -translate-x-1/2 z-50
+  w-[95%] max-w-7xl
+  rounded-full
   bg-white
   border border-gray-200
-  transition-all duration-300
-  ${scrolled ? "shadow-xl" : ""}`}
+  transition-all duration-500 ease-in-out
+  ${
+    scrolled
+      ? "top-0 shadow-xl"
+      : "top-5"
+  }`}
 >
-    
-      <div className=" flex items-center justify-between px-5 py-3">
+      <div className="flex items-center justify-between px-5 py-3">
 
         {/* Logo */}
-        <Link
-          to="/"
+        <a
+          href="#home"
+          onClick={() => setMenuOpen(false)}
           className="text-2xl font-bold tracking-tight"
         >
           Certi<span className="text-blue-700">Craft</span>
-        </Link>
+        </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-10 font-medium">
-          <a href="#features" className="nav-link">
-            Features
-          </a>
+        <nav className="hidden lg:flex items-center gap-8 font-bold text-xs">
 
-          <a href="#templates" className="nav-link">
-            Templates
-          </a>
+          <a
+  href="#home"
+  className={`nav-link ${
+    activeSection === "home" ? "active-link" : ""
+  }`}
+>
+  Home
+</a>
 
-          <a href="#pricing" className="nav-link">
-            Pricing
-          </a>
+          <a
+  href="#trusted"
+  className={`nav-link ${
+    activeSection === "trusted" ? "active-link" : ""
+  }`}
+>
+  Trusted By
+</a>
 
-          <a href="#faq" className="nav-link">
-            FAQ
-          </a>
+<a
+  href="#features"
+  className={`nav-link ${
+    activeSection === "features" ? "active-link" : ""
+  }`}
+>
+  Features
+</a>
+
+
+<a
+  href="#templates"
+  className={`nav-link ${
+    activeSection === "templates" ? "active-link" : ""
+  }`}
+>
+  Templates
+</a>
+
+          <a
+  href="#how-it-works"
+  className={`nav-link ${
+    activeSection === "how-it-works" ? "active-link" : ""
+  }`}
+>
+  How It Works
+</a>
+
+          <a
+  href="#pricing"
+  className={`nav-link ${
+    activeSection === "pricing" ? "active-link" : ""
+  }`}
+>
+  Pricing
+</a>
+
+          <a
+  href="#testimonials"
+  className={`nav-link ${
+    activeSection === "testimonials" ? "active-link" : ""
+  }`}
+>
+  Testimonials
+</a>
+
+          <a
+  href="#faq"
+  className={`nav-link ${
+    activeSection === "faq" ? "active-link" : ""
+  }`}
+>
+  FAQ
+</a>
+
+         <a
+  href="#contact"
+  className={`nav-link ${
+    activeSection === "contact" ? "active-link" : ""
+  }`}
+>
+  Contact
+</a>
+
         </nav>
 
         {/* Right Side */}
@@ -81,7 +178,6 @@ export default function Navbar() {
                 Get Started
               </span>
 
-              {/* Shine Effect */}
               <span
                 className="
                   absolute
@@ -94,13 +190,14 @@ export default function Navbar() {
                   group-hover:translate-x-[180%]
                 "
               />
+
             </button>
           </Link>
 
           {/* Mobile Menu */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex lg:hidden h-11 w-11 rounded-full bg-black text-white items-center justify-center"
+            className="flex lg:hidden h-11 w-11 rounded-full bg-black text-white items-center justify-center transition duration-300 hover:scale-105"
           >
             {menuOpen ? <FaTimes /> : <FaBars />}
           </button>
@@ -108,10 +205,12 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Drawer */}
       <MenuDrawer
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
       />
+
     </header>
   );
 }

@@ -14,7 +14,9 @@ import "./Hero.css";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-[#fafafa] pt-36 pb-24">
+    <section
+      id="home"
+    className="relative overflow-hidden bg-[#fafafa] pt-36 pb-24">
       {/* Background Glow */}
       <div className="absolute left-1/2 top-32 h-[450px] w-[450px] -translate-x-1/2 rounded-full bg-orange-100 blur-[120px] opacity-70"></div>
 
