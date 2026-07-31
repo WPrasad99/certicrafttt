@@ -25,7 +25,7 @@
 
   font-weight: 600;
 
-  transition: .35s ease;
+  transition: 0.35s ease;
 
   overflow: hidden;
 
@@ -33,535 +33,448 @@
 }
 
 .hero-btn-primary:hover {
-
   background: blue;
 
   transform: translateY(-4px);
 
   box-shadow: 0 20px 45px rgba(37, 22, 249, 0.184);
-
 }
 
-.hero-btn-primary:active{
-
-transform:scale(.97);
-
+.hero-btn-primary:active {
+  transform: scale(0.97);
 }
 
-.hero-btn-secondary{
+.hero-btn-secondary {
+  display: inline-flex;
 
-display:inline-flex;
+  align-items: center;
 
-align-items:center;
+  justify-content: center;
 
-justify-content:center;
+  padding: 16px 30px;
 
-padding:16px 30px;
+  border-radius: 999px;
 
-border-radius:999px;
+  background: white;
 
-background:white;
+  border: 1px solid #d1d5db;
 
-border:1px solid #d1d5db;
+  font-weight: 600;
 
-font-weight:600;
-
-transition:.35s;
-
+  transition: 0.35s;
 }
 
-.hero-btn-secondary:hover{
+.hero-btn-secondary:hover {
+  background: #111827;
 
-background:#111827;
+  color: white;
 
-color:white;
-
-transform:translateY(-4px);
-
+  transform: translateY(-4px);
 }
 
 /* ===========================
    CTA TEXT
 =========================== */
 
-.cta-text{
-
-display:inline-block;
-
+.cta-text {
+  display: inline-block;
 }
 
-.hero-btn-primary:hover .cta-text{
-
-animation:textPop .35s ease;
-
+.hero-btn-primary:hover .cta-text {
+  animation: textPop 0.35s ease;
 }
 
-@keyframes textPop{
+@keyframes textPop {
+  0% {
+    transform: scale(1);
+  }
 
-0%{
+  35% {
+    transform: scale(0.9);
+  }
 
-transform:scale(1);
+  70% {
+    transform: scale(1.15);
+  }
 
-}
-
-35%{
-
-transform:scale(.9);
-
-}
-
-70%{
-
-transform:scale(1.15);
-
-}
-
-100%{
-
-transform:scale(1);
-
-}
-
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ===========================
    FEATURE CARDS
 =========================== */
 
-.feature-card{
+.feature-card {
+  display: flex;
 
-display:flex;
+  align-items: flex-start;
 
-align-items:flex-start;
+  gap: 15px;
 
-gap:15px;
+  padding: 18px;
 
-padding:18px;
+  background: rgba(255, 255, 255, 0.7);
 
-background:rgba(255,255,255,.7);
+  backdrop-filter: blur(18px);
 
-backdrop-filter:blur(18px);
+  border-radius: 22px;
 
-border-radius:22px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
-border:1px solid rgba(0,0,0,.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 
-box-shadow:0 10px 30px rgba(0,0,0,.05);
-
-transition:.35s ease;
-
+  transition: 0.35s ease;
 }
 
-.feature-card:hover{
+.feature-card:hover {
+  transform: translateY(-8px);
 
-transform:translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
 
-box-shadow:0 20px 50px rgba(0,0,0,.10);
-
-border-color: blue;
-
+  border-color: blue;
 }
 
-.feature-icon-small{
+.feature-icon-small {
+  font-size: 22px;
 
-font-size:22px;
+  color: blue;
 
-color:blue;
+  margin-top: 4px;
 
-margin-top:4px;
-
-transition:.35s;
-
+  transition: 0.35s;
 }
 
-.feature-card:hover .feature-icon-small{
-
-transform:rotate(-12deg) scale(1.1);
-
+.feature-card:hover .feature-icon-small {
+  transform: rotate(-12deg) scale(1.1);
 }
 
 /* ===========================
    CENTER CARD
 =========================== */
 
-.center-card{
+.center-card {
+  position: relative;
 
-position:relative;
+  z-index: 20;
 
-z-index:20;
+  display: flex;
 
-display:flex;
+  flex-direction: column;
 
-flex-direction:column;
+  align-items: center;
 
-align-items:center;
+  justify-content: center;
 
-justify-content:center;
+  width: 280px;
 
-width:280px;
+  height: 280px;
 
-height:280px;
+  padding: 30px;
 
-padding:30px;
+  background: white;
 
-background:white;
+  border-radius: 32px;
 
-border-radius:32px;
+  border: 1px solid #e5e7eb;
 
-border:1px solid #e5e7eb;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.08);
 
-box-shadow:0 40px 100px rgba(0,0,0,.08);
+  transition: 0.45s ease;
 
-transition:.45s ease;
-
-text-align:center;
-
+  text-align: center;
 }
 
-.center-card:hover{
+.center-card:hover {
+  transform: translateY(-8px);
 
-transform:translateY(-8px);
-
-box-shadow:0 50px 120px rgba(0,0,0,.12);
-
+  box-shadow: 0 50px 120px rgba(0, 0, 0, 0.12);
 }
 
-.logo-circle{
+.logo-circle {
+  display: flex;
 
-display:flex;
+  align-items: center;
 
-align-items:center;
+  justify-content: center;
 
-justify-content:center;
+  width: 72px;
 
-width:72px;
+  height: 72px;
 
-height:72px;
+  border-radius: 20px;
 
-border-radius:20px;
+  background: black;
 
-background:black;
+  color: white;
 
-color:white;
+  font-size: 30px;
 
-font-size:30px;
-
-margin-bottom:24px;
-
+  margin-bottom: 24px;
 }
 
-.center-card h2{
+.center-card h2 {
+  font-size: 30px;
 
-font-size:30px;
+  font-weight: 700;
 
-font-weight:700;
-
-color:#111827;
-
+  color: #111827;
 }
 
-.center-card p{
+.center-card p {
+  margin-top: 12px;
 
-margin-top:12px;
+  font-size: 15px;
 
-font-size:15px;
+  line-height: 1.7;
 
-line-height:1.7;
-
-color:#6b7280;
-
+  color: #6b7280;
 }
 
-.issue-btn{
+.issue-btn {
+  margin-top: 28px;
 
-margin-top:28px;
+  padding: 14px 24px;
 
-padding:14px 24px;
+  border: none;
 
-border:none;
+  border-radius: 999px;
 
-border-radius:999px;
+  background: #111827;
 
-background:#111827;
+  color: white;
 
-color:white;
+  font-weight: 600;
 
-font-weight:600;
+  cursor: pointer;
 
-cursor:pointer;
-
-transition:.35s;
-
+  transition: 0.35s;
 }
 
-.issue-btn:hover{
+.issue-btn:hover {
+  background: blue;
 
-background:blue;
+  transform: translateY(-3px);
 
-transform:translateY(-3px);
-
-box-shadow:0 18px 35px rgba(71, 22, 249, 0.236);
-
+  box-shadow: 0 18px 35px rgba(71, 22, 249, 0.236);
 }
-
 
 /* ===========================
    ORBIT
 =========================== */
 
-.orbit{
-    position:absolute;
-    width:420px;
-    height:420px;
-    transition:.8s ease;
+.orbit {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  transition: 0.8s ease;
 }
 
 /* Planets */
 
-.planet{
+.planet {
+  position: absolute;
 
-    position:absolute;
+  width: 64px;
+  height: 64px;
 
-    width:64px;
-    height:64px;
+  border-radius: 9999px;
 
-    border-radius:9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+  background: white;
 
-    background:white;
+  color: blue;
 
-    color:blue;
+  font-size: 24px;
 
-    font-size:24px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 
-    border:1px solid rgba(0,0,0,.06);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
 
-    box-shadow:0 20px 45px rgba(0,0,0,.08);
+  transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 
-    transition:all .7s cubic-bezier(.22,1,.36,1);
-
-    cursor:pointer;
-
+  cursor: pointer;
 }
 
 /* Hover */
 
-.planet:hover{
+.planet:hover {
+  transform: scale(1.12);
 
-    transform:scale(1.12);
+  background: blue;
 
-    background: blue;
-
-    color:white;
-
+  color: white;
 }
 
 /* --------------------------
    Positions
 --------------------------- */
 
-.planet-1{
-
-    top:-20px;
-    left:50%;
-    transform:translateX(-50%);
-
+.planet-1 {
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.planet-2{
-
-    top:65px;
-    right:-20px;
-
+.planet-2 {
+  top: 65px;
+  right: -20px;
 }
 
-.planet-3{
-
-    bottom:65px;
-    right:-20px;
-
+.planet-3 {
+  bottom: 65px;
+  right: -20px;
 }
 
-.planet-4{
-
-    bottom:-20px;
-    left:50%;
-    transform:translateX(-50%);
-
+.planet-4 {
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.planet-5{
-
-    bottom:65px;
-    left:-20px;
-
+.planet-5 {
+  bottom: 65px;
+  left: -20px;
 }
 
-.planet-6{
-
-    top:65px;
-    left:-20px;
-
+.planet-6 {
+  top: 65px;
+  left: -20px;
 }
 
 /* ===========================
    CENTER CARD HOVER
 =========================== */
 
-.center-card:hover{
-
-    transform:translateY(-8px) scale(1.02);
-
+.center-card:hover {
+  transform: translateY(-8px) scale(1.02);
 }
 
 /* Glow */
 
-.center-card::after{
+.center-card::after {
+  content: "";
 
-    content:"";
+  position: absolute;
 
-    position:absolute;
+  inset: -20px;
 
-    inset:-20px;
+  border-radius: 40px;
 
-    border-radius:40px;
-
-    background:radial-gradient(circle,
+  background: radial-gradient(
+    circle,
     rgba(37, 22, 249, 0.105),
-    transparent 70%);
+    transparent 70%
+  );
 
-    opacity:0;
+  opacity: 0;
 
-    transition:.45s;
+  transition: 0.45s;
 
-    z-index:-1;
-
+  z-index: -1;
 }
 
-.center-card:hover::after{
-
-    opacity:1;
-
+.center-card:hover::after {
+  opacity: 1;
 }
 
 /* ===========================
    FLOATING
 =========================== */
 
-.planet{
-
-    animation:floatPlanet 5s ease-in-out infinite;
-
+.planet {
+  animation: floatPlanet 5s ease-in-out infinite;
 }
 
-.planet:nth-child(2){
-
-    animation-delay:.4s;
-
+.planet:nth-child(2) {
+  animation-delay: 0.4s;
 }
 
-.planet:nth-child(3){
-
-    animation-delay:.8s;
-
+.planet:nth-child(3) {
+  animation-delay: 0.8s;
 }
 
-.planet:nth-child(4){
-
-    animation-delay:1.2s;
-
+.planet:nth-child(4) {
+  animation-delay: 1.2s;
 }
 
-.planet:nth-child(5){
-
-    animation-delay:1.6s;
-
+.planet:nth-child(5) {
+  animation-delay: 1.6s;
 }
 
-.planet:nth-child(6){
-
-    animation-delay:2s;
-
+.planet:nth-child(6) {
+  animation-delay: 2s;
 }
 
-@keyframes floatPlanet{
+@keyframes floatPlanet {
+  0% {
+    transform: translateY(0);
+  }
 
-0%{
+  50% {
+    transform: translateY(-8px);
+  }
 
-transform:translateY(0);
-
-}
-
-50%{
-
-transform:translateY(-8px);
-
-}
-
-100%{
-
-transform:translateY(0);
-
-}
-
+  100% {
+    transform: translateY(0);
+  }
 }
 
 /* ===========================
    RESPONSIVE
 =========================== */
 
-@media (max-width:768px){
+@media (max-width: 768px) {
+  .orbit {
+    width: 330px;
+    height: 330px;
+  }
 
-.orbit{
-    width:330px;
-    height:330px;
-}
+  .planet {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
 
-.planet{
-    width:48px;
-    height:48px;
-    font-size:18px;
-}
+  /* Top */
+  .planet-1 {
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 
-/* Top */
-.planet-1{
-    top:-30px;
-    left:50%;
-    transform:translateX(-50%);
-}
+  /* Top Right */
+  .planet-2 {
+    top: 35px;
+    right: -35px;
+  }
 
-/* Top Right */
-.planet-2{
-    top:35px;
-    right:-35px;
-}
+  /* Bottom Right */
+  .planet-3 {
+    bottom: 35px;
+    right: -35px;
+  }
 
-/* Bottom Right */
-.planet-3{
-    bottom:35px;
-    right:-35px;
-}
+  /* Bottom */
+  .planet-4 {
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 
-/* Bottom */
-.planet-4{
-    bottom:-30px;
-    left:50%;
-    transform:translateX(-50%);
-}
+  /* Bottom Left */
+  .planet-5 {
+    bottom: 35px;
+    left: -35px;
+  }
 
-/* Bottom Left */
-.planet-5{
-    bottom:35px;
-    left:-35px;
-}
-
-/* Top Left */
-.planet-6{
-    top:35px;
-    left:-35px;
-}
-
+  /* Top Left */
+  .planet-6 {
+    top: 35px;
+    left: -35px;
+  }
 }
