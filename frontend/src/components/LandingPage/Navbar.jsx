@@ -1,71 +1,117 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaBars, FaMoon, FaUser, FaTimes } from "react-icons/fa";
+import { FaBars, FaMoon, FaTimes, FaUser } from "react-icons/fa";
 import MenuDrawer from "./MenuDrawer";
+import "./Navbar.css";
 
-function Navbar() {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <>
-      <header className="flex justify-between items-center px-6 py-5">
+   <header
+  className={`fixed left-1/2 top-5 -translate-x-1/2 z-50
+  w-[95%] max-w-6xl rounded-full
+  bg-white
+  border border-gray-200
+  transition-all duration-300
+  ${scrolled ? "shadow-xl" : ""}`}
+>
+    
+      <div className=" flex items-center justify-between px-5 py-3">
+
         {/* Logo */}
-        <div className="text-2xl font-bold">
-          <h1>
-            Certi<span className="text-orange-500">Craft</span>
-          </h1>
-        </div>
+        <Link
+          to="/"
+          className="text-2xl font-bold tracking-tight"
+        >
+          Certi<span className="text-blue-700">Craft</span>
+        </Link>
 
-        {/* Menu */}
-        <div className="relative z-50 inline-flex items-center gap-4 bg-[#0B0B14] rounded-full px-6 py-1">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex items-center gap-2 text-white"
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-10 font-medium">
+          <a href="#features" className="nav-link">
+            Features
+          </a>
+
+          <a href="#templates" className="nav-link">
+            Templates
+          </a>
+
+          <a href="#pricing" className="nav-link">
+            Pricing
+          </a>
+
+          <a href="#faq" className="nav-link">
+            FAQ
+          </a>
+        </nav>
+
+        {/* Right Side */}
+        <div className="flex items-center gap-3">
+
+          {/* Dark Mode */}
+          <button className="h-11 w-11 rounded-full bg-white shadow-md flex items-center justify-center hover:scale-110 transition duration-300">
+            <FaMoon />
+          </button>
+
+          {/* Login */}
+          <Link
+            to="/login"
+            className="hidden md:flex h-11 w-11 rounded-full bg-white shadow-md items-center justify-center hover:scale-110 transition duration-300"
           >
-            {menuOpen ? (
-              <>
-                <FaTimes />
-                <span>Close</span>
-              </>
-            ) : (
-              <>
-                <FaBars />
-                <span>Menu</span>
-              </>
-            )}
-          </button>
-
-          <button className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-600">
-            <FaMoon className="text-white" />
-          </button>
-
-          <div className="rounded-full bg-gray-700 px-3 py-1 text-sm font-semibold text-white">
-            0%
-          </div>
-
-          <MenuDrawer
-            menuOpen={menuOpen}
-            setMenuOpen={setMenuOpen}
-          />
-        </div>
-
-        {/* Right */}
-        <div className="hidden items-center gap-4 md:flex">
-          <Link to="/login">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border bg-white">
-              <FaUser className="text-black" />
-            </div>
+            <FaUser />
           </Link>
 
-          <Link to="/register">
-            <button className="rounded-full bg-black px-6 py-3 text-white hover:bg-orange-500">
-              Get Started
+          {/* Get Started */}
+          <Link to="/register" className="hidden md:block">
+            <button className="cta-btn group relative overflow-hidden rounded-full bg-black px-8 py-3 text-white font-semibold hover:bg-blue-700 transition-colors duration-300">
+
+              <span className="cta-text relative z-10">
+                Get Started
+              </span>
+
+              {/* Shine Effect */}
+              <span
+                className="
+                  absolute
+                  inset-0
+                  -translate-x-full
+                  skew-x-12
+                  bg-white/30
+                  transition-all
+                  duration-700
+                  group-hover:translate-x-[180%]
+                "
+              />
             </button>
           </Link>
+
+          {/* Mobile Menu */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex lg:hidden h-11 w-11 rounded-full bg-black text-white items-center justify-center"
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+
         </div>
-      </header>
-    </>
+      </div>
+
+      <MenuDrawer
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+      />
+    </header>
   );
 }
-
-export default Navbar;

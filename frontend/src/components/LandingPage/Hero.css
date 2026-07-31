@@ -1,47 +1,319 @@
-/* Orbit */
+/* ===========================
+   HERO SECTION
+=========================== */
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px 30px;
+
+  border-radius: 999px;
+
+  background: #111827;
+  color: white;
+
+  font-weight: 600;
+
+  transition: .35s ease;
+
+  overflow: hidden;
+
+  position: relative;
+}
+
+.hero-btn-primary:hover {
+
+  background: blue;
+
+  transform: translateY(-4px);
+
+  box-shadow: 0 20px 45px rgba(37, 22, 249, 0.184);
+
+}
+
+.hero-btn-primary:active{
+
+transform:scale(.97);
+
+}
+
+.hero-btn-secondary{
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:16px 30px;
+
+border-radius:999px;
+
+background:white;
+
+border:1px solid #d1d5db;
+
+font-weight:600;
+
+transition:.35s;
+
+}
+
+.hero-btn-secondary:hover{
+
+background:#111827;
+
+color:white;
+
+transform:translateY(-4px);
+
+}
+
+/* ===========================
+   CTA TEXT
+=========================== */
+
+.cta-text{
+
+display:inline-block;
+
+}
+
+.hero-btn-primary:hover .cta-text{
+
+animation:textPop .35s ease;
+
+}
+
+@keyframes textPop{
+
+0%{
+
+transform:scale(1);
+
+}
+
+35%{
+
+transform:scale(.9);
+
+}
+
+70%{
+
+transform:scale(1.15);
+
+}
+
+100%{
+
+transform:scale(1);
+
+}
+
+}
+
+/* ===========================
+   FEATURE CARDS
+=========================== */
+
+.feature-card{
+
+display:flex;
+
+align-items:flex-start;
+
+gap:15px;
+
+padding:18px;
+
+background:rgba(255,255,255,.7);
+
+backdrop-filter:blur(18px);
+
+border-radius:22px;
+
+border:1px solid rgba(0,0,0,.05);
+
+box-shadow:0 10px 30px rgba(0,0,0,.05);
+
+transition:.35s ease;
+
+}
+
+.feature-card:hover{
+
+transform:translateY(-8px);
+
+box-shadow:0 20px 50px rgba(0,0,0,.10);
+
+border-color: blue;
+
+}
+
+.feature-icon-small{
+
+font-size:22px;
+
+color:blue;
+
+margin-top:4px;
+
+transition:.35s;
+
+}
+
+.feature-card:hover .feature-icon-small{
+
+transform:rotate(-12deg) scale(1.1);
+
+}
+
+/* ===========================
+   CENTER CARD
+=========================== */
+
+.center-card{
+
+position:relative;
+
+z-index:20;
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+justify-content:center;
+
+width:280px;
+
+height:280px;
+
+padding:30px;
+
+background:white;
+
+border-radius:32px;
+
+border:1px solid #e5e7eb;
+
+box-shadow:0 40px 100px rgba(0,0,0,.08);
+
+transition:.45s ease;
+
+text-align:center;
+
+}
+
+.center-card:hover{
+
+transform:translateY(-8px);
+
+box-shadow:0 50px 120px rgba(0,0,0,.12);
+
+}
+
+.logo-circle{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+width:72px;
+
+height:72px;
+
+border-radius:20px;
+
+background:black;
+
+color:white;
+
+font-size:30px;
+
+margin-bottom:24px;
+
+}
+
+.center-card h2{
+
+font-size:30px;
+
+font-weight:700;
+
+color:#111827;
+
+}
+
+.center-card p{
+
+margin-top:12px;
+
+font-size:15px;
+
+line-height:1.7;
+
+color:#6b7280;
+
+}
+
+.issue-btn{
+
+margin-top:28px;
+
+padding:14px 24px;
+
+border:none;
+
+border-radius:999px;
+
+background:#111827;
+
+color:white;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.35s;
+
+}
+
+.issue-btn:hover{
+
+background:blue;
+
+transform:translateY(-3px);
+
+box-shadow:0 18px 35px rgba(71, 22, 249, 0.236);
+
+}
+
+
+/* ===========================
+   ORBIT
+=========================== */
 
 .orbit{
-    position:relative;
-    width:220px;
-    height:220px;
-    animation:orbit 18s linear infinite;
-}
-
-/* Responsive Orbit Size */
-
-@media(min-width:640px){
-    .orbit{
-        width:280px;
-        height:280px;
-    }
-}
-
-@media(min-width:768px){
-    .orbit{
-        width:340px;
-        height:340px;
-    }
-}
-
-@media(min-width:1024px){
-    .orbit{
-        width:400px;
-        height:400px;
-    }
-}
-
-/* Rotation */
-
-@keyframes orbit{
-
-    from{
-        transform:rotate(0deg);
-    }
-
-    to{
-        transform:rotate(360deg);
-    }
-
+    position:absolute;
+    width:420px;
+    height:420px;
+    transition:.8s ease;
 }
 
 /* Planets */
@@ -50,83 +322,246 @@
 
     position:absolute;
 
-    width:55px;
-    height:55px;
+    width:64px;
+    height:64px;
 
     border-radius:9999px;
 
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
     background:white;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    color:blue;
 
     font-size:24px;
 
-    box-shadow:0 12px 30px rgba(0,0,0,.15);
+    border:1px solid rgba(0,0,0,.06);
+
+    box-shadow:0 20px 45px rgba(0,0,0,.08);
+
+    transition:all .7s cubic-bezier(.22,1,.36,1);
+
+    cursor:pointer;
 
 }
 
-/* Tablet */
+/* Hover */
 
-@media(min-width:768px){
+.planet:hover{
 
-    .planet{
+    transform:scale(1.12);
 
-        width:70px;
-        height:70px;
+    background: blue;
 
-        font-size:30px;
-
-    }
+    color:white;
 
 }
 
-/* Desktop */
+/* --------------------------
+   Positions
+--------------------------- */
 
-@media(min-width:1024px){
+.planet-1{
 
-    .planet{
-
-        width:80px;
-        height:80px;
-
-        font-size:34px;
-
-    }
+    top:-20px;
+    left:50%;
+    transform:translateX(-50%);
 
 }
 
-/* 6 Equal Positions */
+.planet-2{
 
+    top:65px;
+    right:-20px;
+
+}
+
+.planet-3{
+
+    bottom:65px;
+    right:-20px;
+
+}
+
+.planet-4{
+
+    bottom:-20px;
+    left:50%;
+    transform:translateX(-50%);
+
+}
+
+.planet-5{
+
+    bottom:65px;
+    left:-20px;
+
+}
+
+.planet-6{
+
+    top:65px;
+    left:-20px;
+
+}
+
+/* ===========================
+   CENTER CARD HOVER
+=========================== */
+
+.center-card:hover{
+
+    transform:translateY(-8px) scale(1.02);
+
+}
+
+/* Glow */
+
+.center-card::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-20px;
+
+    border-radius:40px;
+
+    background:radial-gradient(circle,
+    rgba(37, 22, 249, 0.105),
+    transparent 70%);
+
+    opacity:0;
+
+    transition:.45s;
+
+    z-index:-1;
+
+}
+
+.center-card:hover::after{
+
+    opacity:1;
+
+}
+
+/* ===========================
+   FLOATING
+=========================== */
+
+.planet{
+
+    animation:floatPlanet 5s ease-in-out infinite;
+
+}
+
+.planet:nth-child(2){
+
+    animation-delay:.4s;
+
+}
+
+.planet:nth-child(3){
+
+    animation-delay:.8s;
+
+}
+
+.planet:nth-child(4){
+
+    animation-delay:1.2s;
+
+}
+
+.planet:nth-child(5){
+
+    animation-delay:1.6s;
+
+}
+
+.planet:nth-child(6){
+
+    animation-delay:2s;
+
+}
+
+@keyframes floatPlanet{
+
+0%{
+
+transform:translateY(0);
+
+}
+
+50%{
+
+transform:translateY(-8px);
+
+}
+
+100%{
+
+transform:translateY(0);
+
+}
+
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width:768px){
+
+.orbit{
+    width:330px;
+    height:330px;
+}
+
+.planet{
+    width:48px;
+    height:48px;
+    font-size:18px;
+}
+
+/* Top */
 .planet-1{
     top:-30px;
     left:50%;
     transform:translateX(-50%);
 }
 
+/* Top Right */
 .planet-2{
-    top:20%;
-    right:-30px;
+    top:35px;
+    right:-35px;
 }
 
+/* Bottom Right */
 .planet-3{
-    bottom:20%;
-    right:-30px;
+    bottom:35px;
+    right:-35px;
 }
 
+/* Bottom */
 .planet-4{
     bottom:-30px;
     left:50%;
     transform:translateX(-50%);
 }
 
+/* Bottom Left */
 .planet-5{
-    bottom:20%;
-    left:-30px;
+    bottom:35px;
+    left:-35px;
 }
 
+/* Top Left */
 .planet-6{
-    top:20%;
-    left:-30px;
+    top:35px;
+    left:-35px;
+}
+
 }

@@ -1,0 +1,90 @@
+.cta-btn:hover .cta-text{
+    animation:textPop .4s ease;
+}
+
+@keyframes textPop{
+
+0%{
+transform:scale(1);
+}
+
+30%{
+transform:scale(.9);
+}
+
+60%{
+transform:scale(1.2);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+
+.nav-link{
+    position: relative;
+    display: inline-block;
+    color: #4B5563;
+    font-weight: 500;
+    transition: color .3s ease;
+}
+
+.nav-link:hover{
+    color:#111827;
+}
+
+.nav-link::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:-6px;
+
+    width:0;
+
+    height:2px;
+
+    background: blue;
+
+    border-radius:999px;
+
+    transform:translateX(-50%);
+
+    transition:width .35s ease;
+
+}
+
+.nav-link:hover::after{
+
+    width:100%;
+
+}
+
+
+.navbar{
+    animation: navbarAppear .6s ease;
+}
+
+@keyframes navbarAppear{
+
+0%{
+opacity:0;
+scale:.96;
+}
+
+100%{
+opacity:1;
+scale:1;
+}
+
+}
+
+
+
+
+
