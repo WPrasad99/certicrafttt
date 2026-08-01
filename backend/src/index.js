@@ -28,20 +28,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/git-push', (req, res) => {
-  try {
-    const { execSync } = require('child_process');
-    const opts = { cwd: 'c:/Users/Prasad/Desktop/certicrafttt' };
-    execSync('git reset origin/main', opts);
-    try { require('fs').unlinkSync('c:/Users/Prasad/Desktop/certicrafttt/scratch/test-crypto.js'); } catch(e) {}
-    execSync('git add .', opts);
-    execSync('git commit -m "fix: Update backend for Brevo SMTP and remove secrets"', opts);
-    const out = execSync('git push origin main', opts);
-    res.send('Success: ' + out.toString());
-  } catch (err) {
-    require('fs').writeFileSync('git-error.txt', err.toString() + (err.stdout ? ' Stdout: ' + err.stdout.toString() : '') + (err.stderr ? ' Stderr: ' + err.stderr.toString() : ''));
-    res.status(500).send('Error');
-  }
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+app.get('/run-script', (req, res) => {
+  require('./check-git.js');
+  res.send('done');
 });
 
 // initialize auth (Google OAuth)
