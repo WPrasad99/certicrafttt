@@ -33,17 +33,11 @@ export default function Hero() {
             </p>
           </div>
 
-          <h1 className="mt-8 text-5xl font-bold leading-tight text-gray-900 md:text-6xl xl:text-7xl">
-            Create
-            <br />
-            Professional
-            <br />
-            <span className="text-blue-700">Digital Certificates</span>
-            <br />
-            In Minutes.
+          <h1 className="mt-8 text-4xl sm:text-5xl text-center  font-bold leading-tight text-gray-900 md:text-6xl xl:text-7xl md:text-left">
+            Create Professional<span className="text-blue-700">Digital Certificates</span> In Minutes.
           </h1>
 
-          <p className="mt-6 max-w-xl text-sm leading-8 text-gray-600 font-semibold">
+          <p className="text-center max-w-xl text-xs leading-8 text-gray-600 font-semibold md:text-left">
             Create, issue and verify professional digital certificates with QR
             verification, automated email delivery, secure cloud storage and
             beautiful certificate templates.
@@ -51,7 +45,8 @@ export default function Hero() {
 
           {/* Buttons */}
 
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="mt-10 flex flex-wrap gap-4
+          justify-center  md:justify-start">
             <Link to="/register">
               <button className="hero-btn-primary">
                 <span className="cta-text">Get Started</span>

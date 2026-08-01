@@ -4,6 +4,7 @@ import {
   FaUsers,
   FaCloud,
 } from "react-icons/fa";
+
 import {
   FaUniversity,
   FaBuilding,
@@ -36,14 +37,14 @@ export default function Trusted() {
 
           <h2 className="mt-4 text-4xl font-bold">
 
-            Trusted by Organizations
+            Trusted <span className="text-blue-700"> by</span> Organizations
 
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-gray-600">
 
             Schools, universities, companies and event organizers
-            trust CertiCraft to issue secure digital certificates.
+            trust CertiCraft to issue secure digital <span className="text-blue-700">certificates.</span> 
 
           </p>
 

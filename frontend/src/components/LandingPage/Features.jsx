@@ -30,7 +30,7 @@ export default function Features() {
           <h2 className="mt-4 text-4xl font-bold text-gray-900">
             Everything You Need to Manage
             <br />
-            Digital Certificates
+           <span className="text-blue-700">Digital Certificates</span> 
           </h2>
 
           <p className="mx-auto mt-6 max-w-3xl text-gray-600">

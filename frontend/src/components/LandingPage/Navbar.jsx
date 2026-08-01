@@ -59,13 +59,17 @@ export default function Navbar() {
       <div className="flex items-center justify-between px-5 py-3">
 
         {/* Logo */}
-        <a
-          href="#home"
-          onClick={() => setMenuOpen(false)}
-          className="text-2xl font-bold tracking-tight"
-        >
-          Certi<span className="text-blue-700">Craft</span>
-        </a>
+       <a
+  href="#home"
+  onClick={() => setMenuOpen(false)}
+  className="flex items-center"
+>
+  <img
+    src="/bv_full_logo_v2.png"
+    alt="LOGO"
+    className="h-8 w-auto sm:h-10 md:h-12 lg:h-14 object-contain"
+  />
+</a>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8 font-bold text-xs">

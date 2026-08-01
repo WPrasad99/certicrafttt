@@ -154,36 +154,31 @@
    CENTER CARD
 =========================== */
 
-.center-card {
-  position: relative;
+.center-card{
+    position: relative;
+    z-index: 20;
 
-  z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
-  display: flex;
+    width: 320px;
+    height: 450px;
 
-  flex-direction: column;
+    padding: 30px;
 
-  align-items: center;
+    background: #fff;
 
-  justify-content: center;
+    border-radius: 32px;
 
-  width: 280px;
+    border: 1px solid #e5e7eb;
 
-  height: 280px;
+    box-shadow: 0 40px 100px rgba(0,0,0,.08);
 
-  padding: 30px;
+    transition: .45s ease;
 
-  background: white;
-
-  border-radius: 32px;
-
-  border: 1px solid #e5e7eb;
-
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.08);
-
-  transition: 0.45s ease;
-
-  text-align: center;
+    text-align: center;
 }
 
 .center-card:hover {
@@ -192,28 +187,24 @@
   box-shadow: 0 50px 120px rgba(0, 0, 0, 0.12);
 }
 
-.logo-circle {
-  display: flex;
+.logo-circle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-  align-items: center;
+    width:230px;
+    height:230px;
 
-  justify-content: center;
+    border-radius:50%;
 
-  width: 72px;
+    background:#000;
 
-  height: 72px;
+    color:#fff;
 
-  border-radius: 20px;
+    font-size:34px;
 
-  background: black;
-
-  color: white;
-
-  font-size: 30px;
-
-  margin-bottom: 24px;
+    margin-bottom:26px;
 }
-
 .center-card h2 {
   font-size: 30px;
 
@@ -264,163 +255,111 @@
    ORBIT
 =========================== */
 
-.orbit {
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  transition: 0.8s ease;
+.orbit{
+    position:absolute;
+
+    width:500px;
+    height:500px;
 }
 
 /* Planets */
 
-.planet {
-  position: absolute;
+.planet{
 
-  width: 64px;
-  height: 64px;
+    position:absolute;
 
-  border-radius: 9999px;
+    width:64px;
+    height:64px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-  background: white;
+    border-radius:50%;
 
-  color: blue;
+    background:#fff;
 
-  font-size: 24px;
+    color:#2563eb;
 
-  border: 1px solid rgba(0, 0, 0, 0.06);
+    font-size:24px;
 
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+    border:1px solid rgba(0,0,0,.06);
 
-  transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow:0 20px 45px rgba(0,0,0,.08);
 
-  cursor: pointer;
+    cursor:pointer;
+
+    transition:.5s;
 }
 
-/* Hover */
+.planet:hover{
 
-.planet:hover {
-  transform: scale(1.12);
+    transform:scale(1.12);
 
-  background: blue;
+    background:#2563eb;
 
-  color: white;
+    color:#fff;
 }
+
 
 /* --------------------------
    Positions
 --------------------------- */
 
-.planet-1 {
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
+/* Top */
+.planet-1{
+    top:0;
+    left:50%;
+    transform:translate(-50%, -50%);
 }
 
-.planet-2 {
-  top: 65px;
-  right: -20px;
+/* Top Right */
+.planet-2{
+    top:20%;
+    right:0;
+    transform:translate(50%, -50%);
 }
 
-.planet-3 {
-  bottom: 65px;
-  right: -20px;
+/* Bottom Right */
+.planet-3{
+    bottom:20%;
+    right:0;
+    transform:translate(50%, 50%);
 }
 
-.planet-4 {
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%);
+/* Bottom */
+.planet-4{
+    bottom:0;
+    left:50%;
+    transform:translate(-50%, 50%);
 }
 
-.planet-5 {
-  bottom: 65px;
-  left: -20px;
+/* Bottom Left */
+.planet-5{
+    bottom:20%;
+    left:0;
+    transform:translate(-50%, 50%);
 }
 
-.planet-6 {
-  top: 65px;
-  left: -20px;
+/* Top Left */
+.planet-6{
+    top:20%;
+    left:0;
+    transform:translate(-50%, -50%);
 }
 
-/* ===========================
-   CENTER CARD HOVER
-=========================== */
 
-.center-card:hover {
-  transform: translateY(-8px) scale(1.02);
-}
-
-/* Glow */
-
-.center-card::after {
-  content: "";
-
-  position: absolute;
-
-  inset: -20px;
-
-  border-radius: 40px;
-
-  background: radial-gradient(
-    circle,
-    rgba(37, 22, 249, 0.105),
-    transparent 70%
-  );
-
-  opacity: 0;
-
-  transition: 0.45s;
-
-  z-index: -1;
-}
-
-.center-card:hover::after {
-  opacity: 1;
-}
-
-/* ===========================
-   FLOATING
-=========================== */
-
-.planet {
-  animation: floatPlanet 5s ease-in-out infinite;
-}
-
-.planet:nth-child(2) {
-  animation-delay: 0.4s;
-}
-
-.planet:nth-child(3) {
-  animation-delay: 0.8s;
-}
-
-.planet:nth-child(4) {
-  animation-delay: 1.2s;
-}
-
-.planet:nth-child(5) {
-  animation-delay: 1.6s;
-}
-
-.planet:nth-child(6) {
-  animation-delay: 2s;
-}
-
-@keyframes floatPlanet {
+@keyframes floatTopBottom {
   0% {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 
   50% {
-    transform: translateY(-8px);
+    transform: translateX(-50%) translateY(-8px);
   }
 
   100% {
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -428,53 +367,82 @@
    RESPONSIVE
 =========================== */
 
-@media (max-width: 768px) {
-  .orbit {
-    width: 330px;
-    height: 330px;
-  }
+@media (max-width:768px){
 
-  .planet {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-  }
 
-  /* Top */
-  .planet-1 {
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+  .orbit{
+    width:320px;
+    height:480px;
+}
 
-  /* Top Right */
-  .planet-2 {
-    top: 35px;
-    right: -35px;
-  }
+    .center-card{
+        width:250px;
+        height:350px;
+        padding:22px;
+        margin-top: 50px;
+    }
 
-  /* Bottom Right */
-  .planet-3 {
-    bottom: 35px;
-    right: -35px;
-  }
+    .logo-circle{
+        width:140px;
+        height:140px;
+        margin-bottom:18px;
+    }
 
-  /* Bottom */
-  .planet-4 {
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+     
+    .planet{
+        width:46px;
+        height:46px;
+        font-size:18px;
+    }
 
-  /* Bottom Left */
-  .planet-5 {
-    bottom: 35px;
-    left: -35px;
-  }
+    /* Top */
+    .planet-1{
+        top:8%;
+        left:50%;
+        transform:translate(-50%,-50%);
+    }
 
-  /* Top Left */
-  .planet-6 {
-    top: 35px;
-    left: -35px;
-  }
+    /* Top Right */
+    .planet-2{
+        top:20%;
+        right:-12%;
+        transform:translate(50%,-50%);
+    }
+
+    /* Bottom Right */
+    .planet-3{
+        bottom:18%;
+        right:0;
+        transform:translate(50%,50%);
+    }
+
+    /* Bottom */
+    .planet-4{
+        bottom:-4%;
+        left:50%;
+        transform:translate(-50%,50%);
+    }
+
+    /* Bottom Left */
+    .planet-5{
+        bottom:18%;
+        left:0;
+        transform:translate(-50%,50%);
+    }
+
+    /* Top Left */
+    .planet-6{
+        top:18%;
+        left:20px;
+        transform:translate(-50%,-50%);
+    }
+
+}
+.planet-1,
+.planet-2,
+.planet-3,
+.planet-4,
+.planet-5,
+.planet-6{
+    animation: floatTopBottom 5s ease-in-out infinite;
 }

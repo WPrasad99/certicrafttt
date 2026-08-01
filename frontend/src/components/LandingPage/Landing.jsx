@@ -2,6 +2,7 @@ import Navbar from "./Navbar";
 import Hero from "./Hero";
 import Trusted from "./Trusted By";
 import Features from "./Features";
+import Templates from "./Templates";
 
 function Landing() {
   return (
@@ -20,6 +21,10 @@ function Landing() {
 
 <div>
 <Features />
+</div>
+
+<div>
+    <Templates />
 </div>
  
     </main>
