@@ -1,0 +1,151 @@
+/* ===========================
+   TEMPLATES SECTION
+=========================== */
+
+.template-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:24px;
+    overflow:hidden;
+    transition:all .35s ease;
+    cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+.template-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 25px 60px rgba(37,99,235,.12);
+}
+
+/* ===========================
+   IMAGE
+=========================== */
+
+.template-image{
+    height:260px;
+    overflow:hidden;
+    background:#f8fafc;
+}
+
+.template-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:transform .6s ease;
+}
+
+.template-card:hover .template-image img{
+    transform:scale(1.08);
+}
+
+/* ===========================
+   CONTENT
+=========================== */
+
+.template-content{
+    padding:28px;
+}
+
+.template-content h3{
+    font-size:24px;
+    font-weight:700;
+    color:#111827;
+}
+
+.template-content p{
+    margin-top:12px;
+    color:#6b7280;
+    line-height:1.8;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.template-btn,
+.template-btn-secondary{
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    height:52px;
+    min-width:165px;
+
+    padding:0 24px;
+
+    border-radius:999px;
+
+    font-weight:600;
+
+    transition:all .35s ease;
+}
+
+/* Primary Button */
+
+.template-btn{
+
+    background:#2563eb;
+    color:#fff;
+}
+
+.template-btn:hover{
+
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.template-btn svg{
+    transition:.35s;
+}
+
+.template-btn:hover svg{
+    transform:translateX(5px);
+}
+
+/* Secondary Button */
+
+.template-btn-secondary{
+
+    background:#fff;
+    color:#2563eb;
+
+    border:2px solid #2563eb;
+}
+
+.template-btn-secondary:hover{
+
+    background:#2563eb;
+    color:#fff;
+
+    transform:translateY(-2px);
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media(max-width:768px){
+
+.template-image{
+    height:220px;
+}
+
+.template-content{
+    padding:22px;
+}
+
+.template-content h3{
+    font-size:22px;
+}
+
+/* Stack buttons on mobile */
+
+.template-btn,
+.template-btn-secondary{
+
+    width:100%;
+}
+
+}

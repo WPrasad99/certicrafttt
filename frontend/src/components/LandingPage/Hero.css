@@ -1,0 +1,448 @@
+/* ===========================
+   HERO SECTION
+=========================== */
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px 30px;
+
+  border-radius: 999px;
+
+  background: #111827;
+  color: white;
+
+  font-weight: 600;
+
+  transition: 0.35s ease;
+
+  overflow: hidden;
+
+  position: relative;
+}
+
+.hero-btn-primary:hover {
+  background: blue;
+
+  transform: translateY(-4px);
+
+  box-shadow: 0 20px 45px rgba(37, 22, 249, 0.184);
+}
+
+.hero-btn-primary:active {
+  transform: scale(0.97);
+}
+
+.hero-btn-secondary {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 16px 30px;
+
+  border-radius: 999px;
+
+  background: white;
+
+  border: 1px solid #d1d5db;
+
+  font-weight: 600;
+
+  transition: 0.35s;
+}
+
+.hero-btn-secondary:hover {
+  background: #111827;
+
+  color: white;
+
+  transform: translateY(-4px);
+}
+
+/* ===========================
+   CTA TEXT
+=========================== */
+
+.cta-text {
+  display: inline-block;
+}
+
+.hero-btn-primary:hover .cta-text {
+  animation: textPop 0.35s ease;
+}
+
+@keyframes textPop {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(0.9);
+  }
+
+  70% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===========================
+   FEATURE CARDS
+=========================== */
+
+.feature-card {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 15px;
+
+  padding: 18px;
+
+  background: rgba(255, 255, 255, 0.7);
+
+  backdrop-filter: blur(18px);
+
+  border-radius: 22px;
+
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+  transition: 0.35s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+
+  border-color: blue;
+}
+
+.feature-icon-small {
+  font-size: 22px;
+
+  color: blue;
+
+  margin-top: 4px;
+
+  transition: 0.35s;
+}
+
+.feature-card:hover .feature-icon-small {
+  transform: rotate(-12deg) scale(1.1);
+}
+
+/* ===========================
+   CENTER CARD
+=========================== */
+
+.center-card{
+    position: relative;
+    z-index: 20;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 320px;
+    height: 450px;
+
+    padding: 30px;
+
+    background: #fff;
+
+    border-radius: 32px;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow: 0 40px 100px rgba(0,0,0,.08);
+
+    transition: .45s ease;
+
+    text-align: center;
+}
+
+.center-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow: 0 50px 120px rgba(0, 0, 0, 0.12);
+}
+
+.logo-circle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:230px;
+    height:230px;
+
+    border-radius:50%;
+
+    background:#000;
+
+    color:#fff;
+
+    font-size:34px;
+
+    margin-bottom:26px;
+}
+.center-card h2 {
+  font-size: 30px;
+
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.center-card p {
+  margin-top: 12px;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  color: #6b7280;
+}
+
+.issue-btn {
+  margin-top: 28px;
+
+  padding: 14px 24px;
+
+  border: none;
+
+  border-radius: 999px;
+
+  background: #111827;
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.35s;
+}
+
+.issue-btn:hover {
+  background: blue;
+
+  transform: translateY(-3px);
+
+  box-shadow: 0 18px 35px rgba(71, 22, 249, 0.236);
+}
+
+/* ===========================
+   ORBIT
+=========================== */
+
+.orbit{
+    position:absolute;
+
+    width:500px;
+    height:500px;
+}
+
+/* Planets */
+
+.planet{
+
+    position:absolute;
+
+    width:64px;
+    height:64px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    color:#2563eb;
+
+    font-size:24px;
+
+    border:1px solid rgba(0,0,0,.06);
+
+    box-shadow:0 20px 45px rgba(0,0,0,.08);
+
+    cursor:pointer;
+
+    transition:.5s;
+}
+
+.planet:hover{
+
+    transform:scale(1.12);
+
+    background:#2563eb;
+
+    color:#fff;
+}
+
+
+/* --------------------------
+   Positions
+--------------------------- */
+
+/* Top */
+.planet-1{
+    top:0;
+    left:50%;
+    transform:translate(-50%, -50%);
+}
+
+/* Top Right */
+.planet-2{
+    top:20%;
+    right:0;
+    transform:translate(50%, -50%);
+}
+
+/* Bottom Right */
+.planet-3{
+    bottom:20%;
+    right:0;
+    transform:translate(50%, 50%);
+}
+
+/* Bottom */
+.planet-4{
+    bottom:0;
+    left:50%;
+    transform:translate(-50%, 50%);
+}
+
+/* Bottom Left */
+.planet-5{
+    bottom:20%;
+    left:0;
+    transform:translate(-50%, 50%);
+}
+
+/* Top Left */
+.planet-6{
+    top:20%;
+    left:0;
+    transform:translate(-50%, -50%);
+}
+
+
+@keyframes floatTopBottom {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width:768px){
+
+
+  .orbit{
+    width:320px;
+    height:480px;
+}
+
+    .center-card{
+        width:250px;
+        height:350px;
+        padding:22px;
+        margin-top: 50px;
+    }
+
+    .logo-circle{
+        width:140px;
+        height:140px;
+        margin-bottom:18px;
+    }
+
+     
+    .planet{
+        width:46px;
+        height:46px;
+        font-size:18px;
+    }
+
+    /* Top */
+    .planet-1{
+        top:8%;
+        left:50%;
+        transform:translate(-50%,-50%);
+    }
+
+    /* Top Right */
+    .planet-2{
+        top:20%;
+        right:-12%;
+        transform:translate(50%,-50%);
+    }
+
+    /* Bottom Right */
+    .planet-3{
+        bottom:18%;
+        right:0;
+        transform:translate(50%,50%);
+    }
+
+    /* Bottom */
+    .planet-4{
+        bottom:-4%;
+        left:50%;
+        transform:translate(-50%,50%);
+    }
+
+    /* Bottom Left */
+    .planet-5{
+        bottom:18%;
+        left:0;
+        transform:translate(-50%,50%);
+    }
+
+    /* Top Left */
+    .planet-6{
+        top:18%;
+        left:20px;
+        transform:translate(-50%,-50%);
+    }
+
+}
+.planet-1,
+.planet-2,
+.planet-3,
+.planet-4,
+.planet-5,
+.planet-6{
+    animation: floatTopBottom 5s ease-in-out infinite;
+}
