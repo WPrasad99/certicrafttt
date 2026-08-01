@@ -308,7 +308,7 @@
 
 /* Top */
 .planet-1{
-    top:0;
+    top:-10%;
     left:50%;
     transform:translate(-50%, -50%);
 }
@@ -316,20 +316,20 @@
 /* Top Right */
 .planet-2{
     top:20%;
-    right:0;
+    right:-10%;
     transform:translate(50%, -50%);
 }
 
 /* Bottom Right */
 .planet-3{
     bottom:20%;
-    right:0;
+    right:-10%;
     transform:translate(50%, 50%);
 }
 
 /* Bottom */
 .planet-4{
-    bottom:0;
+    bottom:-10%;
     left:50%;
     transform:translate(-50%, 50%);
 }
@@ -411,8 +411,8 @@
 
     /* Bottom Right */
     .planet-3{
-        bottom:18%;
-        right:0;
+        bottom:20%;
+        right:-12%;
         transform:translate(50%,50%);
     }
 
@@ -425,15 +425,15 @@
 
     /* Bottom Left */
     .planet-5{
-        bottom:18%;
-        left:0;
+        bottom:20%;
+        left:2%;
         transform:translate(-50%,50%);
     }
 
     /* Top Left */
     .planet-6{
-        top:18%;
-        left:20px;
+        top:20%;
+        left:2%;
         transform:translate(-50%,-50%);
     }
 
