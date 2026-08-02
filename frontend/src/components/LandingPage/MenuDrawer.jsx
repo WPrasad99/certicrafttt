@@ -11,7 +11,7 @@ export default function MenuDrawer({ menuOpen, setMenuOpen }) {
         ${menuOpen ? "max-h-[700px] opacity-100 mt-4" : "max-h-0 opacity-0"}
       `}
     >
-      <div className="rounded-3xl bg-white shadow-2xl p-6">
+      <div className="rounded-3xl bg-gradient-to-b from-white to-blue-50 border border-blue-100 shadow-[0_25px_70px_rgba(37,99,235,0.12)] px-6 py-6">
 
         <nav className="flex flex-col gap-5 text-sm font-bold">
 
