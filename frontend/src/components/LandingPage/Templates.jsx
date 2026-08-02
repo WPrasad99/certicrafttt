@@ -14,20 +14,20 @@ export default function Templates() {
 
         <div className="text-center">
 
-          <p className="font-semibold uppercase tracking-[4px] text-blue-700">
+          <p className="font-bold uppercase tracking-[4px] text-blue-700">
             Templates
           </p>
 
           <h2 className="mt-4 text-4xl font-bold text-gray-900">
             Beautiful Certificate
             <br />
-            Templates For Every Occasion
+            Templates For <span className="text-blue-700"> Every Occasion</span>
           </h2>
 
-          <p className="mx-auto mt-6 max-w-3xl text-gray-600">
+          <p className="mx-auto mt-6 max-w-3xl text-gray-600 text-sm font-semibold">
             Choose from professionally designed templates for
             schools, universities, workshops, online courses,
-            conferences and corporate recognition.
+            <span className="text-blue-700">conferences and corporate</span> recognition. 
           </p>
 
         </div>
@@ -49,13 +49,13 @@ export default function Templates() {
 
             <div className="template-content">
 
-              <h3>Education</h3>
+              <h3 className="font-bold">Education</h3>
 
-              <p>
+              <p className="text-sm font-semibold md:text-[15px]">
                 Perfect for schools, universities and training academies.
               </p>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-wrap sm:flex-nowrap md:flex-nowrap gap-3">
 
                 <Link
                   to="/templates/education"
@@ -91,13 +91,13 @@ export default function Templates() {
 
             <div className="template-content">
 
-              <h3>Corporate</h3>
+              <h3 className="font-bold">Corporate</h3>
 
-              <p>
+              <p className="text-sm font-semibold md:text-[15px]">
                 Employee recognition, awards and professional achievements.
               </p>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-wrap sm:flex-nowrap md:flex-nowrap gap-3">
 
                 <Link
                   to="/templates/corporate"
@@ -133,13 +133,13 @@ export default function Templates() {
 
             <div className="template-content">
 
-              <h3>Events</h3>
+              <h3 className="font-bold">Events</h3>
 
-              <p>
+              <p className="text-sm font-semibold md:text-[15px]">
                 Workshops, conferences, hackathons and seminars.
               </p>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-wrap sm:flex-nowrap md:flex-nowrap gap-3">
 
                 <Link
                   to="/templates/events"

@@ -29,7 +29,7 @@ export default function Trusted() {
 
         <div className="text-center">
 
-          <p className="text-blue-700 font-semibold uppercase tracking-[4px]">
+          <p className="text-blue-700 font-semibold uppercase tracking-[4px] font-bold">
 
             Trusted Worldwide
 
@@ -41,7 +41,7 @@ export default function Trusted() {
 
           </h2>
 
-          <p className="mx-auto mt-5 max-w-2xl text-gray-600">
+          <p className="mx-auto mt-5 max-w-2xl text-gray-600 text-sm font-semibold">
 
             Schools, universities, companies and event organizers
             trust CertiCraft to issue secure digital <span className="text-blue-700">certificates.</span> 

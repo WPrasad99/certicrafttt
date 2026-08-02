@@ -1,0 +1,129 @@
+/* ===========================
+   HOW IT WORKS
+=========================== */
+
+.step-card{
+    position:relative;
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:24px;
+
+    padding:36px 28px;
+
+    text-align:center;
+
+    transition:.35s ease;
+
+    box-shadow:0 10px 35px rgba(0,0,0,.05);
+
+    overflow:hidden;
+}
+
+.step-card:hover{
+    transform:translateY(-10px);
+
+    box-shadow:0 25px 60px rgba(37,99,235,.12);
+
+    border-color:#2563eb;
+}
+
+/* Number */
+
+.step-number{
+    position:absolute;
+
+    top:20px;
+
+    right:20px;
+
+    font-size:42px;
+
+    font-weight:800;
+
+    color:#18191b34;
+}
+
+/* Icon */
+
+.step-icon{
+
+    width:80px;
+    height:80px;
+
+    margin:0 auto 24px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    font-size:30px;
+
+    transition:.35s ease;
+}
+
+.step-card:hover .step-icon{
+
+    transform:rotate(-8deg) scale(1.1);
+
+    background:#1d4ed8;
+}
+
+/* Heading */
+
+.step-card h3{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#111827;
+}
+
+/* Text */
+
+.step-card p{
+
+    margin-top:16px;
+
+    color:#6b7280;
+
+    line-height:1.8;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.step-card{
+
+    padding:28px 22px;
+}
+
+.step-number{
+
+    font-size:34px;
+}
+
+.step-icon{
+
+    width:65px;
+    height:65px;
+
+    font-size:24px;
+}
+
+.step-card h3{
+
+    font-size:22px;
+}
+
+}

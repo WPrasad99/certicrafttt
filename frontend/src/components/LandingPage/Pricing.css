@@ -1,0 +1,185 @@
+/* ===========================
+   PRICING
+=========================== */
+
+.price-card{
+
+    position:relative;
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:28px;
+
+    padding:40px 32px;
+
+    transition:.35s ease;
+
+    box-shadow:0 10px 35px rgba(0,0,0,.05);
+}
+
+.price-card:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:0 25px 60px rgba(37,99,235,.12);
+}
+
+.featured{
+
+    border:2px solid #2563eb;
+
+    transform:scale(1.05);
+}
+
+.featured:hover{
+
+    transform:scale(1.05) translateY(-10px);
+}
+
+.popular-badge{
+
+    position:absolute;
+
+    top:-15px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    padding:8px 18px;
+
+    border-radius:999px;
+
+    font-size:14px;
+
+    font-weight:600;
+}
+
+.price-card h3{
+
+    font-size:26px;
+
+    font-weight:700;
+
+    color:#111827;
+}
+
+.price-card h2{
+
+    margin-top:20px;
+
+    font-size:56px;
+
+    font-weight:800;
+
+    color:#111827;
+}
+
+.price-card h2 span{
+
+    font-size:14px;
+
+    color:#6b7280;
+}
+
+.price-card p{
+
+    margin-top:16px;
+
+    color:#6b7280;
+
+    line-height:1.8;
+}
+
+.price-card ul{
+
+    margin-top:30px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+}
+
+.price-card li{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    color:#374151;
+
+    font-weight:500;
+}
+
+.price-card li svg{
+
+    color:#2563eb;
+}
+
+.price-btn{
+
+    width:100%;
+
+    margin-top:36px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:999px;
+
+    background:#111827;
+
+    color:#fff;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.35s;
+}
+
+.price-btn:hover{
+
+    background:#2563eb;
+}
+
+.featured-btn{
+
+    background:#2563eb;
+}
+
+.featured-btn:hover{
+
+    background:#1d4ed8;
+}
+
+@media(max-width:1024px){
+
+.featured{
+
+    transform:none;
+}
+
+.featured:hover{
+
+    transform:translateY(-10px);
+}
+
+}

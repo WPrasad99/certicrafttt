@@ -23,7 +23,7 @@ export default function Features() {
 
         <div className="text-center">
 
-          <p className="font-semibold uppercase tracking-[4px] text-blue-700">
+          <p className="font-bold uppercase tracking-[4px] text-blue-700">
             Features
           </p>
 
@@ -33,10 +33,10 @@ export default function Features() {
            <span className="text-blue-700">Digital Certificates</span> 
           </h2>
 
-          <p className="mx-auto mt-6 max-w-3xl text-gray-600">
+          <p className="mx-auto mt-6 max-w-3xl text-gray-600 text-sm font-semibold">
             From certificate creation to secure verification,
             CertiCraft provides everything organizations need
-            to issue professional certificates in minutes.
+            to issue professional <span className="text-blue-700">certificates in</span> minutes.
           </p>
 
         </div>
@@ -50,9 +50,9 @@ export default function Features() {
               <FaCertificate />
             </div>
 
-            <h3>Create Certificates</h3>
+            <h3 className="text-sm font-bold md:text-lg">Create Certificates</h3>
 
-            <p>
+            <p className="text-xs font-semibold md:text-sm">
               Design beautiful professional certificates using
               customizable templates.
             </p>
@@ -63,9 +63,9 @@ export default function Features() {
               <FaQrcode />
             </div>
 
-            <h3>QR Verification</h3>
+            <h3 className="text-sm font-bold md:text-lg">QR Verification</h3>
 
-            <p>
+            <p className="text-xs font-semibold md:text-sm">
               Every certificate includes a unique QR code
               for instant verification.
             </p>
@@ -76,9 +76,9 @@ export default function Features() {
               <FaEnvelope />
             </div>
 
-            <h3>Email Delivery</h3>
+            <h3 className="text-sm font-bold md:text-lg">Email Delivery</h3>
 
-            <p>
+            <p className="text-xs font-semibold md:text-sm">
               Automatically send certificates directly
               to recipients by email.
             </p>
@@ -89,9 +89,9 @@ export default function Features() {
               <FaCloudUploadAlt />
             </div>
 
-            <h3>Cloud Storage</h3>
+            <h3 className="text-sm font-bold md:text-lg">Cloud Storage</h3>
 
-            <p>
+            <p className="text-xs font-semibold md:text-sm">
               Store certificates securely and access them
               anytime from anywhere.
             </p>
@@ -102,9 +102,9 @@ export default function Features() {
               <FaShieldAlt />
             </div>
 
-            <h3>Secure Platform</h3>
+            <h3 className="text-sm font-bold md:text-lg">Secure Platform</h3>
 
-            <p>
+            <p className="text-xs font-semibold md:text-sm"> 
               Built with modern security to keep certificates
               protected against tampering.
             </p>
@@ -115,9 +115,9 @@ export default function Features() {
               <FaLayerGroup />
             </div>
 
-            <h3>Bulk Issuing</h3>
+            <h3 className="text-sm font-bold md:text-lg">Bulk Issuing</h3>
 
-            <p>
+            <p className="text-xs font-semibold md:text-sm">
               Generate hundreds of certificates
               in just a few clicks.
             </p>

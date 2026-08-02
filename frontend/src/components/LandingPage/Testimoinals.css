@@ -1,0 +1,116 @@
+/* ===========================
+   TESTIMONIALS
+=========================== */
+
+.testimonial-card{
+    position:relative;
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:24px;
+
+    padding:32px;
+
+    transition:.35s ease;
+
+    box-shadow:0 10px 35px rgba(0,0,0,.05);
+}
+
+.testimonial-card:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:0 25px 60px rgba(37,99,235,.12);
+
+    border-color:#2563eb;
+}
+
+.quote-icon{
+
+    font-size:34px;
+
+    color:#2563eb;
+
+    margin-bottom:20px;
+}
+
+.testimonial-card p{
+
+    color:#6b7280;
+
+    line-height:1.8;
+
+    min-height:110px;
+}
+
+.stars{
+
+    display:flex;
+
+    gap:6px;
+
+    margin:22px 0;
+
+    color:#facc15;
+}
+
+.profile{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+}
+
+.profile img{
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:3px solid #2563eb;
+}
+
+.profile h4{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#111827;
+}
+
+.profile span{
+
+    color:#6b7280;
+
+    font-size:14px;
+}
+
+@media(max-width:768px){
+
+.testimonial-card{
+
+    padding:24px;
+}
+
+.profile img{
+
+    width:50px;
+
+    height:50px;
+}
+
+.profile h4{
+
+    font-size:16px;
+}
+
+}
