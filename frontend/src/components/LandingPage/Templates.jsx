@@ -42,7 +42,7 @@ export default function Templates() {
 
             <div className="template-image">
               <img
-                src="/images/template1.png"
+                src="./certifcate3.png"
                 alt="Education Certificate"
               />
             </div>
@@ -84,7 +84,7 @@ export default function Templates() {
 
             <div className="template-image">
               <img
-                src="/images/template2.png"
+                src="./certifcate1.png"
                 alt="Corporate Certificate"
               />
             </div>
@@ -126,7 +126,7 @@ export default function Templates() {
 
             <div className="template-image">
               <img
-                src="/images/template3.png"
+                 src="./certifcate2.png"
                 alt="Event Certificate"
               />
             </div>
