@@ -23,11 +23,14 @@ export default function Footer() {
           <div className="lg:col-span-2">
 
             {/* Replace with your logo later */}
-
-            <h2 className="text-3xl font-bold">
-              Certi<span className="text-blue-500">Craft</span>
-            </h2>
-
+  <div className=" bg-white w-fit py-1 px-4 rounded-full">
+  <img
+              src="/bv_full_logo_v2.png"
+              alt="LOGO"
+              className="h-8 w-auto sm:h-10 md:h-12 lg:h-14 object-contain"
+            />
+            </div>
+            
             <p className="mt-6 max-w-md leading-8 text-gray-400">
               CertiCraft helps schools, organizations and businesses
               create, issue and verify secure digital certificates
