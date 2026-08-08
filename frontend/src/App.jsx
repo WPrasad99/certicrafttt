@@ -6,14 +6,14 @@ import Dashboard from "./components/Dashboard";
 import OAuthCallback from "./components/OAuthCallback";
 import CertificateVerification from "./components/CertificateVerification";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Landing from "./components/LandingPage/Landing";
+import LandingPage from "./components/LandingPage";
 import "./index.css";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
