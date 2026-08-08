@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaBars, FaMoon, FaTimes, FaUser } from "react-icons/fa";
+import { FaBars, FaTimes, FaUser } from "react-icons/fa";
 import MenuDrawer from "./MenuDrawer";
-
 import "./Navbar.css";
+import Toggle from "./Toggle";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -157,9 +157,10 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
 
             {/* Dark Mode */}
-            <button className="h-11 w-11 rounded-full bg-white shadow-md flex items-center justify-center hover:scale-110 transition duration-300">
-              <FaMoon />
-            </button>
+            <div>
+            <Toggle />
+            </div>
+           
 
             {/* Login */}
             <Link
