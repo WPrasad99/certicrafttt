@@ -27,30 +27,40 @@ router.get('/stats', auth, async (req, res) => {
 
         const totalEvents = allEventIds.length;
 
-        const totalCertificates = await Certificate.count({
-            where: {
-                eventId: allEventIds,
-                generationStatus: 'GENERATED'
-            }
+        const allEventsFull = await Event.findAll({
+            where: { id: allEventIds },
+            attributes: ['id', 'createdAt']
         });
+
+        const allCertsFull = await Certificate.findAll({
+            where: { eventId: allEventIds, generationStatus: 'GENERATED' },
+            attributes: ['id', 'createdAt']
+        });
+
+        const totalSentCerts = await Certificate.count({
+            where: { eventId: allEventIds, emailStatus: 'SENT' }
+        });
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthlyData = months.map(name => ({ name, events: 0, certs: 0 }));
+
+        allEventsFull.forEach(e => {
+            const m = new Date(e.createdAt).getMonth();
+            if (!isNaN(m)) monthlyData[m].events++;
+        });
+
+        allCertsFull.forEach(c => {
+            const m = new Date(c.createdAt).getMonth();
+            if (!isNaN(m)) monthlyData[m].certs++;
+        });
+
+        const totalCertificates = allCertsFull.length;
 
         res.json({
             totalEvents,
             totalCertificates,
-            monthlyData: [
-                { name: 'Jan', events: totalEvents, certs: totalCertificates },
-                { name: 'Feb', events: 0, certs: 0 },
-                { name: 'Mar', events: 0, certs: 0 },
-                { name: 'Apr', events: 0, certs: 0 },
-                { name: 'May', events: 0, certs: 0 },
-                { name: 'Jun', events: 0, certs: 0 },
-                { name: 'Jul', events: 0, certs: 0 },
-                { name: 'Aug', events: 0, certs: 0 },
-                { name: 'Sep', events: 0, certs: 0 },
-                { name: 'Oct', events: 0, certs: 0 },
-                { name: 'Nov', events: 0, certs: 0 },
-                { name: 'Dec', events: 0, certs: 0 }
-            ]
+            totalSentCerts,
+            monthlyData
         });
     } catch (error) {
         console.error('Analytics error:', error);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { participantService, certificateService, authService, templateService, collaborationService, messageService } from '../services/authService';
 import TemplateEditor from './TemplateEditor';
 import './EventManagement.css';
+import * as XLSX from 'xlsx';
 import CollaboratorsTab from './CollaboratorsTab';
 import MessagesTab from './MessagesTab';
 import ParticipantsTab from './ParticipantsTab';
@@ -9,6 +10,7 @@ import CertificatesTab from './CertificatesTab';
 import UpdatesTab from './UpdatesTab';
 import Toast from './Toast';
 import SettingsModal from './SettingsModal';
+import { ArrowLeft, Users, Award, Send, UsersRound, MessageSquare, Settings, Bell, X } from 'lucide-react';
 
 function EventManagement({ event, onBack, onNotify, initialTab = 'participants' }) {
     const currentUser = authService.getCurrentUser();
@@ -241,18 +243,50 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
         if (!file) return;
 
         setLoading(true);
-        // Toast handled in success/catch
-
         try {
-            await participantService.uploadParticipants(event.id, file);
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+            // Extract participants, matching backend logic
+            const newParticipants = [];
+            for (const r of rows) {
+                const name = r.name || r.Name || r.fullName || r.FullName || r.full_name || r.participantName || '';
+                const email = r.email || r.Email || '';
+                if (name && email) {
+                    newParticipants.push({ name: String(name).trim(), email: String(email).trim() });
+                }
+            }
+
+            if (newParticipants.length === 0) {
+                showToast('No valid participants found in file.', 'error');
+                return;
+            }
+
+            showToast(`Uploading ${newParticipants.length} participants...`, 'info');
+
+            const chunkSize = 10;
+            for (let i = 0; i < newParticipants.length; i += chunkSize) {
+                const chunk = newParticipants.slice(i, i + chunkSize);
+                try {
+                    const createdBatch = await participantService.uploadParticipantsBatch(event.id, chunk);
+                    if (createdBatch && createdBatch.length > 0) {
+                        setParticipants(prev => [...prev, ...createdBatch]);
+                    }
+                } catch (err) {
+                    console.error('Batch upload error:', err);
+                }
+            }
+
             showToast('Participants uploaded successfully!', 'success');
             onNotify?.('success', `Participants uploaded for ${event.eventName}`);
-            await loadParticipants();
             await loadCertificateStatus();
         } catch (error) {
-            const msg = error.response?.data?.error || 'Failed to upload participants';
-            showToast(msg, 'error');
-            onNotify?.('error', msg);
+            console.error('Failed to parse or upload:', error);
+            showToast('Failed to process file', 'error');
+            onNotify?.('error', 'Failed to process file');
         } finally {
             setLoading(false);
             e.target.value = '';
@@ -430,7 +464,7 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
     };
 
     return (
-        <div className="dashboard-container">
+        <div className="um-app-container">
             {toast.show && (
                 <Toast
                     message={toast.message}
@@ -438,271 +472,277 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
                     onClose={hideToast}
                 />
             )}
-            <nav className="navbar">
-                <div className="navbar-content">
-                    <div className="navbar-brand-group">
-                        <button onClick={onBack} className="btn-back-nav" title="Back to Dashboard">
-                            <i className="fa-solid fa-arrow-left"></i>
+
+            <aside className="um-sidebar">
+                <div className="um-sidebar-top">
+                    <div style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '0 4px', marginBottom: '16px' }}>
+                        <img src="/assets/logo.png" alt="Logo" style={{ width: '100%', maxWidth: '56px', height: 'auto', objectFit: 'contain' }} />
+                    </div>
+                    <nav className="um-sidebar-nav">
+                        <button 
+                            className="um-nav-item"
+                            onClick={onBack}
+                            title="Back to Dashboard"
+                        >
+                            <ArrowLeft size={20} />
                         </button>
-                        <div className="navbar-brand">
-                            <div className="brand-logo-container">
-                                <img src="/assets/bharti_logo.png" alt="Logo" className="navbar-logo" />
-                                <div className="brand-text-container">
-                                    <h2>CertiCraft</h2>
-                                    <div className="brand-line"></div>
-                                </div>
-                            </div>
+                        <div style={{ width: '32px', height: '1px', background: 'rgba(255,255,255,0.1)', margin: '16px auto' }}></div>
+                        
+                        <button 
+                            className={`um-nav-item ${activeTab === 'participants' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('participants')}
+                            title="Participants"
+                        >
+                            <Users size={20} />
+                        </button>
+                        <button 
+                            className={`um-nav-item ${activeTab === 'certificates' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('certificates')}
+                            title="Certificates"
+                        >
+                            <Award size={20} />
+                        </button>
+                        <button 
+                            className={`um-nav-item ${activeTab === 'updates' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('updates')}
+                            title="Send Updates"
+                        >
+                            <Send size={20} />
+                        </button>
+                        <button 
+                            className={`um-nav-item ${activeTab === 'team' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('team')}
+                            title="Team"
+                        >
+                            <UsersRound size={20} />
+                        </button>
+                        <button 
+                            className={`um-nav-item ${activeTab === 'messages' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('messages')}
+                            title="Team Messages"
+                        >
+                            <MessageSquare size={20} />
+                        </button>
+                    </nav>
+                </div>
+
+                <div className="um-sidebar-bottom">
+                    <button 
+                        className="um-nav-item"
+                        onClick={() => setShowSettings(true)}
+                        title="Settings"
+                    >
+                        <Settings size={20} />
+                    </button>
+                </div>
+            </aside>
+
+            <main className="um-main">
+                <SettingsModal
+                    isOpen={showSettings}
+                    mode="settings"
+                    onClose={() => setShowSettings(false)}
+                    onUpdate={() => {}}
+                    showToast={showToast}
+                />
+
+                <div className="um-page-header">
+                    <div className="um-hero-section">
+                        <h1 className="um-hero" style={{ marginBottom: '8px', marginTop: 0 }}>
+                            {event.eventName}
+                        </h1>
+                        <div style={{ color: 'var(--um-text-dark)', opacity: 0.7, fontSize: '15px' }}>
+                            {new Date(event.eventDate).toLocaleDateString()} • Organized by {event.organizerName}
                         </div>
                     </div>
 
-                    <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
-                    </button>
-
-                    <div className={`secondary-actions ${isMenuOpen ? 'mobile-show' : ''}`} onClick={() => setIsMenuOpen(false)}>
-                        <div className="navbar-actions">
-                            {/* Settings Icon */}
+                    <div className="um-top-actions">
+                        {/* Notification Bell */}
+                        <div className="notifications-container" ref={notificationsDropdownRef} style={{ position: 'relative' }}>
                             <button
-                                className="notifications-btn"
+                                className={`um-btn-icon ${isNotifVibrating ? 'vibrate-bt' : ''}`}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setShowSettings(true);
-                                    setIsMenuOpen(false);
+                                    setShowNotifications(!showNotifications);
+                                    setShowRequestsDropdown(false);
                                 }}
-                                title="Settings"
+                                title="Notifications"
                             >
-                                <i className="fa-solid fa-gear" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
+                                <Bell size={20} />
+                                {notifications.length > 0 &&
+                                    <span className="notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                                        {notifications.length}
+                                    </span>
+                                }
                             </button>
 
-                            {/* Notification Bell Icon */}
-                            <div className="notifications-container" ref={notificationsDropdownRef}>
-                                <button
-                                    className={`notifications-btn ${isNotifVibrating ? 'vibrate-bt' : ''}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowNotifications(!showNotifications);
-                                        setShowRequestsDropdown(false);
-                                    }}
-                                    title="Notifications"
-                                >
-                                    <i className="fa-solid fa-bell" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
-                                    {notifications.length > 0 &&
-                                        <span className="notification-badge">{notifications.length}</span>
-                                    }
-                                </button>
-
-                                {showNotifications && (
-                                    <div className="notifications-dropdown">
-                                        <div className="notifications-header">
-                                            <h3>Notifications</h3>
-                                        </div>
-                                        <div className="notifications-list">
-                                            {notifications.length === 0 ? (
-                                                <div className="notification-item" style={{ textAlign: 'center', color: '#888' }}>
-                                                    No new notifications
-                                                </div>
-                                            ) : (
-                                                Array.isArray(notifications) && notifications.map(notif => (
-                                                    <div
-                                                        key={notif.id}
-                                                        className={`notification-item ${notif.type} ${notif.eventId ? 'clickable' : ''}`}
-                                                        onClick={() => handleNotificationClick(notif)}
-                                                    >
-                                                        <div className="notification-content">
-                                                            <div className="notification-message">{notif.message}</div>
-                                                            <div className="notification-meta">
-                                                                <span className="notification-time">{notif.time}</span>
-                                                                <button
-                                                                    className="dismiss-notif-btn"
-                                                                    onClick={(e) => handleDismissNotification(e, notif.id)}
-                                                                    title="Dismiss"
-                                                                >
-                                                                    <i className="fa-solid fa-xmark"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))
-                                            )}
-                                        </div>
+                            {showNotifications && (
+                                <div className="notifications-dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'white', borderRadius: '16px', boxShadow: 'var(--um-shadow-soft)', width: '300px', zIndex: 100, border: '1px solid #f1f5f9' }}>
+                                    <div className="notifications-header" style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Notifications</h3>
                                     </div>
-                                )}
-                            </div>
-
-                            {/* Team Collaboration Icon */}
-                            <div className="notifications-container" style={{ marginLeft: '12px' }} ref={requestsDropdownRef}>
-                                <button
-                                    className={`notifications-btn ${pendingRequests.length > 0 ? 'vibrate-bt' : ''}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowRequestsDropdown(!showRequestsDropdown);
-                                        setShowNotifications(false);
-                                    }}
-                                    title="Collaboration Requests"
-                                >
-                                    <i className="fa-solid fa-user-plus" style={{ fontSize: '18px', color: '#1e3a8a' }}></i>
-                                    {Array.isArray(pendingRequests) && pendingRequests.length > 0 &&
-                                        <span className="notification-badge" style={{ background: '#333', color: 'white' }}>{pendingRequests.length}</span>
-                                    }
-                                </button>
-
-                                {showRequestsDropdown && (
-                                    <div className="notifications-dropdown minimal-dropdown" style={{ width: '320px', right: '0' }}>
-                                        <div className="notifications-header minimal-header">
-                                            <h3>Team invitations</h3>
-                                        </div>
-                                        <div className="notifications-list">
-                                            {(!Array.isArray(pendingRequests) || pendingRequests.length === 0) ? (
-                                                <div className="notification-item" style={{ justifyContent: 'center', color: '#888' }}>
-                                                    No pending invitations
-                                                </div>
-                                            ) : (
-                                                Array.isArray(pendingRequests) && pendingRequests.map(req => (
-                                                    <div key={req.id} className="notification-item" style={{ display: 'block' }}>
-                                                        <div className="notification-message" style={{ marginBottom: '8px' }}>
-                                                            <strong>{req.eventName}</strong>
-                                                            <div style={{ fontSize: '12px', color: '#666' }}>From: {req.senderName}</div>
-                                                        </div>
-                                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                                            <button
-                                                                className="btn btn-sm"
-                                                                style={{ background: '#4caf50', color: 'white', flex: 1 }}
-                                                                onClick={() => handleAcceptRequest(req.id)}
-                                                            >
-                                                                Accept
-                                                            </button>
-                                                            <button
-                                                                className="btn btn-sm"
-                                                                style={{ background: '#f44336', color: 'white', flex: 1 }}
-                                                                onClick={() => handleDeclineRequest(req.id)}
-                                                            >
-                                                                Decline
-                                                            </button>
-                                                        </div>
+                                    <div className="notifications-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                        {notifications.length === 0 ? (
+                                            <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                                                No new notifications
+                                            </div>
+                                        ) : (
+                                            notifications.map(notif => (
+                                                <div
+                                                    key={notif.id}
+                                                    style={{ padding: '16px', borderBottom: '1px solid #f1f5f9', cursor: notif.eventId ? 'pointer' : 'default' }}
+                                                    onClick={() => handleNotificationClick(notif)}
+                                                >
+                                                    <div style={{ fontSize: '13px', color: '#334155', marginBottom: '4px' }}>{notif.message}</div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>{notif.time}</span>
+                                                        <button
+                                                            onClick={(e) => handleDismissNotification(e, notif.id)}
+                                                            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
                                                     </div>
-                                                ))
-                                            )}
-                                        </div>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </div>
 
-                        <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>
-                            Logout
-                        </button>
+                        {/* Team Invites */}
+                        <div className="notifications-container" ref={requestsDropdownRef} style={{ position: 'relative' }}>
+                            <button
+                                className={`um-btn-icon ${pendingRequests.length > 0 ? 'vibrate-bt' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowRequestsDropdown(!showRequestsDropdown);
+                                    setShowNotifications(false);
+                                }}
+                                title="Collaboration Requests"
+                            >
+                                <UsersRound size={20} />
+                                {Array.isArray(pendingRequests) && pendingRequests.length > 0 &&
+                                    <span className="notification-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#3b82f6', color: 'white', fontSize: '10px', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                                        {pendingRequests.length}
+                                    </span>
+                                }
+                            </button>
+
+                            {showRequestsDropdown && (
+                                <div className="notifications-dropdown" style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', background: 'white', borderRadius: '16px', boxShadow: 'var(--um-shadow-soft)', width: '320px', zIndex: 100, border: '1px solid #f1f5f9' }}>
+                                    <div className="notifications-header" style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Team Invitations</h3>
+                                    </div>
+                                    <div className="notifications-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                        {(!Array.isArray(pendingRequests) || pendingRequests.length === 0) ? (
+                                            <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                                                No pending invitations
+                                            </div>
+                                        ) : (
+                                            pendingRequests.map(req => (
+                                                <div key={req.id} style={{ padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                                                    <div style={{ marginBottom: '12px' }}>
+                                                        <div style={{ fontSize: '14px', fontWeight: 500, color: '#1e293b' }}>{req.eventName}</div>
+                                                        <div style={{ fontSize: '12px', color: '#64748b' }}>From: {req.senderName}</div>
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                                        <button
+                                                            style={{ flex: 1, background: '#10b981', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                                                            onClick={() => handleAcceptRequest(req.id)}
+                                                        >
+                                                            Accept
+                                                        </button>
+                                                        <button
+                                                            style={{ flex: 1, background: '#ef4444', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                                                            onClick={() => handleDeclineRequest(req.id)}
+                                                        >
+                                                            Decline
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </nav>
 
-            <SettingsModal
-                isOpen={showSettings}
-                onClose={() => setShowSettings(false)}
-                onUpdate={() => {
-                    // Update any local state if needed
-                }}
-                showToast={showToast}
-            />
+                <div className={`um-grid ${isVibrating ? 'vibrate' : ''}`}>
+                        <div className="um-content-card" style={{ width: '100%', minHeight: '600px', display: 'flex', flexDirection: 'column' }}>
+                            <div className="um-content-header" style={{ marginBottom: '32px' }}>
+                                <h2 className="um-content-title">
+                                    {activeTab === 'participants' && 'Participants List'}
+                                    {activeTab === 'certificates' && 'Certificates'}
+                                    {activeTab === 'updates' && 'Mass Updates'}
+                                    {activeTab === 'team' && 'Collaborators'}
+                                    {activeTab === 'messages' && 'Team Messages'}
+                                </h2>
+                            </div>
 
-            <div className={`container ${isVibrating ? 'vibrate' : ''}`}>
-                <div className="event-header">
-                    <h1>{event.eventName}</h1>
-                    <p className="event-meta">
-                        {new Date(event.eventDate).toLocaleDateString()} • {event.organizerName}
-                    </p>
-                </div>
+                            {activeTab === 'participants' && (
+                                <ParticipantsTab
+                                    participants={participants}
+                                    template={template}
+                                    certificateStatus={certificateStatus}
+                                    onFileUpload={handleFileUpload}
+                                    onAddParticipant={handleAddParticipant}
+                                    onGenerateCertificates={handleGenerateCertificates}
+                                    onDeleteParticipant={handleDeleteParticipant}
+                                    onDeleteAllParticipants={handleDeleteAllParticipants}
+                                    onEditTemplate={() => setShowTemplateEditor(true)}
+                                    triggerVibration={triggerVibration}
+                                    loading={loading}
+                                />
+                            )}
 
-                <div className="tabs">
-                    <button
-                        className={`tab ${activeTab === 'participants' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('participants')}
-                    >
-                        Participants
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'certificates' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('certificates')}
-                    >
-                        Certificates
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'updates' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('updates')}
-                    >
-                        Send Updates
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'team' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('team')}
-                    >
-                        Team
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'messages' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('messages')}
-                    >
-                        Team Messages
-                    </button>
-                </div>
+                            {activeTab === 'certificates' && (
+                                <CertificatesTab
+                                    certificates={certificateStatus}
+                                    template={template}
+                                    onDownloadCertificate={handleDownloadCertificate}
+                                    onDownloadAll={handleDownloadAll}
+                                    onSendEmail={handleSendEmail}
+                                    onSendAllEmails={handleSendAllEmails}
+                                    onGoToUpdates={() => participants.length > 0 ? setActiveTab('updates') : triggerVibration()}
+                                    loading={loading}
+                                />
+                            )}
 
-                {activeTab === 'participants' && (
-                    <ParticipantsTab
-                        participants={participants}
-                        template={template} // Pass template
-                        certificateStatus={certificateStatus}
-                        onFileUpload={handleFileUpload}
-                        onAddParticipant={handleAddParticipant}
-                        onGenerateCertificates={handleGenerateCertificates}
-                        onDeleteParticipant={handleDeleteParticipant}
-                        onDeleteAllParticipants={handleDeleteAllParticipants}
-                        onEditTemplate={() => setShowTemplateEditor(true)}
-                        triggerVibration={triggerVibration} // Pass vibration trigger
-                        loading={loading}
-                    />
-                )}
+                            {showTemplateEditor && (
+                                <TemplateEditor
+                                    eventId={event.id}
+                                    templateService={templateService}
+                                    showToast={showToast}
+                                    onClose={() => { setShowTemplateEditor(false); loadTemplate(); }}
+                                    onTemplateSaved={() => loadTemplate()}
+                                />
+                            )}
 
-                {activeTab === 'certificates' && (
-                    <CertificatesTab
-                        certificates={certificateStatus}
-                        template={template}
-                        onDownloadCertificate={handleDownloadCertificate}
-                        onDownloadAll={handleDownloadAll}
-                        onSendEmail={handleSendEmail}
-                        onSendAllEmails={handleSendAllEmails}
-                        onGoToUpdates={() => participants.length > 0 ? setActiveTab('updates') : triggerVibration()}
-                        loading={loading}
-                    />
-                )}
+                            {activeTab === 'updates' && (
+                                <UpdatesTab
+                                    onSendUpdates={handleSendUpdates}
+                                    onResendUpdate={handleResendUpdate}
+                                    loading={loading}
+                                    participantCount={participants.length}
+                                    certificateStatus={certificateStatus}
+                                    eventId={event.id}
+                                />
+                            )}
 
-                {showTemplateEditor && (
-                    <TemplateEditor
-                        eventId={event.id}
-                        templateService={templateService}
-                        showToast={showToast}
-                        onClose={() => { setShowTemplateEditor(false); loadTemplate(); }}
-                        onTemplateSaved={() => loadTemplate()}
-                    />
-                )}
-
-                {activeTab === 'updates' && (
-                    <UpdatesTab
-                        onSendUpdates={handleSendUpdates}
-                        onResendUpdate={handleResendUpdate}
-                        loading={loading}
-                        participantCount={participants.length}
-                        certificateStatus={certificateStatus}
-                        eventId={event.id}
-                    />
-                )}
-
-                {activeTab === 'team' && (
-                    <CollaboratorsTab eventId={event.id} isOwner={isOwner} />
-                )}
-                {activeTab === 'messages' && (
-                    <MessagesTab eventId={event.id} event={event} isOwner={isOwner} />
-                )}
+                            {activeTab === 'team' && (
+                                <CollaboratorsTab eventId={event.id} isOwner={isOwner} />
+                            )}
+                            {activeTab === 'messages' && (
+                                <MessagesTab eventId={event.id} event={event} isOwner={isOwner} />
+                            )}
+                        </div>
+                    </div>
+                </main>
             </div>
-        </div>
     );
 }
 

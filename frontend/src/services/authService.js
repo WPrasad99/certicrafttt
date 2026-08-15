@@ -110,6 +110,11 @@ export const participantService = {
         return response.data;
     },
 
+    uploadParticipantsBatch: async (eventId, participants) => {
+        const response = await api.post(`/events/${eventId}/participants/batch`, { participants });
+        return response.data;
+    },
+
     addParticipant: async (eventId, { name, email }) => {
         const response = await api.post(`/events/${eventId}/participants`, { name, email });
         return response.data;

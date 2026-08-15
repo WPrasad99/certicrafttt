@@ -72,6 +72,47 @@ router.post('/', auth, checkEventOwnership, async (req, res) => {
   }
 });
 
+router.post('/batch', auth, checkEventOwnership, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const { participants } = req.body;
+    if (!Array.isArray(participants)) return res.status(400).json({ message: 'participants must be an array' });
+
+    const created = [];
+    for (const p of participants) {
+      const name = p.name || '';
+      const email = p.email || '';
+      if (!name || !email) continue;
+      
+      const trimmedEmail = email.toString().trim();
+      const existing = await Participant.findOne({
+        where: { eventId, email: trimmedEmail }
+      });
+      if (existing) continue;
+
+      const createdParticipant = await Participant.create({
+        name: name.toString().trim(),
+        email: trimmedEmail,
+        eventId
+      });
+      created.push(createdParticipant);
+    }
+    
+    if (created.length > 0) {
+      await ActivityLog.create({
+        eventId,
+        userId: req.user.id,
+        action: 'ADD_PARTICIPANT_BATCH',
+        details: `Added ${created.length} participants from batch upload`
+      });
+    }
+
+    res.json(created);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/upload', auth, checkEventOwnership, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });

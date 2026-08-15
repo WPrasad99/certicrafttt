@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 import './SettingsModal.css';
+import { X, User, Mail, Lock, Building, Key, AtSign, Loader2, Settings } from 'lucide-react';
 
-const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
+const SettingsModal = ({ isOpen, mode, onClose, onUpdate, showToast }) => {
     const user = authService.getCurrentUser();
-    const [activeSection, setActiveSection] = useState('profile'); // 'profile', 'password', or 'email'
+    const [activeSection, setActiveSection] = useState('email');
     const [profileData, setProfileData] = useState({
         fullName: user?.fullName || '',
         instituteName: user?.instituteName || '',
@@ -32,8 +33,13 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
                 smtpPassword: currentUser?.hasSmtpKey ? '********' : '',
                 fromEmail: currentUser?.fromEmail || '',
             });
+            if (mode === 'profile') {
+                setActiveSection('profile');
+            } else {
+                setActiveSection('email');
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, mode]);
 
     if (!isOpen) return null;
 
@@ -44,6 +50,7 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
             await authService.updateSettings(profileData);
             showToast('Profile updated successfully!', 'success');
             onUpdate();
+            onClose();
         } catch (error) {
             showToast(error.response?.data?.error || 'Failed to update profile', 'error');
         } finally {
@@ -76,7 +83,6 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
         setLoading(true);
         try {
             await authService.updateSettings({
-                // Hardcode Brevo Host and Port to exactly match .env
                 smtpHost: emailData.smtpUser ? 'smtp-relay.brevo.com' : '',
                 smtpPort: emailData.smtpUser ? '2525' : '',
                 smtpUser: emailData.smtpUser.trim(),
@@ -93,187 +99,149 @@ const SettingsModal = ({ isOpen, onClose, onUpdate, showToast }) => {
     };
 
     return (
-        <div className="settings-modal-overlay" onClick={onClose}>
-            <div className="settings-modal-content animate-slide-up" onClick={e => e.stopPropagation()}>
-                <div className="settings-modal-header">
-                    <div className="header-title">
-                        <i className="fa-solid fa-gear"></i>
-                        <h2>Account Settings</h2>
-                    </div>
-                    <button className="close-settings-btn" onClick={onClose}>
-                        <i className="fa-solid fa-xmark"></i>
+        <div className="um-modal-overlay" onClick={onClose}>
+            <div className="um-modal-content rev-modal" onClick={e => e.stopPropagation()}>
+                <div className="rev-header-bg">
+                    <button className="rev-close" onClick={onClose}>
+                        <X size={20} />
                     </button>
+                    
+                    <div className="rev-header-content">
+                        {mode === 'profile' && (
+                            <>
+                                <h2>Revamp Your Profile</h2>
+                                <p>Update your profile to reflect the best version of yourself!</p>
+                            </>
+                        )}
+                        {mode === 'settings' && (
+                            <>
+                                <h2>Account Settings</h2>
+                                <p>Manage your email configuration and account security here.</p>
+                            </>
+                        )}
+                    </div>
                 </div>
 
-                <div className="settings-container">
-                    <aside className="settings-sidebar">
+                {mode === 'settings' && (
+                    <div className="rev-tabs">
                         <button
-                            className={`sidebar-item ${activeSection === 'profile' ? 'active' : ''}`}
-                            onClick={() => setActiveSection('profile')}
-                        >
-                            <i className="fa-solid fa-user"></i>
-                            <span>Profile</span>
-                        </button>
-                        <button
-                            className={`sidebar-item ${activeSection === 'email' ? 'active' : ''}`}
+                            className={`rev-tab ${activeSection === 'email' ? 'active' : ''}`}
                             onClick={() => setActiveSection('email')}
                         >
-                            <i className="fa-solid fa-envelope"></i>
-                            <span>Email Setup</span>
+                            <Mail size={16} /> Email Setup
                         </button>
                         <button
-                            className={`sidebar-item ${activeSection === 'password' ? 'active' : ''}`}
+                            className={`rev-tab ${activeSection === 'password' ? 'active' : ''}`}
                             onClick={() => setActiveSection('password')}
                         >
-                            <i className="fa-solid fa-lock"></i>
-                            <span>Password</span>
+                            <Lock size={16} /> Security
                         </button>
-                    </aside>
+                    </div>
+                )}
+                {mode === 'profile' && (
+                    <div className="rev-tabs">
+                        <button className="rev-tab active">
+                            <User size={16} /> Basic Info
+                        </button>
+                    </div>
+                )}
 
-                    <main className="settings-main">
-                        {activeSection === 'profile' && (
-                            <div className="settings-section animate-fade-in">
-                                <h3>Personal Information</h3>
-                                <p className="section-desc">Update your name and institutional details.</p>
-
-                                <form onSubmit={handleProfileSubmit}>
-                                    <div className="form-group">
-                                        <label>Full Name</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-user-pen"></i>
-                                            <input
-                                                type="text"
-                                                value={profileData.fullName}
-                                                onChange={e => setProfileData({ ...profileData, fullName: e.target.value })}
-                                                placeholder="Enter your name"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Email Address</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-envelope"></i>
-                                            <input type="text" value={user?.email} disabled className="input-disabled" />
-                                        </div>
-                                        <small>Email cannot be changed</small>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Institute Name</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-building-columns"></i>
-                                            <input
-                                                type="text"
-                                                value={profileData.instituteName}
-                                                onChange={e => setProfileData({ ...profileData, instituteName: e.target.value })}
-                                                placeholder="School/University Name"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" className="save-settings-btn" disabled={loading}>
-                                        {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : 'Save Changes'}
-                                    </button>
-                                </form>
+                <div className="rev-body">
+                    {activeSection === 'profile' && (
+                        <form onSubmit={handleProfileSubmit} className="rev-form" id="profile-form">
+                            <div className="rev-row">
+                                <div className="rev-group">
+                                    <label>Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={profileData.fullName}
+                                        onChange={e => setProfileData({ ...profileData, fullName: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div className="rev-group">
+                                    <label>Institute Name</label>
+                                    <input
+                                        type="text"
+                                        value={profileData.instituteName}
+                                        onChange={e => setProfileData({ ...profileData, instituteName: e.target.value })}
+                                    />
+                                </div>
                             </div>
-                        )}
-
-                        {activeSection === 'email' && (
-                            <div className="settings-section animate-fade-in" style={{ overflowY: 'auto', maxHeight: '60vh' }}>
-                                <h3>Brevo SMTP Configuration</h3>
-                                <p className="section-desc">Configure your Brevo SMTP settings. Leave completely blank to use the system default.</p>
-
-                                <form onSubmit={handleEmailSubmit}>
-                                    <div className="form-group">
-                                        <label>Brevo SMTP Username (Email / Login ID)</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-user"></i>
-                                            <input
-                                                type="text"
-                                                value={emailData.smtpUser}
-                                                onChange={e => setEmailData({ ...emailData, smtpUser: e.target.value })}
-                                                placeholder="e.g. johndoe@company.com"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Brevo SMTP Password (API Key)</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-key"></i>
-                                            <input
-                                                type="password"
-                                                value={emailData.smtpPassword}
-                                                onChange={e => setEmailData({ ...emailData, smtpPassword: e.target.value })}
-                                                placeholder="xsmtpsib-..."
-                                            />
-                                        </div>
-                                        <small>Password is securely encrypted in the database.</small>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>From Email Address</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-at"></i>
-                                            <input
-                                                type="email"
-                                                value={emailData.fromEmail}
-                                                onChange={e => setEmailData({ ...emailData, fromEmail: e.target.value })}
-                                                placeholder="e.g. certificates@yourdomain.com"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" className="save-settings-btn" disabled={loading}>
-                                        {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : 'Save Brevo Settings'}
-                                    </button>
-                                </form>
+                            
+                            <div className="rev-group">
+                                <label>Email Address</label>
+                                <input type="email" value={user?.email} disabled />
                             </div>
-                        )}
+                        </form>
+                    )}
 
-                        {activeSection === 'password' && (
-                            <div className="settings-section animate-fade-in">
-                                <h3>Security</h3>
-                                <p className="section-desc">Change your password to keep your account secure.</p>
-
-                                <form onSubmit={handlePasswordSubmit}>
-                                    <div className="form-group">
-                                        <label>New Password</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-key"></i>
-                                            <input
-                                                type="password"
-                                                value={passwordData.newPassword}
-                                                onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                                placeholder="Enter new password"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Confirm New Password</label>
-                                        <div className="input-with-icon">
-                                            <i className="fa-solid fa-check-double"></i>
-                                            <input
-                                                type="password"
-                                                value={passwordData.confirmPassword}
-                                                onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                                placeholder="Confirm new password"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" className="save-settings-btn" disabled={loading}>
-                                        {loading ? <i className="fa-solid fa-spinner fa-spin"></i> : 'Update Password'}
-                                    </button>
-                                </form>
+                    {activeSection === 'email' && (
+                        <form onSubmit={handleEmailSubmit} className="rev-form" id="email-form">
+                            <div className="rev-group">
+                                <label>Brevo SMTP Username</label>
+                                <input
+                                    type="text"
+                                    value={emailData.smtpUser}
+                                    onChange={e => setEmailData({ ...emailData, smtpUser: e.target.value })}
+                                />
                             </div>
-                        )}
-                    </main>
+
+                            <div className="rev-group">
+                                <label>Brevo SMTP Password (API Key)</label>
+                                <input
+                                    type="password"
+                                    value={emailData.smtpPassword}
+                                    onChange={e => setEmailData({ ...emailData, smtpPassword: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="rev-group">
+                                <label>From Email Address</label>
+                                <input
+                                    type="email"
+                                    value={emailData.fromEmail}
+                                    onChange={e => setEmailData({ ...emailData, fromEmail: e.target.value })}
+                                />
+                            </div>
+                        </form>
+                    )}
+
+                    {activeSection === 'password' && (
+                        <form onSubmit={handlePasswordSubmit} className="rev-form" id="password-form">
+                            <div className="rev-group">
+                                <label>New Password</label>
+                                <input
+                                    type="password"
+                                    value={passwordData.newPassword}
+                                    onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div className="rev-group">
+                                <label>Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    value={passwordData.confirmPassword}
+                                    onChange={e => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    required
+                                />
+                            </div>
+                        </form>
+                    )}
+                </div>
+
+                <div className="rev-footer">
+                    <button type="button" className="rev-btn-cancel" onClick={onClose}>Cancel</button>
+                    <button 
+                        type="submit" 
+                        form={activeSection === 'profile' ? 'profile-form' : activeSection === 'email' ? 'email-form' : 'password-form'} 
+                        className="rev-btn-submit" 
+                        disabled={loading}
+                    >
+                        {loading ? <Loader2 size={18} className="spin" /> : 'Submit'}
+                    </button>
                 </div>
             </div>
         </div>

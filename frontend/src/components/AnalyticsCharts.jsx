@@ -32,31 +32,26 @@ function AnalyticsCharts({ stats, events }) {
     ];
 
     return (
-        <div className="analytics-section single-chart">
-            <div className="chart-card activity-card">
-                <h4>Monthly Activity</h4>
-                <div style={{ width: '100%', height: 400, minHeight: 300 }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={barData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis
-                                dataKey="name"
-                                axisLine={false}
-                                tickLine={false}
-                                interval={0}
-                                tick={{ fontSize: 12 }}
-                            />
-                            <YAxis axisLine={false} tickLine={false} />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                            />
-                            <Legend />
-                            <Bar dataKey="events" fill="#6366f1" radius={[6, 6, 0, 0]} name="Events Uploaded" barSize={30} />
-                            <Bar dataKey="certs" fill="#f43f5e" radius={[6, 6, 0, 0]} name="Certificates Sent" barSize={30} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
+        <div style={{ flex: 1, width: '100%', minHeight: '320px', marginTop: '16px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        interval={0}
+                        tick={{ fontSize: 12 }}
+                    />
+                    <YAxis axisLine={false} tickLine={false} />
+                    <Tooltip
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Legend />
+                    <Bar dataKey="events" fill="#1c1d1f" radius={[12, 12, 12, 12]} name="Events Uploaded" barSize={20} />
+                    <Bar dataKey="certs" fill="#22c55e" radius={[12, 12, 12, 12]} name="Certificates Sent" barSize={20} />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 }
