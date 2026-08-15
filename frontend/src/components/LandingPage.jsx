@@ -57,30 +57,6 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  /* ── Data ─────────────────────────────────── */
-  const features = [
-    {
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="9" y1="21" x2="9" y2="9" /></svg>,
-      title: 'Beautiful Templates',
-      desc: 'Professionally designed certificate templates for every occasion — academic, professional, and custom.',
-    },
-    {
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>,
-      title: 'Bulk Generation',
-      desc: 'Upload a CSV and generate hundreds of personalized certificates in seconds. No manual work required.',
-    },
-    {
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>,
-      title: 'Verified & Tamper-proof',
-      desc: 'Each certificate gets a unique ID. Instantly verifiable by anyone via a secure public URL.',
-    },
-    {
-      icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>,
-      title: 'Automated Email Delivery',
-      desc: 'Send certificates directly to recipients with your custom branding. No third-party tools needed.',
-    },
-  ];
-
 
   /* ── Render ───────────────────────────────── */
   return (
@@ -119,7 +95,7 @@ export default function LandingPage() {
 
         .lp-about__grid {
           display: grid;
-          grid-template-columns: 1fr 1.6fr 1.2fr;
+          grid-template-columns: 1.3fr 1.6fr 1fr;
           gap: 40px;
           align-items: start;
         }
@@ -204,367 +180,187 @@ export default function LandingPage() {
           }
         }
 
-        /* ══════════════════════════════════════════════════════════════
-           HOW IT WORKS (Interactive Animated)
-        ══════════════════════════════════════════════════════════════ */
-        .lp-hiw {
-          padding: 100px 0;
-          background: transparent;
-        }
-
-        .lp-hiw-header {
-          text-align: center;
-          margin-bottom: 64px;
-        }
-
-        .lp-hiw-grid {
-          display: flex;
-          gap: 24px;
-          justify-content: center;
-          align-items: stretch;
-          height: 500px;
-        }
-
-        .lp-hiw-card {
-          flex: 1;
-          background: var(--c-white);
-          border-radius: 24px;
-          padding: 32px 32px 0 32px;
-          display: flex;
-          flex-direction: column;
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-          transition: flex 0.6s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease;
-          border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .lp-hiw-card.is-active {
-          flex: 1.4;
-          background: #efe9fc; /* Soft purple */
-          border-color: transparent;
-        }
-
-        .lp-hiw-card__top {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-bottom: 16px;
-          color: var(--c-black);
-        }
-
-        .lp-hiw-card__icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: rgba(0,0,0,0.05);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: background 0.4s ease, color 0.4s ease;
-        }
-
-        .lp-hiw-card.is-active .lp-hiw-card__icon {
-          background: var(--c-accent);
-          color: var(--c-white);
-        }
-
-        .lp-hiw-card__title {
-          font-family: var(--font-heading);
-          font-weight: 600;
-          font-size: 20px;
-          transition: transform 0.4s ease;
-        }
-
-        .lp-hiw-card__desc {
-          font-family: var(--font-body);
-          font-size: 15px;
-          line-height: 1.6;
-          color: #4a5568;
-          opacity: 0;
-          max-height: 0;
-          overflow: hidden;
-          transition: opacity 0.4s ease, max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .lp-hiw-card.is-active .lp-hiw-card__desc {
-          opacity: 1;
-          max-height: 120px;
-          margin-bottom: 24px;
-        }
-
-        .lp-hiw-mockup {
-          margin-top: auto;
-          background: var(--c-white);
-          border-radius: 12px 12px 0 0;
-          border: 1px solid rgba(0,0,0,0.08);
-          border-bottom: none;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-          height: 300px;
-          width: 100%;
-          transform: translateY(140px);
-          transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-          display: flex;
-          flex-direction: column;
-        }
-
-        .lp-hiw-card.is-active .lp-hiw-mockup {
-          transform: translateY(0);
-        }
-
-        .lp-hiw-mockup-header {
-          display: flex;
-          gap: 6px;
-          padding: 12px 16px;
-          border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        .lp-hiw-mockup-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #e2e8f0;
-        }
-
-        .lp-hiw-mockup-body {
-          padding: 16px;
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        /* Mockup specific designs */
-        .mockup-row {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .mockup-label {
-          width: 70px;
-          font-size: 11px;
-          color: #64748b;
-          font-weight: 500;
-        }
-        .mockup-field {
-          flex: 1;
-          height: 32px;
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 6px;
-          display: flex;
-          align-items: center;
-          padding: 0 12px;
-          font-size: 12px;
-          color: #334155;
-          font-weight: 500;
-        }
 
         /* ══════════════════════════════════════════════════════════════
            WHY CHOOSE US
         ══════════════════════════════════════════════════════════════ */
-        .lp-why {
-          padding: 120px 0;
-          background: transparent; /* inherits the main page beige bg */
+        .lp-features-new {
+          padding: 100px 0;
+          background: var(--c-white);
+          display: flex;
+          justify-content: center;
         }
 
-        .lp-why-header {
+
+
+        .lp-features-new-grid {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .lp-features-new-card {
+          grid-column: span 2;
+          background: #fff;
+          border: 1px solid #1e6e43;
+          border-radius: 32px 8px 32px 8px; /* Asymmetric leaf shape */
+          padding: 32px;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .lp-features-new-card:nth-child(4) {
+          grid-column: 2 / 4;
+        }
+
+        .lp-features-new-card:nth-child(5) {
+          grid-column: 4 / 6;
+        }
+
+        .lp-features-new-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+        }
+
+        .lp-features-new-card-top {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          margin-bottom: 64px;
-          gap: 40px;
-        }
-
-        .lp-why-header-left {
-          max-width: 800px;
-        }
-
-        .lp-why-header h2 {
-          font-family: var(--font-heading);
-          font-size: clamp(40px, 4vw, 56px);
-          font-weight: 600;
-          color: var(--c-black);
           margin-bottom: 16px;
-          letter-spacing: -1.5px;
         }
 
-        .lp-why-header p {
-          font-family: var(--font-body);
-          font-size: 16px;
-          line-height: 1.6;
-          color: var(--c-text-muted);
-        }
-
-        .lp-btn-why-join {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--c-black);
-          color: var(--c-white);
-          border-radius: 50px;
-          padding: 14px 32px;
-          font-weight: 600;
-          font-size: 15px;
-          text-decoration: none;
-          transition: transform 0.2s, background 0.2s;
-          white-space: nowrap;
-          font-family: var(--font-heading);
-        }
-        .lp-btn-why-join:hover {
-          background: var(--c-accent);
-          color: var(--c-white);
-          transform: translateY(-2px);
-        }
-
-        .lp-why-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-        }
-
-        .lp-why-card {
-          background: rgba(255,255,255,0.7);
-          border-radius: 20px;
-          padding: 36px 28px;
-          display: flex;
-          flex-direction: column;
-          position: relative;
-          overflow: hidden;
-          border: 1px solid rgba(0,0,0,0.06);
-          transition: transform 0.3s ease, background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-          cursor: pointer;
-        }
-
-        .lp-why-card:hover {
-          transform: translateY(-6px);
-          background: var(--c-accent);
-          border-color: var(--c-accent);
-          box-shadow: 0 20px 50px rgba(42, 100, 70, 0.25);
-        }
-
-        .lp-why-card:hover .lp-why-icon-wrap {
-          background: rgba(255,255,255,0.2);
-          color: #fff;
-        }
-
-        .lp-why-card:hover h3 {
-          color: #fff;
-        }
-
-        .lp-why-card:hover p {
-          color: rgba(255,255,255,0.85);
-        }
-
-        .lp-why-card:hover .lp-why-card-btn {
-          background: rgba(255,255,255,0.2);
-          color: #fff;
-          border-color: rgba(255,255,255,0.4);
-        }
-
-        /* Subtle watermark pattern */
-        .lp-why-card::before {
-          content: '';
-          position: absolute;
-          bottom: -10%;
-          right: -10%;
-          width: 160px;
-          height: 160px;
-          border-radius: 50%;
-          background: rgba(0,0,0,0.04);
-          pointer-events: none;
-          transition: background 0.35s ease;
-        }
-        .lp-why-card:hover::before {
-          background: rgba(255,255,255,0.1);
-        }
-
-        .lp-why-icon-wrap {
-          width: 52px;
-          height: 52px;
-          border-radius: 12px;
-          background: rgba(0,0,0,0.06);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--c-black);
-          margin-bottom: 28px;
-          transition: background 0.35s, color 0.35s;
-        }
-
-        .lp-why-card h3 {
-          font-family: var(--font-heading);
+        .lp-features-new-card-top h3 {
+          font-family: "Inter", system-ui, -apple-system, sans-serif;
           font-size: 20px;
           font-weight: 600;
-          color: var(--c-black);
-          margin-bottom: 12px;
+          color: #111;
           line-height: 1.3;
-          transition: color 0.35s;
+          margin: 0;
         }
 
-        .lp-why-card p {
-          font-family: var(--font-body);
-          font-size: 14px;
-          line-height: 1.65;
-          color: var(--c-text-muted);
-          margin-bottom: 36px;
-          flex-grow: 1;
-          transition: color 0.35s;
-        }
-
-        .lp-why-card-btn {
-          display: inline-flex;
+        .lp-features-new-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 1px solid #eaeaea;
+          display: flex;
           align-items: center;
           justify-content: center;
-          background: transparent;
-          color: var(--c-black);
-          border: 1.5px solid rgba(0,0,0,0.15);
-          border-radius: 50px;
-          padding: 10px 22px;
-          font-weight: 600;
-          font-size: 14px;
-          text-decoration: none;
-          align-self: flex-start;
-          transition: background 0.2s, color 0.2s, border-color 0.2s;
-          font-family: var(--font-heading);
-        }
-        .lp-why-card-btn:hover {
-          background: var(--c-black);
-          color: #fff;
-          border-color: var(--c-black);
+          color: #1e6e43;
+          flex-shrink: 0;
+          margin-left: 12px;
         }
 
-        @media (max-width: 1200px) {
-          .lp-why-grid {
+        .lp-features-new-desc {
+          font-family: "Inter", system-ui, -apple-system, sans-serif;
+          font-size: 14px;
+          line-height: 1.6;
+          color: #555;
+          margin-bottom: 24px;
+        }
+
+        .lp-features-new-list-title {
+          font-family: "Inter", system-ui, -apple-system, sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 12px;
+        }
+
+        .lp-features-new-list {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 32px 0;
+          flex-grow: 1;
+        }
+
+        .lp-features-new-list li {
+          position: relative;
+          padding-left: 16px;
+          font-family: "Inter", system-ui, -apple-system, sans-serif;
+          font-size: 13px;
+          color: #444;
+          margin-bottom: 8px;
+          line-height: 1.4;
+        }
+
+        .lp-features-new-list li::before {
+          content: '•';
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: #111;
+          font-weight: bold;
+        }
+
+        .lp-features-new-btn {
+          display: block;
+          text-align: center;
+          background: #1a1a1a;
+          color: #ffffff !important;
+          text-decoration: none;
+          padding: 14px;
+          border-radius: 9999px;
+          font-family: "Inter", system-ui, -apple-system, sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          transition: background 0.2s;
+        }
+
+        .lp-features-new-btn:hover {
+          background: #000;
+        }
+
+        @media (max-width: 1024px) {
+          .lp-features-new-grid {
             grid-template-columns: repeat(2, 1fr);
           }
-        }
-        @media (max-width: 768px) {
-          .lp-why-header {
-            flex-direction: column;
-            gap: 24px;
+          .lp-features-new-card {
+            grid-column: span 1 !important;
           }
-          .lp-why-grid {
+        }
+
+        @media (max-width: 640px) {
+          .lp-features-new-grid {
             grid-template-columns: 1fr;
           }
         }
+
       `}</style>
 
       {/* ════════════════ NAVIGATION ════════════════ */}
       <header className={`lp-nav${navScrolled ? ' scrolled' : ''}${navHidden ? ' nav-hidden' : ''}`}>
         <div className="lp-nav__inner">
-          <Link to="/" className="lp-logo">
-            <img src="/assets/logo.png" alt="CertiCraft" height="40" />
-          </Link>
+          <div className="lp-nav__left">
+            <Link to="/" className="lp-logo">
+              <img src="/assets/landing_logo.png" alt="CertiCraft" height="40" />
+            </Link>
 
-          <nav className={`lp-nav__links${menuOpen ? ' is-open' : ''}`}>
-            <a href="#features" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('features')?.scrollIntoView({behavior:'smooth'}); }}>Features</a>
-            <a href="#about" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('about')?.scrollIntoView({behavior:'smooth'}); }}>About Us</a>
-            <a href="#how-it-works" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('how-it-works')?.scrollIntoView({behavior:'smooth'}); }}>How It Works</a>
-            <a href="#why-choose-us" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('why-choose-us')?.scrollIntoView({behavior:'smooth'}); }}>Why Choose Us</a>
-            <Link to="/login" className="lp-nav__login">Login</Link>
-          </nav>
+            <nav className={`lp-nav__links${menuOpen ? ' is-open' : ''}`}>
+              <a href="#about" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('about')?.scrollIntoView({behavior:'smooth'}); }}>About Us</a>
+              <a href="#how-it-works" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('how-it-works')?.scrollIntoView({behavior:'smooth'}); }}>How It Works</a>
+              <a href="#features" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('features')?.scrollIntoView({behavior:'smooth'}); }}>Features</a>
+              <a href="#capabilities" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('capabilities')?.scrollIntoView({behavior:'smooth'}); }}>Capabilities</a>
+            </nav>
+          </div>
+
+          <div className="lp-nav__right">
+            <div className="lp-nav__globe">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <div className="lp-nav__divider"></div>
+            <Link to="/login" className="lp-nav__login">Log in</Link>
+            <Link to="/register" className="lp-nav__btn-solid">Sign Up Free</Link>
+            <a href="#demo" className="lp-nav__btn-outline" onClick={(e) => { e.preventDefault(); setMenuOpen(false); document.getElementById('demo')?.scrollIntoView({behavior:'smooth'}); }}>Get a demo</a>
+          </div>
 
           <button
             className={`lp-hamburger${menuOpen ? ' open' : ''}`}
@@ -650,10 +446,17 @@ export default function LandingPage() {
       {/* ════════════════ TRUSTED BY ════════════════ */}
       <section className="lp-section lp-trusted" data-reveal>
         <div className="lp-container">
-          <div className="lp-trusted__row">
-            {['IIT Hyderabad', 'BITS Pilani', 'NIT Warangal', 'TechFest', 'DevAcademy', 'GrowthCamp', 'HackIndia'].map((n) => (
-              <span key={n} className="lp-trusted__item">{n}</span>
-            ))}
+          <div className="lp-trusted__inner">
+            <div className="lp-trusted__text">
+              Join 10,000+ organizations around the world who trust CertiCraft
+            </div>
+            <div className="lp-trusted__logos">
+              <div className="lp-trusted__logo" style={{fontFamily: 'serif', fontStyle: 'italic', fontSize: '24px'}}>IIT Hyderabad</div>
+              <div className="lp-trusted__logo" style={{fontFamily: 'var(--font-body)', fontWeight: 800, fontSize: '20px', letterSpacing: '-1px'}}>BITS Pilani</div>
+              <div className="lp-trusted__logo" style={{fontFamily: 'var(--font-heading)', textTransform: 'uppercase', fontSize: '22px'}}>NIT Warangal</div>
+              <div className="lp-trusted__logo" style={{fontFamily: 'var(--font-body)', fontWeight: 300, fontSize: '26px', letterSpacing: '-1.5px'}}>TechFest</div>
+              <div className="lp-trusted__logo" style={{fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '18px'}}>DevAcademy</div>
+            </div>
           </div>
         </div>
       </section>
@@ -662,189 +465,233 @@ export default function LandingPage() {
       {/* ════════════════ SEPARATOR ════════════════ */}
       <hr className="lp-hr" />
 
-
-      {/* ════════════════ FEATURES (2×2 Grid) ════════════════ */}
-      <section className="lp-section" id="features">
+      {/* ════════════════ HOW IT WORKS ════════════════ */}
+      <section className="lp-section lp-how" id="how-it-works">
         <div className="lp-container">
-          <div data-reveal>
-            <h2 className="lp-section__h2" style={{ marginBottom: 64 }}>
+          <div className="lp-how__inner" data-reveal>
+            <h2 className="lp-how__title">The Complete Credential Pipeline</h2>
+            <div className="lp-how__image">
+              <img src="/assets/how.png" alt="How CertiCraft Works" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════ SEPARATOR REMOVED ════════════════ */}
+
+      {/* ════════════════ NEW FEATURES SECTION (5-Card Grid) ════════════════ */}
+      <section className="lp-features-new" id="features">
+        <div className="lp-container" data-reveal>
+          <div className="lp-features-new-header" style={{ marginBottom: '64px', textAlign: 'center' }}>
+            <h2 className="lp-section__h2" style={{ marginBottom: 0 }}>
               Everything You Need<br />to Certify at Scale
             </h2>
           </div>
 
-          <div className="lp-features-grid">
-            {features.map((f, i) => (
-              <div key={i} className="lp-feature-card" data-reveal style={{ transitionDelay: `${i * 100}ms` }}>
-                <div className="lp-feature-card__icon">{f.icon}</div>
-                <div className="lp-feature-card__title">{f.title}</div>
-                <div className="lp-feature-card__desc">{f.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════ HOW IT WORKS ════════════════ */}
-      <section className="lp-hiw" id="how-it-works">
-        <div className="lp-container">
-          <div className="lp-hiw-header" data-reveal>
-            <h2 className="lp-section__h2" style={{ marginBottom: '16px' }}>How CertiCraft Works</h2>
-            <p className="lp-hero__sub" style={{ fontSize: '18px', maxWidth: '700px', margin: '0 auto', color: 'var(--c-text-muted)' }}>
-              A high-performance, professional-grade pipeline designed to automate the creation, distribution, and verification of digital certificates.
-            </p>
-          </div>
-
-          <div className="lp-hiw-grid" data-reveal>
-
-            {/* STEP 1 */}
-            <div className={`lp-hiw-card ${activeHiwStep === 0 ? 'is-active' : ''}`} onMouseEnter={() => setActiveHiwStep(0)}>
-              <div className="lp-hiw-card__top">
-                <div className="lp-hiw-card__icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
-                </div>
-                <div className="lp-hiw-card__title">Interactive Designer</div>
-              </div>
-              <div className="lp-hiw-card__desc">
-                Upload a high-fidelity PNG template. Use our interactive designer for click-to-place name positioning with elegant typography. Manage multiple events and templates in one place.
-              </div>
-              <div className="lp-hiw-mockup">
-                <div className="lp-hiw-mockup-header">
-                  <div className="lp-hiw-mockup-dot"></div><div className="lp-hiw-mockup-dot"></div><div className="lp-hiw-mockup-dot"></div>
-                </div>
-                <div className="lp-hiw-mockup-body" style={{ padding: '20px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '12px' }}>Event Template Settings</div>
-                  <div className="mockup-row"><div className="mockup-label">Event Name</div><div className="mockup-field">Global Tech Summit</div></div>
-                  <div className="mockup-row"><div className="mockup-label">Date</div><div className="mockup-field">Oct 15, 2026</div></div>
-                  <div className="mockup-row"><div className="mockup-label">Template</div><div className="mockup-field" style={{ background: '#efe9fc', borderColor: 'var(--c-accent)', color: 'var(--c-accent)' }}>Modern_Dark.png</div></div>
-                </div>
-              </div>
-            </div>
-
-            {/* STEP 2 */}
-            <div className={`lp-hiw-card ${activeHiwStep === 1 ? 'is-active' : ''}`} onMouseEnter={() => setActiveHiwStep(1)}>
-              <div className="lp-hiw-card__top">
-                <div className="lp-hiw-card__icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                </div>
-                <div className="lp-hiw-card__title">Bulk Processing</div>
-              </div>
-              <div className="lp-hiw-card__desc">
-                Solves the bottleneck of event management. Upload a CSV or Excel file and generate hundreds of personalized, pixel-perfect certificates instantly in seconds.
-              </div>
-              <div className="lp-hiw-mockup">
-                <div className="lp-hiw-mockup-header">
-                  <div className="lp-hiw-mockup-dot"></div><div className="lp-hiw-mockup-dot"></div><div className="lp-hiw-mockup-dot"></div>
-                </div>
-                <div className="lp-hiw-mockup-body" style={{ padding: '20px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}><span>Participants</span> <span style={{ color: 'var(--c-text-muted)' }}>850</span></div>
-                  <div className="mockup-row"><div className="mockup-avatar" style={{ background: 'var(--c-accent)' }}>JD</div><div style={{ fontSize: '13px', fontWeight: 500 }}>John Doe <br /><span style={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>john@example.com</span></div></div>
-                  <div className="mockup-row"><div className="mockup-avatar" style={{ background: '#cbd5e1' }}>AS</div><div style={{ fontSize: '13px', fontWeight: 500 }}>Alice Smith <br /><span style={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>alice@example.com</span></div></div>
-                  <div className="mockup-row"><div className="mockup-avatar" style={{ background: '#94a3b8' }}>RJ</div><div style={{ fontSize: '13px', fontWeight: 500 }}>Robert Jones <br /><span style={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>robert@example.com</span></div></div>
-                </div>
-              </div>
-            </div>
-
-            {/* STEP 3 */}
-            <div className={`lp-hiw-card ${activeHiwStep === 2 ? 'is-active' : ''}`} onMouseEnter={() => setActiveHiwStep(2)}>
-              <div className="lp-hiw-card__top">
-                <div className="lp-hiw-card__icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                </div>
-                <div className="lp-hiw-card__title">Smart Verification</div>
-              </div>
-              <div className="lp-hiw-card__desc">
-                Automated SMTP integration for direct delivery. Every certificate receives an industry-standard QR code linked to our secure portal, ensuring zero fraud and maximum trust.
-              </div>
-              <div className="lp-hiw-mockup">
-                <div className="lp-hiw-mockup-header">
-                  <div className="lp-hiw-mockup-dot"></div><div className="lp-hiw-mockup-dot"></div><div className="lp-hiw-mockup-dot"></div>
-                </div>
-                <div className="lp-hiw-mockup-body" style={{ justifyContent: 'center', alignItems: 'center' }}>
-                  <div style={{ width: '120px', height: '120px', background: '#fff', padding: '8px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-                    <svg viewBox="0 0 100 100" fill="var(--c-accent)">
-                      <rect x="10" y="10" width="25" height="25" fill="none" stroke="var(--c-accent)" strokeWidth="5" />
-                      <rect x="65" y="10" width="25" height="25" fill="none" stroke="var(--c-accent)" strokeWidth="5" />
-                      <rect x="10" y="65" width="25" height="25" fill="none" stroke="var(--c-accent)" strokeWidth="5" />
-                      <rect x="17" y="17" width="11" height="11" />
-                      <rect x="72" y="17" width="11" height="11" />
-                      <rect x="17" y="72" width="11" height="11" />
-                      <rect x="45" y="10" width="10" height="10" />
-                      <rect x="45" y="25" width="10" height="20" />
-                      <rect x="65" y="45" width="25" height="10" />
-                      <rect x="10" y="45" width="25" height="10" />
-                      <rect x="45" y="55" width="45" height="10" />
-                      <rect x="45" y="75" width="10" height="15" />
-                      <rect x="65" y="75" width="25" height="15" />
-                    </svg>
-                  </div>
-                  <div style={{ marginTop: '16px', fontSize: '13px', fontWeight: 600, color: 'var(--c-accent)' }}>Verified Credential</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════ WHY CHOOSE US (New 4-Column Layout) ════════════════ */}
-      <section className="lp-why" id="why-choose-us">
-        <div className="lp-container" data-reveal>
-          
-          <div className="lp-why-header">
-            <div className="lp-why-header-left">
-              <h2>Why choose us?</h2>
-              <p>Our commitment to your organization goes beyond just simple certificate generation. Discover the unique features that set CertiCraft apart and ensure you have the best experience issuing credentials.</p>
-            </div>
-            <div className="lp-why-header-right">
-              <Link to="/register" className="lp-btn-why-join">Join now</Link>
-            </div>
-          </div>
-
-          <div className="lp-why-grid">
+          <div className="lp-features-new-grid">
             
             {/* Card 1 */}
-            <div className="lp-why-card">
-              <div className="lp-why-icon-wrap">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div className="lp-features-new-card">
+              <div className="lp-features-new-card-top">
+                <h3>Instant Bulk Generation</h3>
+                <div className="lp-features-new-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
               </div>
-              <h3>Instant Bulk Generation</h3>
-              <p>Upload your CSV and our engine processes hundreds of credentials instantly in a single batch.</p>
-              <Link to="/register" className="lp-why-card-btn">Join now</Link>
+              <p className="lp-features-new-desc">Upload your CSV and our engine processes hundreds of credentials instantly in a single batch.</p>
+              <div className="lp-features-new-list-title">Top features:</div>
+              <ul className="lp-features-new-list">
+                <li>CSV & Excel data support</li>
+                <li>Instant processing engine</li>
+                <li>Smart error handling</li>
+              </ul>
+              <Link to="/register" className="lp-features-new-btn">Find out more</Link>
             </div>
 
             {/* Card 2 */}
-            <div className="lp-why-card">
-              <div className="lp-why-icon-wrap">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div className="lp-features-new-card">
+              <div className="lp-features-new-card-top">
+                <h3>Smart Verification</h3>
+                <div className="lp-features-new-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
               </div>
-              <h3>Smart Verification</h3>
-              <p>Every certificate gets a unique cryptographic UUID, ensuring zero fraud and verifiable digital trust.</p>
-              <Link to="/register" className="lp-why-card-btn">Join now</Link>
+              <p className="lp-features-new-desc">Every certificate gets a unique cryptographic UUID, ensuring zero fraud and verifiable digital trust.</p>
+              <div className="lp-features-new-list-title">Top features:</div>
+              <ul className="lp-features-new-list">
+                <li>QR Code generation</li>
+                <li>Unique cryptographic UUIDs</li>
+                <li>Public verification portal</li>
+              </ul>
+              <Link to="/register" className="lp-features-new-btn">Find out more</Link>
             </div>
 
             {/* Card 3 */}
-            <div className="lp-why-card">
-              <div className="lp-why-icon-wrap">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div className="lp-features-new-card">
+              <div className="lp-features-new-card-top">
+                <h3>Pixel-Perfect Fidelity</h3>
+                <div className="lp-features-new-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
               </div>
-              <h3>Pixel-Perfect Fidelity</h3>
-              <p>Retain full control of your design. Upload high-res PNG templates and let our system render beautiful typography.</p>
-              <Link to="/register" className="lp-why-card-btn">Join now</Link>
+              <p className="lp-features-new-desc">Retain full control of your design. Upload high-res PNG templates and let our system render beautiful typography.</p>
+              <div className="lp-features-new-list-title">Top features:</div>
+              <ul className="lp-features-new-list">
+                <li>Custom fonts & typography</li>
+                <li>Drag & drop positioning</li>
+                <li>High-res PNG & PDF export</li>
+              </ul>
+              <Link to="/register" className="lp-features-new-btn">Find out more</Link>
             </div>
 
             {/* Card 4 */}
-            <div className="lp-why-card">
-              <div className="lp-why-icon-wrap">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div className="lp-features-new-card lp-features-new-card-bottom">
+              <div className="lp-features-new-card-top">
+                <h3>Zero Friction Delivery</h3>
+                <div className="lp-features-new-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
               </div>
-              <h3>Zero Friction Delivery</h3>
-              <p>Automated SMTP integration sends secure credentials directly to your participants' inboxes.</p>
-              <Link to="/register" className="lp-why-card-btn">Join now</Link>
+              <p className="lp-features-new-desc">Automated SMTP integration sends secure credentials directly to your participants' inboxes.</p>
+              <div className="lp-features-new-list-title">Top features:</div>
+              <ul className="lp-features-new-list">
+                <li>Custom SMTP integration</li>
+                <li>Automated delivery system</li>
+                <li>Real-time tracking</li>
+              </ul>
+              <Link to="/register" className="lp-features-new-btn">Find out more</Link>
+            </div>
+
+            {/* Card 5 */}
+            <div className="lp-features-new-card lp-features-new-card-bottom">
+              <div className="lp-features-new-card-top">
+                <h3>Team Collaboration</h3>
+                <div className="lp-features-new-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+              </div>
+              <p className="lp-features-new-desc">Work together with your event organizers. Share roles and manage certificates as a unified team.</p>
+              <div className="lp-features-new-list-title">Top features:</div>
+              <ul className="lp-features-new-list">
+                <li>Role-based access control</li>
+                <li>Real-time collaboration</li>
+                <li>Team activity tracking</li>
+              </ul>
+              <Link to="/register" className="lp-features-new-btn">Find out more</Link>
             </div>
 
           </div>
         </div>
       </section>
+
+      {/* ════════════════ SHOWCASE SECTION ════════════════ */}
+      <section className="lp-section lp-showcase" id="capabilities">
+        <div className="lp-container">
+          
+          {/* Row 1: Image Left, Text Right */}
+          <div className="lp-showcase__row" data-reveal>
+            <div className="lp-showcase__image">
+              <img src="/assets/1.webp" alt="Bulk Generation" />
+            </div>
+            <div className="lp-showcase__content">
+              <div className="lp-showcase__subtitle">BUILT FOR BULK GENERATION</div>
+              <h2 className="lp-showcase__title">Generate bulk credentials easily</h2>
+              <p className="lp-showcase__desc">
+                Standard design tools aren't built for generating mass certificates or handling large volumes of dynamic data. Trust a specialized engine that's built for scale.
+              </p>
+              <ul className="lp-showcase__list">
+                <li>Specially configured rendering pipelines support high-volume generation instantly.</li>
+                <li>CertiCraft is built on highly reliable infrastructure for maximum uptime.</li>
+                <li>We generate thousands of credentials for top institutions every day.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Row 2: Text Left, Image Right */}
+          <div className="lp-showcase__row lp-showcase__row--reverse" data-reveal>
+            <div className="lp-showcase__content">
+              <div className="lp-showcase__subtitle">RELIABLE VERIFICATION</div>
+              <h2 className="lp-showcase__title">Deliver trust straight to the source</h2>
+              <p className="lp-showcase__desc">
+                CertiCraft's secure infrastructure is backed by dedicated cryptographic validation to make sure your credentials are 100% verifiable and tamper-proof.
+              </p>
+              <ul className="lp-showcase__list">
+                <li>Closely monitored verification endpoints.</li>
+                <li>A team of experienced data security experts.</li>
+                <li>Rigorous validation process to eliminate fraudulent certificates.</li>
+              </ul>
+            </div>
+            <div className="lp-showcase__image">
+              <img src="/assets/2.webp" alt="Reliable Verification" />
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ════════════════ DEMO SECTION ════════════════ */}
+      <section className="lp-demo" id="demo">
+        <div className="lp-container">
+          <div className="lp-demo-grid">
+            <div className="lp-demo-left" data-reveal>
+              <div className="lp-demo-subtitle">CERTICRAFT PRO & ENTERPRISE</div>
+              <h2 className="lp-demo-title">Get a free CertiCraft demo</h2>
+              <p className="lp-demo-desc">
+                See how CertiCraft brings your credentialing, events, and verifications together—so your team turns every achievement into measurable growth.
+              </p>
+              <img src="/assets/demo.webp" alt="CertiCraft Workflow" className="lp-demo-img" />
+            </div>
+            
+            <div className="lp-demo-right" data-reveal style={{ transitionDelay: '100ms' }}>
+              <div className="lp-demo-form-header">
+                Already a customer? <Link to="/login">Get account support here</Link>
+              </div>
+              <form className="lp-demo-form" onSubmit={(e) => e.preventDefault()}>
+                <input type="email" placeholder="Work Email*" required className="lp-demo-input" />
+                
+                <div className="lp-demo-row">
+                  <select className="lp-demo-input lp-demo-select" defaultValue="India (+91)">
+                    <option value="India (+91)">India (+91)</option>
+                    <option value="United States (+1)">United States (+1)</option>
+                    <option value="United Kingdom (+44)">United Kingdom (+44)</option>
+                  </select>
+                  <input type="tel" placeholder="Phone Number*" required className="lp-demo-input" />
+                </div>
+                
+                <div className="lp-demo-row">
+                  <input type="text" placeholder="First Name*" required className="lp-demo-input" />
+                  <input type="text" placeholder="Last Name*" required className="lp-demo-input" />
+                </div>
+                
+                <input type="text" placeholder="Company*" required className="lp-demo-input" />
+                
+                <select className="lp-demo-input lp-demo-select" defaultValue="" required>
+                  <option value="" disabled>How many certificates do you issue?*</option>
+                  <option value="1 - 500">1 - 500</option>
+                  <option value="501 - 5000">501 - 5,000</option>
+                  <option value="5000+">5,000+</option>
+                </select>
+                
+                <select className="lp-demo-input lp-demo-select" defaultValue="" required>
+                  <option value="" disabled>Your organization's annual revenue*</option>
+                  <option value="< $1M">&lt; $1M</option>
+                  <option value="$1M - $10M">$1M - $10M</option>
+                  <option value="$10M+">$10M+</option>
+                </select>
+                
+                <select className="lp-demo-input lp-demo-select" defaultValue="Preferred language: English">
+                  <option value="Preferred language: English">Preferred language: English</option>
+                  <option value="Preferred language: Spanish">Preferred language: Spanish</option>
+                  <option value="Preferred language: French">Preferred language: French</option>
+                </select>
+                
+                <button type="submit" className="lp-demo-submit">Get a demo</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* ════════════════ FOOTER ════════════════ */}
       <footer className="lp-footer">
@@ -862,25 +709,26 @@ export default function LandingPage() {
 
             <div className="lp-footer__links-grid">
               <div className="lp-footer__link-col">
-                <a href="#features">Features</a>
+                <a href="#about">About Us</a>
                 <a href="#how-it-works">How It Works</a>
-                <a href="#">Pricing</a>
-                <a href="#">API Docs</a>
+                <a href="#features">Features</a>
+                <a href="#capabilities">Capabilities</a>
               </div>
               <div className="lp-footer__link-col">
-                <a href="#">About</a>
                 <a href="#">Blog</a>
                 <a href="#">Careers</a>
+                <a href="#">Pricing</a>
                 <a href="#">Contact</a>
               </div>
               <div className="lp-footer__contact">
-                <div className="lp-footer__contact-block">
-                  <strong>Email</strong>
-                  <span>hello@certicraft.com</span>
+                <div className="lp-footer__socials" style={{ display: 'flex', gap: '20px', fontSize: '24px', marginBottom: '24px' }}>
+                  <a href="#" target="_blank" rel="noopener noreferrer" style={{ transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}><i className="fab fa-instagram"></i></a>
+                  <a href="#" target="_blank" rel="noopener noreferrer" style={{ transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}><i className="fab fa-linkedin"></i></a>
+                  <a href="#" target="_blank" rel="noopener noreferrer" style={{ transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}><i className="fab fa-x-twitter"></i></a>
                 </div>
                 <div className="lp-footer__contact-block">
-                  <strong>Instagram</strong>
-                  <span>@certicraft</span>
+                  <strong>Email</strong>
+                  <a href="mailto:hello@certicraft.com" style={{ textDecoration: 'underline', transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>hello@certicraft.com</a>
                 </div>
                 <Link to="/register" className="lp-btn-footer" style={{ marginTop: '24px' }}>Get Started &rarr;</Link>
               </div>
