@@ -15,7 +15,13 @@ module.exports = (sequelize) => {
     updatedAt: { type: DataTypes.DATE, allowNull: true, field: 'updated_at' }
   }, {
     tableName: 'certificates',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+      { fields: ['event_id'] },
+      { fields: ['participant_id'] },
+      { fields: ['verification_id'], unique: true },
+      { fields: ['event_id', 'generation_status'] } // for filtered cert queries
+    ]
   });
   return Certificate;
 };

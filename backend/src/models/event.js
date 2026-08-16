@@ -11,7 +11,10 @@ module.exports = (sequelize) => {
     updatedAt: { type: DataTypes.DATE, allowNull: true, field: 'updated_at' }
   }, {
     tableName: 'events',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+      { fields: ['organizer_id'] }
+    ]
   });
   return Event;
 };

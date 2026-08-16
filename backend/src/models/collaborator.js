@@ -8,7 +8,12 @@ module.exports = (sequelize) => {
         role: { type: DataTypes.STRING, defaultValue: 'VIEWER' }
     }, {
         tableName: 'collaborators',
-        timestamps: true
+        timestamps: true,
+        indexes: [
+          { fields: ['event_id'] },
+          { fields: ['user_id'] },
+          { fields: ['event_id', 'user_id'], unique: true } // no duplicate collaborator records
+        ]
     });
     return Collaborator;
 };

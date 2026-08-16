@@ -9,7 +9,11 @@ module.exports = (sequelize) => {
     createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW, field: 'created_at' }
   }, {
     tableName: 'participants',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+      { fields: ['event_id'] },
+      { fields: ['event_id', 'email'], unique: true } // prevent duplicate emails per event
+    ]
   });
   return Participant;
 };
