@@ -169,6 +169,18 @@ router.get('/:id/download', auth, async (req, res) => {
   try {
     const cert = await Certificate.findByPk(req.params.id, { include: [Participant, Event] });
     if (!cert) return res.status(404).json({ message: 'Not found' });
+
+    // SECURITY: verify the requesting user actually owns or collaborates on this event (IDOR fix)
+    const isOrganizer = cert.Event && String(cert.Event.organizerId) === String(req.user.id);
+    let hasAccess = isOrganizer;
+    if (!hasAccess) {
+      const collab = await Collaborator.findOne({
+        where: { eventId: cert.eventId, userId: req.user.id, status: 'ACCEPTED' }
+      });
+      hasAccess = !!collab;
+    }
+    if (!hasAccess) return res.status(403).json({ error: 'Access denied' });
+
     if (!cert.filePath) return res.status(404).json({ message: 'Certificate file not found' });
 
     // If it's a Supabase URL, redirect to it
@@ -186,7 +198,8 @@ router.get('/:id/download', auth, async (req, res) => {
     const stream = fs.createReadStream(cert.filePath);
     stream.pipe(res);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('[CertDownload]', error.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

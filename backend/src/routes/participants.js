@@ -2,7 +2,17 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 const multer = require('multer');
 const { parse } = require('csv-parse/sync');
-const upload = multer({ dest: '/tmp' });
+const upload = multer({
+  dest: '/tmp',
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    const allowed = ['text/csv', 'text/plain', 'application/vnd.ms-excel', 'application/csv'];
+    if (allowed.includes(file.mimetype) || file.originalname.toLowerCase().endsWith('.csv')) {
+      return cb(null, true);
+    }
+    cb(new Error('Only CSV files are allowed'));
+  }
+});
 const fs = require('fs');
 const auth = require('../middleware/auth');
 const { Participant, Event, Collaborator, ActivityLog } = require('../models');
