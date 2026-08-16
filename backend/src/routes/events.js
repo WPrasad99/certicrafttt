@@ -28,7 +28,8 @@ router.get('/', auth, async (req, res) => {
 
     res.json(uniqueEvents);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('[EventList]', error.message);
+    res.status(500).json({ error: 'Failed to fetch events' });
   }
 });
 
@@ -67,28 +68,42 @@ router.get('/:id', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
   const id = req.params.id;
 
-  // Check if user is organizer
-  let event = await Event.findOne({ where: { id, organizerId: req.user.id } });
-  if (event) {
-    await event.update(req.body);
-    return res.json(event);
-  }
+  // Whitelist allowed fields to prevent mass assignment of protected fields like organizerId
+  const { eventName, description, eventDate, location, status } = req.body;
+  const allowedFields = {};
+  if (eventName !== undefined) allowedFields.eventName = eventName;
+  if (description !== undefined) allowedFields.description = description;
+  if (eventDate !== undefined) allowedFields.eventDate = eventDate;
+  if (location !== undefined) allowedFields.location = location;
+  if (status !== undefined) allowedFields.status = status;
 
-  // Check if user is accepted collaborator
-  const { Collaborator } = require('../models');
-  const isCollab = await Collaborator.findOne({
-    where: { eventId: id, userId: req.user.id, status: 'ACCEPTED' }
-  });
-
-  if (isCollab) {
-    event = await Event.findByPk(id);
+  try {
+    // Check if user is organizer
+    let event = await Event.findOne({ where: { id, organizerId: req.user.id } });
     if (event) {
-      await event.update(req.body);
+      await event.update(allowedFields);
       return res.json(event);
     }
-  }
 
-  return res.status(404).json({ message: 'Not found' });
+    // Check if user is accepted collaborator
+    const { Collaborator } = require('../models');
+    const isCollab = await Collaborator.findOne({
+      where: { eventId: id, userId: req.user.id, status: 'ACCEPTED' }
+    });
+
+    if (isCollab) {
+      event = await Event.findByPk(id);
+      if (event) {
+        await event.update(allowedFields);
+        return res.json(event);
+      }
+    }
+
+    return res.status(404).json({ message: 'Not found' });
+  } catch (err) {
+    console.error('[EventUpdate]', err.message);
+    return res.status(500).json({ error: 'Failed to update event' });
+  }
 });
 
 router.delete('/:id', auth, async (req, res) => {

@@ -1,51 +1,101 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { sequelize } = require('./models');
 
 const app = express();
+
+// ══════════════════════════════════════════════════════════════
+//  SECURITY HEADERS (helmet)
+// ══════════════════════════════════════════════════════════════
+app.use(helmet());
+
+// ══════════════════════════════════════════════════════════════
+//  CORS — strict origin whitelist
+// ══════════════════════════════════════════════════════════════
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+if (process.env.FRONTEND_URL) {
+  const base = process.env.FRONTEND_URL.replace(/\/$/, '');
+  allowedOrigins.push(base, base + '/');
+}
+
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
-    if (process.env.FRONTEND_URL) {
-      allowedOrigins.push(process.env.FRONTEND_URL);
-      // Remove trailing slash if present for robustness
-      allowedOrigins.push(process.env.FRONTEND_URL.replace(/\/$/, ''));
-    }
-
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, curl, Render health checks)
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn('Blocked CORS origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    console.warn('[CORS] Blocked origin:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+// Pre-flight OPTIONS for all routes
+app.options('*', cors());
 
-app.get('/run-script', (req, res) => {
-  require('./check-git.js');
-  res.send('done');
+// ══════════════════════════════════════════════════════════════
+//  BODY PARSING — with size limits to prevent payload DoS
+// ══════════════════════════════════════════════════════════════
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// ══════════════════════════════════════════════════════════════
+//  GLOBAL RATE LIMITER — broad DoS / bot protection
+//  100 requests per 15 minutes per IP
+// ══════════════════════════════════════════════════════════════
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+app.use('/api', globalLimiter);
+
+// ══════════════════════════════════════════════════════════════
+//  AUTH-SPECIFIC RATE LIMITERS — brute-force & credential stuffing protection
+// ══════════════════════════════════════════════════════════════
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,   // 15 minutes
+  max: 10,                     // max 10 login attempts per window per IP
+  skipSuccessfulRequests: true, // don't count successful logins against the limit
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please wait 15 minutes before trying again.' }
 });
 
-// initialize auth (Google OAuth)
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,  // 1 hour
+  max: 5,                     // max 5 registrations per hour per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many accounts created from this IP, please try again after an hour.' }
+});
+
+// ══════════════════════════════════════════════════════════════
+//  HEALTH CHECK — public, unauthenticated
+// ══════════════════════════════════════════════════════════════
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// ══════════════════════════════════════════════════════════════
+//  AUTH ROUTES
+// ══════════════════════════════════════════════════════════════
 require('./auth/passport')(app);
 app.use('/auth', require('./routes/auth'));
 
-// user auth routes
+// Apply auth-specific rate limiters
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth', require('./routes/users'));
 
-// basic route placeholders
-app.get('/api', (req, res) => res.json({ message: 'CertiCraft API (Node/Express)' }));
-
-// Register routes
+// ══════════════════════════════════════════════════════════════
+//  API ROUTES
+// ══════════════════════════════════════════════════════════════
+app.get('/api', (req, res) => res.json({ message: 'CertiCraft API' }));
 app.use('/api/events', require('./routes/events'));
 app.use('/api/events/:eventId/participants', require('./routes/participants'));
 app.use('/api/events/:eventId/template', require('./routes/templates'));
@@ -54,25 +104,37 @@ app.use('/api/collaboration', require('./routes/collaboration'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/users', require('./routes/users'));
 
+// ══════════════════════════════════════════════════════════════
+//  GLOBAL ERROR HANDLER — never leak internal details
+// ══════════════════════════════════════════════════════════════
+app.use((err, req, res, next) => {
+  console.error('[ERROR]', err.message);
+  // Specific known errors
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
+
+// ══════════════════════════════════════════════════════════════
+//  SERVER START
+// ══════════════════════════════════════════════════════════════
 const PORT = process.env.PORT || 8080;
 
 async function start() {
   try {
-    // Attempt DB connection
     await sequelize.authenticate();
-    console.log('Database connected');
-
-    // Sync models - using force: false to be safe in prod
+    console.log('[DB] Connected');
     await sequelize.sync({ alter: true });
-
   } catch (err) {
-    console.error('Database connection/sync failed:', err.message);
-    // We continue to start the server so Render detects the port
-    // API endpoints will fail if DB is down, which is expected
+    console.error('[DB] Connection failed:', err.message);
   }
-
-  // Start server regardless of DB state so Render doesn't time out
-  app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+  app.listen(PORT, () => console.log(`[Server] Listening on port ${PORT}`));
 }
 
 start();

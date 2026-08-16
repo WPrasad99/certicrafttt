@@ -12,7 +12,7 @@ router.get('/google', passport.authenticate('google', {
 // Callback
 router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/' }), (req, res) => {
   // Issue JWT and redirect to frontend with token
-  const token = jwt.sign({ id: req.user.id, name: req.user.displayName }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
+  const token = jwt.sign({ id: req.user.id, name: req.user.displayName }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
   // Create query params
   const q = new URLSearchParams({ token, fullName: req.user.displayName || '', email: req.user.email || '', id: req.user.id ? String(req.user.id) : '' });
