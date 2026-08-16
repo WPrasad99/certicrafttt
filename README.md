@@ -1,148 +1,162 @@
-# 🎓 CertiCraft: The Ultimate Certificate Ecosystem
+# CertiCraft
 
 [![Status: Production Ready](https://img.shields.io/badge/Status-Production--Ready-brightgreen)](https://github.com/WPrasad99/certicrafttt)
 [![Tech: Node/React](https://img.shields.io/badge/Tech-Node%20%2F%20React-blue)](https://github.com/WPrasad99/certicrafttt)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-ff69b4)](https://certicraft-frontend.onrender.com)
 
-CertiCraft is a high-performance, professional-grade platform designed to automate the creation, distribution, and verification of digital certificates. Built for organizers who demand speed, reliability, and security.
+CertiCraft is an enterprise-grade platform designed to automate the creation, distribution, and cryptographic verification of digital certificates. Built for organizers, institutions, and businesses that demand speed, high-fidelity design, and robust security.
 
-**🚀 [Live Demo Available Here](https://certicraft-frontend.onrender.com)**
-
----
-
-## 📑 Table of Contents
-1. [Project Overview](#-project-overview)
-2. [Key Features](#-key-features)
-3. [Quick Start (5 Mins)](#-quick-start-5-mins)
-4. [System Architecture](#-system-architecture)
-5. [Configuration & Setup](#-configuration--setup)
-6. [QR Verification System](#-qr-verification-system)
-7. [Deployment Guide](#-deployment-guide)
-8. [Troubleshooting](#-troubleshooting)
+**[Live Demo](https://certicraft-frontend.onrender.com)**
 
 ---
 
-## 🌟 Project Overview
-CertiCraft solves the bottleneck of regional and global event management by providing a seamless interface to generate hundreds of certificates in seconds. Every certificate is uniquely identifiable and instantly verifiable via QR code, ensuring zero fraud and maximum trust.
+## Architecture Overview
 
-### Why CertiCraft?
-- **Bulk Processing**: Upload CSV/Excel and generate hundreds of certificates instantly.
-- **High Fidelity**: Pixel-perfect PNG templates with elegant typography.
-- **Mobile First**: Fully responsive dashboard and verification portal.
-- **Smart Verification**: Industry-standard QR codes for instant authenticity checks.
+CertiCraft is built on a modern, decoupled architecture designed for scale and security.
 
----
+```mermaid
+graph TD
+    Client[Web Client - React/Vite]
+    LB[Load Balancer / Ingress - Render]
+    API[Node.js / Express API]
+    DB[(PostgreSQL - Supabase)]
+    Storage[(Object Storage - Supabase)]
+    SMTP[Email Gateway - Brevo/Resend]
 
-## ✨ Key Features
-- **Event Dashboard**: Manage multiple events, participants, and templates in one place.
-- **Interactive Template Designer**: Click-to-place name positioning on any image.
-- **Automated Emailing**: SMTP integration for direct certificate delivery.
-- **Secure Authentication**: Traditional JWT-based login + Google OAuth2.
-- **Real-time Status**: Track generation and email status for every participant.
-
----
-
-## 🚀 Quick Start (5 Mins)
-
-### 1. Database Setup
-```sql
--- Open pgAdmin/psql
-CREATE DATABASE certificate_system;
--- Execute 'database-setup.sql' in this database
+    Client <--> |HTTPS / REST| LB
+    LB <--> API
+    API <--> |Sequelize ORM / Connection Pool| DB
+    API <--> |File I/O| Storage
+    API --> |SMTP Batch Delivery| SMTP
 ```
 
-### 2. Launch Application
-```powershell
-# PowerShell (Root Directory)
-.\START.ps1
+## Core Workflows
+
+The platform simplifies complex operational pipelines into a seamless, few-click experience.
+
+```mermaid
+sequenceDiagram
+    participant O as Organizer
+    participant S as CertiCraft API
+    participant D as Database
+    participant M as SMTP Gateway
+    participant P as Participant
+
+    O->>S: 1. Upload Base Template (PNG)
+    S->>D: Store Template Metadata
+    O->>S: 2. Upload Participant Roster (CSV)
+    S->>D: Bulk Insert Participants
+    O->>S: 3. Configure Placement & Trigger Generation
+    S->>S: Generate PDFs & Verification IDs
+    S->>D: Save Certificate Records
+    O->>S: 4. Trigger Email Dispatch
+    S->>M: Non-blocking Batch Send
+    M->>P: Deliver Cryptographically Signed Certificates
+    P->>S: 5. Scan QR / Verify Authenticity
+    S-->>P: Return Verification Payload
 ```
-*Alternatively:*
-- **Backend:** `cd backend && npm run dev`
-- **Frontend:** `cd frontend && npm run dev`
-
-### 3. Access
-Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 🏗️ System Architecture
+## Platform Features
 
-### Tech Stack
-- **Frontend**: React.js, Vite, Vanilla CSS (Modern UI)
-- **Backend**: Node.js, Express, Sequelize ORM
-- **Database**: PostgreSQL
-- **Security**: JWT, Passport.js (Google OAuth2)
-- **Email**: Nodemailer (SMTP/Gmail)
+### 1. High-Fidelity Generation Engine
+- **Visual Template Designer**: Interactive web canvas to position dynamic text (names, dates) exactly where you need them on uploaded templates.
+- **Bulk Processing Pipeline**: Capable of processing large participant CSVs efficiently.
+- **Pixel-Perfect Output**: Server-side PDF compilation ensures consistent formatting across all issued documents.
+
+### 2. Cryptographic Verification System
+- **Immutable Verification IDs**: Each certificate is stamped with a unique UUID.
+- **Integrated QR Codes**: Industry-standard QR codes embedded natively into generated PDFs.
+- **Public Verification Portal**: Instant, fraud-proof authenticity checks accessible via mobile or desktop.
+
+### 3. Enterprise Security & Hardening
+- **Strict Authentication**: JWT-based session management coupled with Google OAuth2.
+- **Defense in Depth**: Integrated `helmet` security headers, strict CORS policies, and rate-limiting across authentication and public endpoints.
+- **Data Integrity**: Cryptographically secured database configurations, comprehensive parameterized queries, and strict input validation layers protecting against XSS, mass-assignment, and injection.
+
+### 4. Collaboration & Multi-Tenancy
+- **Event Workspaces**: Invite collaborators to assist with participant management and certificate generation.
+- **Strict Data Isolation**: Advanced Row-Level Security logic implemented in the application layer ensures users only access resources they own or have been explicitly granted access to.
 
 ---
 
-## ⚙️ Configuration & Setup
+## Deployment Configuration
 
-### Database
-Update `backend/.env` with your PostgreSQL credentials:
+CertiCraft is container-ready and configured for PaaS deployments such as Render and Supabase.
+
+### System Requirements
+- Node.js >= 18.x
+- PostgreSQL >= 14.x
+- Valid SMTP Configuration (Brevo, Resend, or Google Workspace)
+
+### 1. Environment Variables
+
+Create a `.env` file in the `backend/` directory. Strict validation ensures the server will halt if critical cryptographic keys are missing.
+
 ```env
-DB_NAME=certificate_system
-DB_USER=postgres
-DB_PASSWORD=YOUR_PASSWORD
-DB_HOST=localhost
-DB_PORT=5432
+# Server & Database
+PORT=8080
+FRONTEND_URL=https://your-frontend.com
+DATABASE_URL=postgresql://user:pass@host:port/dbname?sslmode=require
+
+# Cryptography (CRITICAL)
+# Must be a 64-character hex string (32 bytes)
+ENCRYPTION_KEY=your_secure_encryption_key_here
+# Strong random string for JWT signing
+JWT_SECRET=your_secure_jwt_secret_here
+
+# Email Delivery
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=2525
+MAIL_USERNAME=your_smtp_username
+MAIL_PASSWORD=your_smtp_password
+FROM_EMAIL="Organization Name <noreply@domain.com>"
+
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_CALLBACK_URL=https://your-backend.com/auth/google/callback
 ```
 
-### Email (Nodemailer)
-Generate a **Google App Password** for automated mailing:
-```env
-MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=abcd efgh ijkl mnop
-```
+### 2. Initialization
 
-### Google OAuth2
-Setup credentials in Google Cloud Console:
-- **Redirect URI**: `http://localhost:8080/api/login/oauth2/code/google`
-- **Keys**: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+```bash
+# Clone repository
+git clone https://github.com/WPrasad99/certicrafttt.git
+cd certicrafttt
 
----
+# Initialize Backend
+cd backend
+npm ci
+npm start
 
-## 🔍 QR Verification System
-Every certificate generates a unique UUID stored in the database.
-- **URL Pattern**: `http://<your-ip>:5173/verify/<uuid>`
-- **Workflow**: 
-  1. Scan QR on certificate.
-  2. Redirects to public verification portal.
-  3. Displays authenticity confirmation and participant data.
-
----
-
-## 🌐 Firewall Config (For Mobile Demo)
-To scan QR codes from your phone while running locally, ensure ports **5173** and **8080** are open:
-```powershell
-New-NetFirewallRule -DisplayName "React Frontend" -Direction Inbound -LocalPort 5173 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Node Backend" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+# Initialize Frontend
+cd ../frontend
+npm ci
+npm run build
+npm start
 ```
 
 ---
 
-## ☁️ Deployment Guide
-The project is configured for **Render** (Frontend/Backend) and **Supabase** (Database/Storage).
-1. **GitHub**: Push code to your repo.
-2. **Backend (Web Service)**: Root `backend`, Build `npm install`, Start `npm start`.
-3. **Frontend (Static Site)**: Root `frontend`, Build `npm run build`, Publish `dist`.
-4. **Environment Variables**: Update `VITE_API_BASE_URL` and `DATABASE_URL`.
+## API Structure
+
+The platform exposes a standard RESTful API protected by bearer tokens. 
+
+- `/api/auth` - Authentication, OAuth, Password Reset
+- `/api/events` - Event CRUD, Template Management
+- `/api/participants` - Roster Management, CSV Uploads
+- `/api/certificates` - PDF Generation, Status Polling, Verification
+- `/api/collaboration` - Access Control, Messaging, Invitations
 
 ---
 
-## 🛠️ Troubleshooting
+## Automated Security Audits
 
-| Issue | Solution |
-| :--- | :--- |
-| **Login Fails** | Ensure backend is running and DB is connected. |
-| **Email Fails** | Check App Password and restart backend. |
-| **QR Scan Timeout** | Verify Firewall settings and Wi-Fi network. |
-| **No Templates** | Upload a PNG in the event dashboard first! |
+The platform includes GitHub Actions workflows that automatically run `npm audit` on both the frontend and backend on every push to `main` and on a weekly schedule. The application is maintained against strict vulnerability standards.
 
----
+## License
 
-## 📄 License
 Distributed under the MIT License. See `LICENSE` for more information.
-
-*Crafted with ❤️ for the Global Developer Community.*
