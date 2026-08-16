@@ -6,43 +6,47 @@ const db = {};
 
 let sequelize;
 if (process.env.DATABASE_URL) {
-  // Use explicit options to ensure dialectOptions are respected
+  // Production: Supabase connection via pooler (port 6543)
+  // NOTE: rejectUnauthorized:false is required for Supabase's PgBouncer pooler which uses
+  // a self-signed cert. If you switch to direct connection (port 5432), set this to true.
   sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false
+        rejectUnauthorized: false // Required for Supabase pooler — acceptable trade-off
       },
-      // Keep family: 4 here as a backup for the driver
       family: 4
     },
-    // Optimized pool config for Supabase free tier
     pool: {
-      max: 2,          // Reduced from 5 - Supabase free tier has low connection limits
+      max: 5,          // Increased — Supabase free tier allows more if using pooler
       min: 0,
-      acquire: 60000,  // Increased from 30000 - give more time to acquire
+      acquire: 30000,
       idle: 10000
     }
   });
 } else if (process.env.DB_HOST) {
+  // Require all DB credentials from environment — no insecure defaults
+  if (!process.env.DB_PASSWORD || !process.env.DB_USER || !process.env.DB_NAME) {
+    console.error('[FATAL] DB_HOST set but DB_USER, DB_PASSWORD, or DB_NAME missing from environment.');
+    process.exit(1);
+  }
   sequelize = new Sequelize(
-    process.env.DB_NAME || 'certificate_system',
-    process.env.DB_USER || 'macbook',
-    process.env.DB_PASSWORD || 'changeme',
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
     {
-      host: process.env.DB_HOST || 'localhost',
+      host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
       dialect: 'postgres',
       logging: false,
-      dialectOptions: {
-        family: 4
-      }
+      dialectOptions: { family: 4 },
+      pool: { max: 10, min: 0, acquire: 30000, idle: 10000 }
     }
   );
 } else {
-  console.error('No database configuration found! Please set DATABASE_URL.');
+  console.error('[FATAL] No database configuration found. Set DATABASE_URL or DB_HOST in environment.');
   process.exit(1);
 }
 

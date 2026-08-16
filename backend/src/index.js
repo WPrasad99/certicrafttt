@@ -129,8 +129,11 @@ const PORT = process.env.PORT || 8080;
 async function start() {
   try {
     await sequelize.authenticate();
-    console.log('[DB] Connected');
-    await sequelize.sync({ alter: true });
+    // SECURITY/STABILITY: Do NOT use sync({ alter: true }) in production — it runs ALTER TABLE
+    // on every startup and can cause lock contention and schema corruption during concurrent restarts.
+    // Use sequelize-cli migrations for schema changes in production.
+    // sync({ force: false }) only creates missing tables, never alters existing ones.
+    await sequelize.sync({ force: false });
   } catch (err) {
     console.error('[DB] Connection failed:', err.message);
   }
