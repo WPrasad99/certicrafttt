@@ -1,6 +1,5 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const jwt = require('jsonwebtoken');
 
 module.exports = function (app) {
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
@@ -9,7 +8,6 @@ module.exports = function (app) {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:8080/auth/google/callback'
     }, async (accessToken, refreshToken, profile, done) => {
-      // Minimal: lookup or create a User record
       const { User } = require('../models');
       const email = (profile.emails && profile.emails[0] && profile.emails[0].value) || null;
       let user = null;
@@ -23,18 +21,13 @@ module.exports = function (app) {
 
     app.use(passport.initialize());
 
-    // Serialize/deserialize are not required for JWT flows, but left as placeholders
+    // Serialize/deserialize are not required for JWT flows
     passport.serializeUser((user, cb) => cb(null, user));
     passport.deserializeUser((obj, cb) => cb(null, obj));
 
-    // Expose a helper to issue a JWT
-    app.post('/auth/issue-token', (req, res) => {
-      const user = req.body.user;
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
-      res.json({ token });
-    });
+    // NOTE: /auth/issue-token endpoint removed — it was an unauthenticated JWT forge backdoor (C2)
   } else {
-    console.warn('Google OAuth not configured: GOOGLE_CLIENT_ID/SECRET missing. /auth/google will return 501.');
+    console.warn('[Auth] Google OAuth not configured: GOOGLE_CLIENT_ID/SECRET missing.');
     app.get('/auth/google', (req, res) => res.status(501).json({ message: 'Google OAuth not configured on server' }));
     app.get('/auth/google/callback', (req, res) => res.status(501).json({ message: 'Google OAuth not configured on server' }));
   }

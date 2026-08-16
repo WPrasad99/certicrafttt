@@ -1,32 +1,42 @@
 const crypto = require('crypto');
 
 const ALGORITHM = 'aes-256-cbc';
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '5230a8bf6061db88faad781be802dce28ddc2f41e90c76e1843c9d8ad4505150'; // Fallback for dev
-const IV_LENGTH = 16; 
+const IV_LENGTH = 16;
+
+// SECURITY: No hardcoded fallback key. If ENCRYPTION_KEY is missing or wrong length, crash immediately.
+// The key must be a 64-character hex string (32 bytes) stored in your hosting provider's env vars.
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+if (!ENCRYPTION_KEY || Buffer.from(ENCRYPTION_KEY, 'hex').length !== 32) {
+  console.error('[FATAL] ENCRYPTION_KEY is missing or not a valid 64-character hex string. Set it in your environment variables.');
+  process.exit(1);
+}
+
+const KEY_BUFFER = Buffer.from(ENCRYPTION_KEY, 'hex');
 
 function encrypt(text) {
-    if (!text) return null;
-    let iv = crypto.randomBytes(IV_LENGTH);
-    let cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
+  if (!text) return null;
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, KEY_BUFFER, iv);
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
 function decrypt(text) {
-    if (!text) return null;
-    try {
-        let textParts = text.split(':');
-        let iv = Buffer.from(textParts.shift(), 'hex');
-        let encryptedText = Buffer.from(textParts.join(':'), 'hex');
-        let decipher = crypto.createDecipheriv(ALGORITHM, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
-        let decrypted = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-        return decrypted.toString();
-    } catch (error) {
-        console.error('Decryption failed:', error.message);
-        return null;
-    }
+  if (!text) return null;
+  try {
+    const textParts = text.split(':');
+    const iv = Buffer.from(textParts.shift(), 'hex');
+    const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    const decipher = crypto.createDecipheriv(ALGORITHM, KEY_BUFFER, iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+  } catch (error) {
+    console.error('[Encryption] Decryption failed:', error.message);
+    return null;
+  }
 }
 
 module.exports = { encrypt, decrypt };
