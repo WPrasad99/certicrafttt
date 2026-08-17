@@ -14,16 +14,16 @@ function App() {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    // Show top-class loading video for 1.5s on initial website open
+    // Fallback: if video doesn't play or end within 10s, hide loader anyway
     const timer = setTimeout(() => {
       setInitialLoading(false);
-    }, 1500);
+    }, 10000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <>
-      {initialLoading && <InitialVideoLoader />}
+      {initialLoading && <InitialVideoLoader onEnded={() => setInitialLoading(false)} />}
       <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />

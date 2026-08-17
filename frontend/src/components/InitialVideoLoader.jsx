@@ -1,6 +1,6 @@
 import React from 'react';
 
-const InitialVideoLoader = () => {
+const InitialVideoLoader = ({ onEnded }) => {
     return (
         <div style={{
             position: 'fixed',
@@ -17,9 +17,9 @@ const InitialVideoLoader = () => {
             <video 
                 src="/assets/loading.mp4"
                 autoPlay
-                loop
                 muted
                 playsInline
+                onEnded={onEnded}
                 style={{
                     width: '100%',
                     height: '100%',
