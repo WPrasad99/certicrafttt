@@ -4,6 +4,7 @@ import { authService, eventService, analyticsService, collaborationService, mess
 import { Plus, BarChart, Settings, Settings2, Zap, Send, Bell, UsersRound, X } from 'lucide-react';
 import EventManagement from './EventManagement';
 import Modal from './Modal';
+import LoadingOverlay from './LoadingOverlay';
 import AnalyticsCharts from './AnalyticsCharts';
 import CollaborationRequests from './CollaborationRequests';
 import EventList from './EventList';
@@ -173,7 +174,7 @@ function Dashboard() {
         }
     };
 
-    if (loading) return <div className="spinner"></div>;
+    if (loading) return <LoadingOverlay />;
 
     if (selectedEvent) {
         return <EventManagement
