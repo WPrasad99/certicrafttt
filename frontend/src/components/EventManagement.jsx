@@ -294,37 +294,67 @@ function EventManagement({ event, onBack, onNotify, initialTab = 'participants' 
     };
 
     const handleGenerateCertificates = async () => {
+        if (!template) {
+            showToast('Please upload a template first', 'error');
+            return;
+        }
         if (participants.length === 0) {
             triggerVibration();
             return;
         }
 
-        // Switch to certificates tab immediately
         setActiveTab('certificates');
+        
+        // Find participants who need a certificate
+        const pendingParticipants = participants.filter(p => {
+            const cert = certificateStatus.find(c => String(c.participantId) === String(p.id));
+            return !cert || cert.generationStatus !== 'GENERATED';
+        });
 
-        // We set a local "busy" state if needed, but the polling will show progress
+        if (pendingParticipants.length === 0) {
+            showToast('All certificates are already generated!', 'success');
+            return;
+        }
+
         setLoading(true);
 
         try {
-            // Start generation in background
-            certificateService.generateCertificates(event.id)
-                .then(() => {
-                    showToast('Certificates generated successfully!', 'success');
-                    loadCertificateStatus();
-                })
-                .catch(error => {
-                    const msg = error.response?.data?.error || 'Failed to generate certificates';
-                    showToast(msg, 'error');
-                })
-                .finally(() => {
-                    setLoading(false);
+            for (const p of pendingParticipants) {
+                // Update local status to "GENERATING" to show progress
+                setCertificateStatus(prev => {
+                    const exists = prev.find(c => String(c.participantId) === String(p.id));
+                    if (exists) {
+                        return prev.map(c => String(c.participantId) === String(p.id) ? { ...c, generationStatus: 'GENERATING' } : c);
+                    } else {
+                        return [...prev, { participantId: p.id, participantName: p.name, email: p.email, generationStatus: 'GENERATING' }];
+                    }
                 });
 
-            // Immediate check to show initial PENDING states if backend creates them fast
-            await loadCertificateStatus();
+                try {
+                    const result = await certificateService.generateSingleCertificate(event.id, p.id);
+                    
+                    // Update local status to whatever backend returned (GENERATED or FAILED)
+                    setCertificateStatus(prev => prev.map(c => 
+                        String(c.participantId) === String(p.id) ? { 
+                            ...c, 
+                            id: result.id,
+                            generationStatus: result.generationStatus,
+                            verificationId: result.verificationId,
+                            generatedAt: result.generatedAt
+                        } : c
+                    ));
+                } catch (err) {
+                    setCertificateStatus(prev => prev.map(c => 
+                        String(c.participantId) === String(p.id) ? { ...c, generationStatus: 'FAILED' } : c
+                    ));
+                }
+            }
+            showToast('Certificate generation complete!', 'success');
         } catch (error) {
-            console.error('Initial generation trigger failed:', error);
+            console.error('Generation queue failed:', error);
+        } finally {
             setLoading(false);
+            loadCertificateStatus(); // Final sync with backend
         }
     };
 

@@ -134,6 +134,120 @@ router.post('/events/:eventId/generate', auth, checkEventOwnership, async (req, 
   }
 });
 
+// Single certificate generation for real-time frontend queue
+router.post('/events/:eventId/generate-single', auth, checkEventOwnership, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const { participantId } = req.body;
+
+    if (!participantId) return res.status(400).json({ error: 'Participant ID required' });
+
+    const p = await Participant.findOne({ where: { id: participantId, eventId } });
+    if (!p) return res.status(404).json({ error: 'Participant not found' });
+
+    let existing = await Certificate.findOne({ where: { participantId: p.id, eventId } });
+
+    if (existing && existing.generationStatus === 'GENERATED') {
+      return res.json(existing);
+    }
+
+    if (!existing) {
+      existing = await Certificate.create({
+        verificationId: uuidv4(),
+        participantId: p.id,
+        eventId,
+        generationStatus: 'PENDING'
+      });
+    } else {
+      await existing.update({ generationStatus: 'PENDING', errorMessage: null });
+    }
+
+    try {
+      const template = await Template.findOne({ where: { eventId } });
+      if (!template || !template.filePath) {
+        await existing.update({ generationStatus: 'FAILED', errorMessage: 'Template not found' });
+        return res.status(400).json({ error: 'Template not found' });
+      }
+
+      let templatePath = template.filePath;
+      let tempTemplatePath = null;
+
+      // Download from Supabase if needed
+      if (isSupabaseUrl(template.filePath)) {
+        try {
+          const buffer = await downloadFileFromUrl(template.filePath);
+          tempTemplatePath = path.join(certOutDir, `temp_template_${Date.now()}.png`);
+          fs.writeFileSync(tempTemplatePath, buffer);
+          templatePath = tempTemplatePath;
+        } catch (err) {
+          await existing.update({ generationStatus: 'FAILED', errorMessage: 'Failed to download template' });
+          return res.status(500).json({ error: 'Failed to download template' });
+        }
+      } else if (!fs.existsSync(template.filePath)) {
+        await existing.update({ generationStatus: 'FAILED', errorMessage: 'Template file not found' });
+        return res.status(400).json({ error: 'Template file not found' });
+      }
+
+      const outPath = path.join(certOutDir, `cert_${existing.id}.pdf`);
+      const coords = { nameX: template.nameX, nameY: template.nameY };
+      const qrCoords = { qrX: template.qrX, qrY: template.qrY };
+      
+      await generateCertificatePdf({
+        templatePath: templatePath,
+        name: p.name,
+        coords,
+        fontSize: template.fontSize,
+        fontColor: template.fontColor,
+        qrCoords,
+        qrSize: template.qrSize || 100,
+        verificationId: existing.verificationId,
+        outputPath: outPath
+      });
+
+      // Cleanup temp template file
+      if (tempTemplatePath && fs.existsSync(tempTemplatePath)) {
+        try { fs.unlinkSync(tempTemplatePath); } catch (e) { /* ignore */ }
+      }
+
+      // Upload generated certificate to Supabase
+      const { data: uploadData, error: uploadError } = await uploadFile(
+        'certificates', 
+        `generated/${existing.id}`, 
+        outPath, 
+        'application/pdf'
+      );
+
+      let storagePath = outPath;
+      if (uploadData && uploadData.publicUrl) {
+        storagePath = uploadData.publicUrl;
+        if (fs.existsSync(outPath)) {
+          try { fs.unlinkSync(outPath); } catch (e) { /* ignore */ }
+        }
+      }
+
+      await existing.update({ filePath: storagePath, generationStatus: 'GENERATED', generatedAt: new Date() });
+      
+      // Update activity log for the first generated cert
+      const genCount = await Certificate.count({ where: { eventId, generationStatus: 'GENERATED' } });
+      if (genCount === 1) {
+        await ActivityLog.create({
+          eventId,
+          userId: req.user.id,
+          action: 'GENERATE_CERTIFICATES',
+          details: `Started generating certificates`
+        });
+      }
+
+      res.json(existing);
+    } catch (err) {
+      await existing.update({ generationStatus: 'FAILED', errorMessage: err.message });
+      res.status(500).json({ error: err.message });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/events/:eventId/status', auth, checkEventOwnership, async (req, res) => {
   try {
     const eventId = req.params.eventId;

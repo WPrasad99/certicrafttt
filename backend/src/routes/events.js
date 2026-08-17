@@ -207,6 +207,71 @@ router.post('/:eventId/generate', auth, async (req, res) => {
   }
 });
 
+// Single certificate generation for real-time frontend queue
+router.post('/:eventId/generate-single', auth, async (req, res) => {
+  try {
+    const eventId = req.params.eventId;
+    const { participantId } = req.body;
+
+    if (!participantId) return res.status(400).json({ error: 'Participant ID required' });
+
+    // Check if user is organizer or collaborator
+    let event = await Event.findOne({ where: { id: eventId, organizerId: req.user.id } });
+    if (!event) {
+      const isCollab = await Collaborator.findOne({
+        where: { eventId, userId: req.user.id, status: 'ACCEPTED' }
+      });
+      if (!isCollab) return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const p = await Participant.findOne({ where: { id: participantId, eventId } });
+    if (!p) return res.status(404).json({ error: 'Participant not found' });
+
+    let existing = await Certificate.findOne({ where: { participantId: p.id, eventId } });
+
+    if (!existing) {
+      existing = await Certificate.create({ verificationId: uuidv4(), participantId: p.id, eventId, generationStatus: 'PENDING' });
+    } else {
+      await existing.update({ generationStatus: 'PENDING', errorMessage: null });
+      if (existing.filePath && fs.existsSync(existing.filePath)) {
+        try { fs.unlinkSync(existing.filePath); } catch (e) { /* ignore */ }
+      }
+    }
+
+    try {
+      const template = await Template.findOne({ where: { eventId } });
+      if (!template || !template.filePath || !fs.existsSync(template.filePath)) {
+        await existing.update({ generationStatus: 'FAILED', errorMessage: 'Template not found' });
+        return res.status(400).json({ error: 'Template not found' });
+      }
+
+      const outPath = path.join(certOutDir, `cert_${existing.id}.pdf`);
+      const coords = { nameX: template.nameX, nameY: template.nameY };
+      const qrCoords = { qrX: template.qrX, qrY: template.qrY };
+      
+      await generateCertificatePdf({
+        templatePath: template.filePath,
+        name: p.name,
+        coords,
+        fontSize: template.fontSize,
+        fontColor: template.fontColor,
+        qrCoords,
+        qrSize: template.qrSize || 100,
+        verificationId: existing.verificationId,
+        outputPath: outPath
+      });
+
+      await existing.update({ filePath: outPath, generationStatus: 'GENERATED', generatedAt: new Date() });
+      res.json(existing);
+    } catch (err) {
+      await existing.update({ generationStatus: 'FAILED', errorMessage: err.message });
+      res.status(500).json({ error: err.message });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // status endpoint
 router.get('/:eventId/status', auth, async (req, res) => {
   try {

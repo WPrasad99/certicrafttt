@@ -142,6 +142,11 @@ export const certificateService = {
         return response.data;
     },
 
+    generateSingleCertificate: async (eventId, participantId) => {
+        const response = await api.post(`/certificates/events/${eventId}/generate-single`, { participantId });
+        return response.data;
+    },
+
     getCertificateStatus: async (eventId) => {
         const response = await api.get(`/certificates/events/${eventId}/status`);
         return response.data;

@@ -9,6 +9,7 @@ function CertificatesTab({ certificates, template, onDownloadCertificate, onDown
             'SENT': 'success',
             'FAILED': 'error',
             'PENDING': 'warning',
+            'GENERATING': 'info',
             'SENDING': 'info',
             'NOT_GENERATED': 'warning',
             'NOT_SENT': 'neutral',
