@@ -19,7 +19,7 @@ const uploadFile = async (bucket, folder, filePath, mimeType = 'application/pdf'
     }
 
     try {
-        const fileBuffer = fs.readFileSync(filePath);
+        const fileBuffer = await fs.promises.readFile(filePath);
         const fileName = `${folder}/${Date.now()}-${path.basename(filePath)}`;
 
         const { data, error } = await supabase.storage

@@ -25,8 +25,7 @@ const upload = multer({
       return cb(new Error('Only image files are allowed'));
     }
     cb(null, true);
-  },
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  }
 });
 
 const auth = require('../middleware/auth');
@@ -92,7 +91,12 @@ router.post('/upload', auth, checkEventOwnership, async (req, res) => {
         details: `Uploaded template: ${req.file.originalname} (Supabase: ${!!uploadData?.publicUrl})`
       });
 
-      // Read file and attach base64 data and mime type for frontend convenience
+      // If it uploaded to Supabase, just return the public URL to avoid crashing the browser with huge base64 strings
+      if (uploadData && uploadData.publicUrl) {
+        return res.json({ ...template.toJSON(), imageUrl: uploadData.publicUrl, mimeType: req.file.mimetype });
+      }
+
+      // Fallback for local dev without Supabase (still risky for huge files, but needed if no Supabase)
       try {
         const buffer = fs.readFileSync(req.file.path);
         const mimeType = mime.lookup(req.file.path) || 'image/png';
@@ -100,7 +104,6 @@ router.post('/upload', auth, checkEventOwnership, async (req, res) => {
         const payload = { ...template.toJSON(), imageData, mimeType };
         return res.json(payload);
       } catch (err) {
-        // Return template without image data if file read fails
         return res.json(template);
       }
     } catch (error) {

@@ -127,7 +127,7 @@ router.post('/upload', auth, checkEventOwnership, upload.single('file'), async (
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
     const eventId = req.params.eventId;
     const filePath = req.file.path;
-    const content = fs.readFileSync(filePath, 'utf8');
+    const content = await fs.promises.readFile(filePath, 'utf8');
     const records = parse(content, { columns: true, trim: true });
 
     const created = [];
