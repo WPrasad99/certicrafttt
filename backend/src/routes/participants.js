@@ -4,7 +4,6 @@ const multer = require('multer');
 const { parse } = require('csv-parse/sync');
 const upload = multer({
   dest: '/tmp',
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
   fileFilter: (req, file, cb) => {
     const allowed = ['text/csv', 'text/plain', 'application/vnd.ms-excel', 'application/csv'];
     if (allowed.includes(file.mimetype) || file.originalname.toLowerCase().endsWith('.csv')) {

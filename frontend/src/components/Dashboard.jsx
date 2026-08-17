@@ -40,7 +40,8 @@ function Dashboard() {
 
     useEffect(() => {
         loadData();
-        const interval = setInterval(loadRequests, 10000);
+        // Poll every 30 s (was 10 s) — reduces API load to avoid rate limits
+        const interval = setInterval(loadRequests, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -104,7 +105,10 @@ function Dashboard() {
                 });
             }
         } catch (error) {
-            console.error('Failed to load requests:', error);
+            // Suppress 429 noise — rate limit is transient, next poll will succeed
+            if (error?.response?.status !== 429) {
+                console.error('Failed to load requests:', error);
+            }
         }
     };
 

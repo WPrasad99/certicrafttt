@@ -498,3 +498,79 @@ body {
     height: auto;
   }
 }
+
+/* ================================================================
+   ACTIVITY CHART CARD (db-card, db-chart-body, db-chart-controls)
+   These classes are used by ActivityChart.jsx / SkeletonCard.jsx.
+   Without an explicit height on db-chart-body Recharts reports -1×-1.
+   ================================================================ */
+.db-card {
+  background: var(--um-card-white);
+  border-radius: var(--um-radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--um-shadow-soft);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.db-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.db-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--um-text-dark);
+  letter-spacing: -0.2px;
+}
+
+.db-card__subtitle {
+  font-size: 12px;
+  color: var(--um-text-mid);
+  margin-top: 3px;
+}
+
+/* Chart body — must have an explicit height so ResponsiveContainer
+   can compute its dimensions (height="100%" requires a pixel parent). */
+.db-chart-body {
+  width: 100%;
+  height: 300px;
+  min-height: 200px;
+}
+
+/* Time-range filter buttons */
+.db-chart-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.db-time-btn {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: var(--um-text-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.db-time-btn:hover {
+  background: var(--um-bg-app);
+  color: var(--um-text-dark);
+}
+
+.db-time-btn.active {
+  background: var(--um-sidebar-bg);
+  color: #fff;
+  border-color: var(--um-sidebar-bg);
+}
+
+@media (max-width: 640px) {
+  .db-chart-body {
+    height: 220px;
+  }
+}
