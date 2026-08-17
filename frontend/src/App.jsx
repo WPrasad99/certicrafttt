@@ -7,7 +7,7 @@ import OAuthCallback from "./components/OAuthCallback";
 import CertificateVerification from "./components/CertificateVerification";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./components/LandingPage";
-import LoadingOverlay from "./components/LoadingOverlay";
+import InitialVideoLoader from "./components/InitialVideoLoader";
 import "./index.css";
 
 function App() {
@@ -23,7 +23,7 @@ function App() {
 
   return (
     <>
-      {initialLoading && <LoadingOverlay />}
+      {initialLoading && <InitialVideoLoader />}
       <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
